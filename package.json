@@ -1,0 +1,131 @@
+{
+  "name": "native-urbit",
+  "productName": "native-urbit",
+  "version": "1.0.0",
+  "description": "My Electron application description",
+  "main": ".webpack/main",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "eslint --ext .ts ."
+  },
+  "keywords": [],
+  "author": {
+    "name": "Hunter Miller",
+    "email": "hunter@hmiller.dev"
+  },
+  "license": "MIT",
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "extraResource": "resources",
+        "icon": "icons/urbit-logo"
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "native_urbit"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ],
+      "plugins": [
+        [
+          "@electron-forge/plugin-webpack",
+          {
+            "mainConfig": "./src/main/webpack.main.config.js",
+            "renderer": {
+              "config": "./src/renderer/webpack.renderer.config.js",
+              "entryPoints": [
+                {
+                  "name": "main_window",
+                  "html": "./src/renderer/index.html",
+                  "js": "./src/renderer/renderer.tsx",
+                  "preload": {
+                    "js": "./src/renderer/client/preload.ts"
+                  }
+                },
+                {
+                  "html": "./src/background/server/server.html",
+                  "js": "./src/background/main.ts",
+                  "name": "background_window"
+                },
+                {
+                  "js": "./src/background/main.ts",
+                  "name": "background"
+                }
+              ]
+            }
+          }
+        ]
+      ]
+    }
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.54",
+    "@electron-forge/maker-deb": "^6.0.0-beta.54",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.54",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.54",
+    "@electron-forge/maker-zip": "^6.0.0-beta.54",
+    "@electron-forge/plugin-webpack": "6.0.0-beta.54",
+    "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
+    "@types/async": "^3.2.5",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.1",
+    "@types/react-router-dom": "^5.1.7",
+    "@typescript-eslint/eslint-plugin": "^4.0.1",
+    "@typescript-eslint/parser": "^4.0.1",
+    "autoprefixer": "^10.2.4",
+    "css-loader": "^4.2.1",
+    "cssnano": "^4.1.10",
+    "electron": "11.2.3",
+    "eslint": "^7.6.0",
+    "eslint-plugin-import": "^2.20.0",
+    "file-loader": "^6.2.0",
+    "fork-ts-checker-webpack-plugin": "^5.0.14",
+    "mini-css-extract-plugin": "^1.3.6",
+    "node-loader": "^1.0.1",
+    "postcss": "^8.2.6",
+    "postcss-import": "^14.0.0",
+    "postcss-loader": "^4.2.0",
+    "postcss-preset-env": "^6.7.0",
+    "style-loader": "^1.2.1",
+    "tailwindcss": "^2.0.3",
+    "ts-loader": "^8.0.2",
+    "typescript": "^4.0.2"
+  },
+  "dependencies": {
+    "app-root-dir": "^1.0.2",
+    "axios": "^0.21.1",
+    "electron-is-dev": "^1.2.0",
+    "electron-root-path": "^1.0.16",
+    "electron-squirrel-startup": "^1.0.0",
+    "nedb": "^1.8.0",
+    "nedb-async": "^0.1.6",
+    "node-ipc": "^9.1.3",
+    "query-string": "^6.14.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-hook-form": "^6.15.1",
+    "react-hot-loader": "^4.13.0",
+    "react-query": "^3.9.2",
+    "react-router-dom": "^5.2.0",
+    "zustand": "^3.3.1"
+  }
+}

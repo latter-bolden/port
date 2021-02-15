@@ -1,0 +1,14 @@
+{"name":"test","default":true,"directory":"/Users/hunter/comets","type":"comet","slug":"test","lastUsed":"2021-02-14T21:09:48.801Z","running":false,"booted":false,"_id":"26gLWmRrO2K1PBN5"}
+{"name":"tear you apart","default":true,"directory":"/Users/hunter/comets","type":"comet","slug":"tear-you apart","lastUsed":"2021-02-15T19:45:11.287Z","running":true,"booted":true,"_id":"3iJmgk99YygKHaWK","webPort":"8080","loopbackPort":"12322"}
+{"name":"nocsyx","default":true,"directory":"/Users/hunter/comets","type":"comet","slug":"nocsyx","lastUsed":"2021-02-15T17:35:06.057Z","running":false,"booted":false,"_id":"8UmgQqfce70P265P"}
+{"name":"sav","default":true,"directory":"/Users/hunter/comets","type":"comet","slug":"sav","lastUsed":"2021-02-14T01:07:50.845Z","running":false,"booted":false,"_id":"9gVZYvlnPgZWWn7b"}
+{"name":"urby","default":true,"directory":"/Users/hunter/comets","slug":"urby","lastUsed":"2021-02-13T23:32:55.695Z","running":false,"booted":false,"_id":"CGgh1qeWJvBvQkaa"}
+{"name":"anima","default":true,"directory":"/Users/hunter/comets","slug":"anima","lastUsed":"2021-02-13T20:54:31.668Z","running":false,"booted":false,"_id":"FLoMIxrYBb0zafXo"}
+{"name":"emily","default":true,"directory":"/Users/hunter/comets","type":"comet","slug":"emily","lastUsed":"2021-02-14T06:54:22.109Z","running":false,"booted":false,"_id":"GKB8RvdNwGQIKfNz"}
+{"name":"lassul","default":true,"directory":"/Users/hunter/comets","type":"comet","slug":"lassul","lastUsed":"2021-02-15T17:43:00.037Z","running":true,"booted":true,"_id":"SioVkQB1XB1s3YPr","webPort":"80","loopbackPort":"12321"}
+{"name":"willow","default":true,"directory":"/Users/hunter/comets","type":"comet","slug":"willow","lastUsed":"2021-02-13T23:49:44.174Z","running":false,"booted":false,"_id":"ZacvjpPTP0iIOwLz"}
+{"name":"soul","default":true,"directory":"/Users/hunter/comets","slug":"soul","lastUsed":"2021-02-13T21:30:21.308Z","running":false,"booted":false,"_id":"gix2cT2KxT0p3dYV"}
+{"name":"test","default":true,"directory":"/Users/hunter/comets","slug":"test","lastUsed":"2021-02-13T22:12:15.381Z","running":false,"booted":false,"_id":"jreDNkPnyyF8nbpe"}
+{"name":"aleph","default":true,"directory":"/Users/hunter/comets","type":"comet","slug":"aleph","lastUsed":"2021-02-14T01:20:32.154Z","running":true,"booted":true,"_id":"mvSAkn8w83cfqN24","webPort":"8081","loopbackPort":"12323"}
+{"name":"something","default":true,"directory":"/Users/hunter/comets","type":"comet","slug":"something","lastUsed":"2021-02-14T03:05:40.826Z","running":true,"booted":true,"_id":"v5Ysbj9y9xQ6XNcb","webPort":"8082","loopbackPort":"12324"}
+{"name":"urbon","default":true,"directory":"/Users/hunter/comets","type":"comet","slug":"urbon","lastUsed":"2021-02-13T23:43:08.948Z","running":false,"booted":false,"_id":"vPXAZjEMlR5zRinG"}
