@@ -31,3 +31,9 @@ The urbit binaries for each respective OS should live in the `resources` folder 
 **Windows**
 
 The current plan for Windows is to run `containerd` and run Urbit inside a Docker container. No work has been done here yet though.
+
+## Screenshots
+![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-02-15%20at%2011.34.00%20AM.png)  
+![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-02-15%20at%2011.34.25%20AM.png)
+![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-02-15%20at%2011.43.17%20AM.png)
+![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-02-15%20at%2011.48.21%20AM.png)
