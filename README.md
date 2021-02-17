@@ -1,6 +1,8 @@
-# Taisho, Star-captain, Mothership, aka Urbit Desktop
+# Taisho, Star-captain, Mothership, aka Urbit Desktop (ALPHA)
 
 Not sure what name to pick haha.
+
+![Mothership](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/BALEEN%20CLASS_PATREON_190519.jpg)
 
 ## Intro
 
