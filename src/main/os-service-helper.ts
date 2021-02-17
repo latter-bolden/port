@@ -1,24 +1,29 @@
-import { BrowserWindow, dialog, ipcMain, IpcMainEvent } from 'electron'
+import { BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent } from 'electron'
 
-async function openDialog(event: IpcMainEvent, options: Electron.OpenDialogOptions) {
-    const result = await dialog.showOpenDialog({
+async function openDialog(event: IpcMainInvokeEvent, options: Electron.OpenDialogOptions) {
+    return await dialog.showOpenDialog({
         title: 'Select a Directory',
         properties: ['openDirectory', 'createDirectory'],
         ...options
     });
-
-    event.returnValue = result
 }
 
-async function setTitle(window: BrowserWindow, event:IpcMainEvent, title: string) {
+function setTitle(window: BrowserWindow, event: IpcMainInvokeEvent, title: string) {
     window.setTitle(title)
+    return title;
+}
 
-    event.returnValue = title
+async function clearData(window: BrowserWindow) {
+    const session = window.webContents.session;
+    //possibly clear everything not sure what's the issue
+    //await session.clearAuthCache()
+    await session.clearCache()
+    await session.clearStorageData()
+    //await session.clearHostResolverCache()
 }
 
 export function start(mainWindow: BrowserWindow): void {
-    ipcMain.on('open-dialog', openDialog)
-    ipcMain.on('set-title', (event, args) => {
-        setTitle(mainWindow, event, args);
-    })
+    ipcMain.handle('open-dialog', openDialog)
+    ipcMain.handle('set-title', (event, args) => setTitle(mainWindow, event, args))
+    ipcMain.handle('clear-data', () => clearData(mainWindow))
 }

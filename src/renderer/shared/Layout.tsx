@@ -39,7 +39,7 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, classN
             <main className={`mt-10 ${className}`}>
                 { children }
             </main>
-            <footer className="h-8 py-2">
+            <footer className="flex items-center h-8 py-2">
                 { footer }
                 {isDev &&
                     <div className="fixed right-2 bottom-2 leading-none">

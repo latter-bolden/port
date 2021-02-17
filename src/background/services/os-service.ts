@@ -4,18 +4,20 @@ import { ipcRenderer as ipc} from 'electron'
 export interface OSHandlers {
     'get-directory': OSService['getDirectory'];
     'set-title': OSService['setTitle'];
+    'clear-data': OSService['clearData'];
 }
 
 export class OSService {
     handlers(): HandlerEntry<OSHandlers>[] {
         return [
             { name: 'get-directory', handler: this.getDirectory.bind(this) },
-            { name: 'set-title', handler: this.setTitle.bind(this) }
+            { name: 'set-title', handler: this.setTitle.bind(this) },
+            { name: 'clear-data', handler: this.clearData.bind(this) }
         ]
     }
 
     async getDirectory(options: Electron.OpenDialogOptions): Promise<string | undefined> {
-        const result = await ipc.sendSync('open-dialog', options)
+        const result = await ipc.invoke('open-dialog', options)
 
         if (result.canceled)
             return undefined;
@@ -26,9 +28,13 @@ export class OSService {
     }
 
     async setTitle(title: string): Promise<string> {
-        await ipc.sendSync('set-title', title)
+        await ipc.invoke('set-title', title)
 
         return title;
+    }
+
+    async clearData(): Promise<void> {
+        await ipc.invoke('clear-data')
     }
 }
 

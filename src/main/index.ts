@@ -12,7 +12,7 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
   app.quit();
 }
 
-async function createWindow(socketName: string): Promise<BrowserWindow> {
+async function createWindow(socketName: string): Promise<void> {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     height: 800,
@@ -24,18 +24,18 @@ async function createWindow(socketName: string): Promise<BrowserWindow> {
     }
   });
   // Open the DevTools. isDev && 
-  mainWindow.webContents.openDevTools();
+  isDev && mainWindow.webContents.openDevTools();
   await mainWindow.webContents.session.clearStorageData();
+  await mainWindow.webContents.session.clearCache();
   mainWindow.webContents.on('dom-ready', () => {
     mainWindow.webContents.send('set-socket', {
       name: socketName
     });
   })
   
+  osHelperStart(mainWindow)
   // and load the index.html of the app.
   await mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-
-  return mainWindow
 }
 
 function createBackgroundWindow(socketName: string) {
@@ -53,7 +53,7 @@ function createBackgroundWindow(socketName: string) {
     }
   })
   win.loadURL(BACKGROUND_WINDOW_WEBPACK_ENTRY)
-  win.webContents.openDevTools();
+  isDev && win.webContents.openDevTools();
   win.webContents.on('did-finish-load', () => {
     win.webContents.send('set-socket', { name: socketName })
   })
@@ -77,7 +77,6 @@ async function start(bootBg: boolean) {
   const serverSocket = await findOpenSocket()
 
   const main = await createWindow(serverSocket)
-  osHelperStart(main)
   if (bootBg) {
     createBackgroundWindow(serverSocket)
   }

@@ -1,13 +1,19 @@
 import React, { useEffect } from 'react'
-import { useMutation } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 import { Link, useParams } from 'react-router-dom'
 import { send } from '../client/ipc'
 import { RightArrow } from '../icons/RightArrow'
 import { Layout } from '../shared/Layout'
+import { Spinner } from '../shared/Spinner'
 
 export const CometBoot = () => {
+    const queryClient = useQueryClient()
     const { slug } = useParams<{ slug: string }>();
-    const { mutate, isIdle, isLoading, isSuccess } = useMutation(async (slug: string) => await send('boot-pier', slug))
+    const { mutate, isIdle, isLoading, isSuccess } = useMutation(async (slug: string) => await send('boot-pier', slug), {
+        onSuccess: () => {
+            queryClient.invalidateQueries(['pier', slug])
+        }
+    })
 
     useEffect(() => {
         if (!slug)
@@ -25,10 +31,7 @@ export const CometBoot = () => {
             <section className="flex items-center max-w-xl">                   
                 {(isIdle || isLoading) &&
                     <div className="flex items-center">
-                        <span className="flex-none inline-block relative h-24 w-24 mr-6">
-                            <span className="block absolute w-full h-full border-2 border-transparent border-t-gray-300 rounded-full animate-spin"></span>
-                            <span className="block relative w-full h-full border border-gray-700 rounded-full"></span>
-                        </span>
+                        <Spinner className="h-24 w-24 mr-6" />
                         <div className="flex-1">
                             <h1 className="font-semibold">Booting Comet...</h1>
                             <div className="text-gray-600">This could take an hour, but more likely 5-10 minutes.</div>

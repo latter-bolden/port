@@ -21,10 +21,10 @@ export const Welcome = () => {
                 <nav>
                     <ul className="grid gap-8 grid-cols-2">
                         <li>
-                            <Link to="/boot/planet" className="block w-full p-4 border border-gray-700 hover:border-white focus:border-white transition-colors rounded">
-                                <strong className="block font-semibold mb-2">Have an ID already?</strong>
-                                <span className="text-gray-300">Boot your planet with the key or pier</span>
-                            </Link>
+                            <div className="block w-full p-4 text-gray-700 border border-gray-700 rounded">
+                                <strong className="block font-semibold mb-2">Coming Soon™ {/*Have an ID already?*/}</strong>
+                                <span>Boot your planet with the key or pier</span>
+                            </div>
                         </li>
                         <li>
                             <Link to="/boot/comet" className="block w-full p-4 border border-gray-700 hover:border-white focus:border-white transition-colors rounded">
@@ -40,7 +40,10 @@ export const Welcome = () => {
                         <ul>
                             {piers.sort((a,b) => b.lastUsed.localeCompare(a.lastUsed)).map(pier => (
                                 <li key={pier.slug}>
-                                    <Link className="group flex items-center px-2 py-1 border-b border-gray-700 hover:border-white focus:border-white focus:outline-none transition-colors no-underline" to={`/pier/launch/${pier.slug}`}>
+                                    <Link 
+                                        className="group flex items-center px-2 py-1 border-b border-gray-700 hover:border-white focus:border-white focus:outline-none transition-colors no-underline" to={`/pier/launch/${pier.slug}`} 
+                                        onClick={async () => await send('clear-data')}
+                                    >
                                         {pier.name}
                                         <RightArrow className="ml-auto w-7 h-7" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" />
                                     </Link>

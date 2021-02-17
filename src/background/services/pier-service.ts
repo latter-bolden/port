@@ -22,13 +22,16 @@ export interface PierHandlers {
     'get-piers': PierService["getPiers"]
     'get-pier-auth': PierService["getPierAuth"]
     'boot-pier': PierService["bootPier"]
+    'resume-pier': PierService["resumePier"]
 }
 
 export class PierService {
     private readonly db: DB;
+    private readonly urbitPath: string;
 
     constructor(db: DB) {
         this.db = db;
+        this.urbitPath = joinPath(binariesPath, 'urbit');
     }
 
     handlers(): HandlerEntry<PierHandlers>[] {
@@ -38,6 +41,7 @@ export class PierService {
             { name: 'get-piers', handler: this.getPiers.bind(this) },
             { name: 'get-pier-auth', handler: this.getPierAuth.bind(this) },
             { name: 'boot-pier', handler: this.bootPier.bind(this) },
+            { name: 'resume-pier', handler: this.resumePier.bind(this) }
         ]
     }
 
@@ -64,6 +68,11 @@ export class PierService {
         const username = await this.dojo(loopback, 'our');
         const code = await this.dojo(loopback, '+code');
 
+        await this.db.piers.asyncUpdate({ slug: pier.slug }, {
+            ...pier,
+            shipName: username
+        })
+
         return {
             username,
             code
@@ -83,36 +92,81 @@ export class PierService {
         return await res.data
     }
 
+    async checkPier(pier: Pier): Promise<Pier> {
+        const loopback = `http://localhost:${pier.loopbackPort}`
+
+        const update = async (): Promise<Pier> => {
+            const updatedPier = { ...pier, running: false }
+            await this.db.piers.asyncUpdate({ slug: pier.slug }, updatedPier)
+            return updatedPier
+        }
+
+        try {
+            const check = await this.dojo(loopback, 'our')
+            if (check && pier.running && check === pier.shipName) {
+                return pier
+            }
+
+            return await update();
+        } catch (err) {
+            return await update();
+        }
+    }
+
+    async resumePier(pier: Pier): Promise<Pier | null> {
+        const accuratePier = await this.checkPier(pier)
+        if (accuratePier.running)
+            return accuratePier;
+
+        const ports = await this.spawnUrbit(accuratePier.slug, accuratePier.directory, false)
+        const updatedPier = {
+            ...accuratePier,
+            webPort: ports.web,
+            loopbackPort: ports.loopback,
+            running: true
+        }
+        
+        await this.db.piers.asyncUpdate({ slug: pier.slug }, updatedPier)
+
+        return updatedPier;
+    }
+
     async bootPier(slug: string): Promise<Pier | null> {
         const pier = await this.getPier(slug);
 
         if (!pier || pier.booted)
             return null;
 
-        const urbitPath = this.getUrbitPath();
         if (pier.type === 'comet') {
-            const ports = await this.spawnUrbit(urbitPath, pier.slug, pier.directory)
+            const ports = await this.spawnUrbit(pier.slug, pier.directory, true)
             //make sure OTAs start
             //this.dojo(`http://localhost:${ports.loopback}`, '|ota (sein:title our now our) %kids')
-            const updatedPier = await this.db.piers.asyncUpdate({ slug: pier.slug }, {
+            const shipName = await this.dojo(`http://localhost:${ports.loopback}`, 'our')
+            const updatedPier = {
                 ...pier,
+                shipName,
                 webPort: ports.web,
                 loopbackPort: ports.loopback,
                 running: true,
                 booted: true
-            })
+            }
+            
+            await this.db.piers.asyncUpdate({ slug: pier.slug }, updatedPier, {})
 
-            return updatedPier as Pier;
+            return updatedPier;
         }
 
         return null
     }
 
-    private spawnUrbit(urbitPath: string, pierSlug: string, pierPath: string): Promise<{ loopback: number, web: number } | null> {
-        const urbit = spawn(urbitPath, ['-ct', pierSlug], { cwd: pierPath });
-        const webPattern = /^http:\s+web interface live on http:\/\/localhost:(\d+)/
-        const loopbackPattern = /^http:\s+loopback live on http:\/\/localhost:(\d+)/
+    private spawnUrbit(pierSlug: string, pierPath: string, isNew: boolean): Promise<{ loopback: number, web: number } | null> {
+        const flags = `-t${isNew ? 'c' : ''}`
+        const urbit = spawn(this.urbitPath, [flags, pierSlug], { cwd: pierPath });
+        const webPattern = /http:\s+web interface live on http:\/\/localhost:(\d+)/
+        const loopbackPattern = /http:\s+loopback live on http:\/\/localhost:(\d+)/
         let web, loopback;
+
+        console.log('spawning', pierSlug, 'with flags', flags)
 
         return new Promise((resolve, reject) => {
             urbit.on('close', (code) => {
@@ -150,10 +204,6 @@ export class PierService {
             })
         })
     }
-
-    private getUrbitPath(): string {
-        return joinPath(binariesPath, 'urbit');
-    }
 }
 
 type PierType = 'comet' | 'planet';
@@ -167,6 +217,7 @@ export interface Pier {
     booted: boolean;
     running: boolean;
     default: boolean;
+    shipName?: string;
     webPort?: number;
     loopbackPort?: number;
 }
