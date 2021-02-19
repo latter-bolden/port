@@ -34,7 +34,7 @@ export const Welcome = () => {
                         </li>
                     </ul>
                 </nav>
-                {piers &&
+                {piers && piers.length > 0 &&
                     <nav className="max-w-md mx-auto mt-10">
                         <h2 className="font-semibold px-2">Ships</h2>
                         <ul>

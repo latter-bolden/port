@@ -1,7 +1,6 @@
 import React from 'react'
 import { useQuery } from 'react-query'
 import { Link, useParams } from 'react-router-dom'
-import { Pier } from '../../background/services/pier-service'
 import { send } from '../client/ipc'
 import { LeftArrow } from '../icons/LeftArrow'
 import { Layout } from '../shared/Layout'
@@ -9,7 +8,6 @@ import { Spinner } from '../shared/Spinner'
 
 export const Launch = () => {
     const { slug } = useParams<{ slug: string }>()
-    debugger;
     const { data: pier, isLoading, isSuccess } = useQuery(['pier', slug], 
         async () => {
             const pier = await send('get-pier', slug)

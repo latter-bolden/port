@@ -5,6 +5,8 @@ import { Welcome } from './pages/Welcome'
 import { CometIndex } from './pages/CometIndex';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Launch } from './pier/Launch';
+import { ErrorBoundary } from 'react-error-boundary';
+import { ErrorPage } from './pages/ErrorPage';
 
 const queryClient = new QueryClient();
 
@@ -12,11 +14,13 @@ const App = () => {
     return (
         <QueryClientProvider client={queryClient}>
             <HashRouter>
-                <Switch>
-                    <Route path="/pier/launch/:slug" component={Launch} />
-                    <Route path="/boot/comet" component={CometIndex}/>
-                    <Route exact path="/" component={Welcome}/>
-                </Switch>
+                <ErrorBoundary fallbackRender={ErrorPage}>
+                    <Switch>
+                        <Route path="/pier/launch/:slug" component={Launch} />
+                        <Route path="/boot/comet" component={CometIndex}/>
+                        <Route exact path="/" component={Welcome}/>
+                    </Switch>
+                </ErrorBoundary>
             </HashRouter>
         </QueryClientProvider>
     );

@@ -22,8 +22,14 @@ async function clearData(window: BrowserWindow) {
     //await session.clearHostResolverCache()
 }
 
-export function start(mainWindow: BrowserWindow): void {
+async function toggleDevTools(mainWindow: BrowserWindow, bgWindow?: BrowserWindow) {
+    mainWindow.webContents.toggleDevTools()
+    bgWindow && bgWindow.webContents.toggleDevTools()
+}
+
+export function start(mainWindow: BrowserWindow, bgWindow?: BrowserWindow): void {
     ipcMain.handle('open-dialog', openDialog)
     ipcMain.handle('set-title', (event, args) => setTitle(mainWindow, event, args))
     ipcMain.handle('clear-data', () => clearData(mainWindow))
+    ipcMain.handle('toggle-dev-tools', () => toggleDevTools(mainWindow, bgWindow))
 }

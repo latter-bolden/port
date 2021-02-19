@@ -5,6 +5,7 @@ export interface OSHandlers {
     'get-directory': OSService['getDirectory'];
     'set-title': OSService['setTitle'];
     'clear-data': OSService['clearData'];
+    'toggle-dev-tools': OSService['toggleDevTools'];
 }
 
 export class OSService {
@@ -12,7 +13,8 @@ export class OSService {
         return [
             { name: 'get-directory', handler: this.getDirectory.bind(this) },
             { name: 'set-title', handler: this.setTitle.bind(this) },
-            { name: 'clear-data', handler: this.clearData.bind(this) }
+            { name: 'clear-data', handler: this.clearData.bind(this) },
+            { name: 'toggle-dev-tools', handler: this.toggleDevTools.bind(this) }
         ]
     }
 
@@ -35,6 +37,10 @@ export class OSService {
 
     async clearData(): Promise<void> {
         await ipc.invoke('clear-data')
+    }
+
+    async toggleDevTools(): Promise<void> {
+        await ipc.invoke('toggle-dev-tools')
     }
 }
 

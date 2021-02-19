@@ -12,7 +12,7 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
   app.quit();
 }
 
-async function createWindow(socketName: string): Promise<void> {
+async function createWindow(socketName: string, bgWindow?: BrowserWindow): Promise<void> {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     height: 800,
@@ -23,8 +23,7 @@ async function createWindow(socketName: string): Promise<void> {
       enableRemoteModule: true,
     }
   });
-  // Open the DevTools. isDev && 
-  isDev && mainWindow.webContents.openDevTools();
+
   await mainWindow.webContents.session.clearStorageData();
   await mainWindow.webContents.session.clearCache();
   mainWindow.webContents.on('dom-ready', () => {
@@ -33,7 +32,7 @@ async function createWindow(socketName: string): Promise<void> {
     });
   })
   
-  osHelperStart(mainWindow)
+  osHelperStart(mainWindow, bgWindow)
   // and load the index.html of the app.
   await mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 }
@@ -53,33 +52,22 @@ function createBackgroundWindow(socketName: string) {
     }
   })
   win.loadURL(BACKGROUND_WINDOW_WEBPACK_ENTRY)
-  isDev && win.webContents.openDevTools();
   win.webContents.on('did-finish-load', () => {
     win.webContents.send('set-socket', { name: socketName })
   })
+
+  return win;
 }
-
-// function createBackgroundProcess(socketName: string) {
-//   serverProcess = fork('.webpack/renderer/background/index.js', [
-//     '--subprocess',
-//     app.getVersion(),
-//     socketName
-//   ], {
-//     execArgv: ['--inspect']
-//   })
-
-//   serverProcess.on('message', msg => {
-//     console.log(msg)
-//   })
-// }
 
 async function start(bootBg: boolean) {
   const serverSocket = await findOpenSocket()
+  let bgWindow;
 
-  const main = await createWindow(serverSocket)
   if (bootBg) {
-    createBackgroundWindow(serverSocket)
+    bgWindow = createBackgroundWindow(serverSocket)
   }
+
+  await createWindow(serverSocket, bgWindow)
 }
 
 // This method will be called when Electron has finished
