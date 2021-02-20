@@ -3,7 +3,7 @@ import { spawn } from 'child_process';
 import axios from 'axios'
 import { DB } from '../db'
 import { HandlerEntry } from '../server/ipc';
-import getPlatform from './get-platform';
+import getPlatform from '../../get-platform';
 import { rootPath as root } from 'electron-root-path';
 import appRootDir from 'app-root-dir'
 
