@@ -24,7 +24,16 @@ async function clearData(window: BrowserWindow) {
 
 async function toggleDevTools(mainWindow: BrowserWindow, bgWindow?: BrowserWindow) {
     mainWindow.webContents.toggleDevTools()
-    bgWindow && bgWindow.webContents.toggleDevTools()
+
+    if (bgWindow) {
+        if (bgWindow.isVisible()) {
+            bgWindow.hide()
+        } else {
+            bgWindow.show()
+        }
+
+        bgWindow.webContents.toggleDevTools()
+    }
 }
 
 export function start(mainWindow: BrowserWindow, bgWindow?: BrowserWindow): void {

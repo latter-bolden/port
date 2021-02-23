@@ -3,8 +3,6 @@ import { ClientMessage, Reply, Error, ServerMessage } from '../../background/ser
 import { v4 } from 'uuid'
 import { Handlers } from '../../background/main';
 
-const isDev = process.env.NODE_ENV === 'development';
-
 type Listener = (args: unknown) => unknown;
 
 interface ReplyHandler {
@@ -16,7 +14,7 @@ interface ReplyHandler {
 export async function init(): Promise<void> {
     const socketName = await window.getServerSocket()
     await connectSocket(socketName)
-    isDev && console.log(Date.now(), 'client connected', 'socket:', socketName)
+    console.log(Date.now(), 'client connected', 'socket:', socketName)
 }
 
 // State
@@ -42,7 +40,7 @@ export async function connectSocket(name: string): Promise<void> {
 
 function onMessage(data: string): void {
     const msg: ClientMessage = JSON.parse(data)
-    isDev && console.log(Date.now(), 'client received:', msg);
+    console.log(Date.now(), 'client received:', msg);
 
     if (msg.type === 'error' || msg.type === 'reply') {
         handleResponse(msg);
@@ -91,7 +89,7 @@ export function send<T extends keyof Handlers>(name: T, ...args: Parameters<Hand
         const msg: ServerMessage<Handlers> = { id, name, args };
         const stringMsg = JSON.stringify(msg);
 
-        isDev && console.log(Date.now(), 'client sending:', msg);
+        console.log(Date.now(), 'client sending:', msg);
         
         replyHandlers.set(id, { resolve, reject })
 

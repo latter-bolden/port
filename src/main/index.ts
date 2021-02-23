@@ -51,6 +51,10 @@ function createBackgroundWindow(socketName: string) {
       webSecurity: false
     }
   })
+
+  //make sure isVisible is false for devtools toggle
+  win.hide()
+
   win.loadURL(BACKGROUND_WINDOW_WEBPACK_ENTRY)
   win.webContents.on('did-finish-load', () => {
     win.webContents.send('set-socket', { name: socketName })

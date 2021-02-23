@@ -1,9 +1,9 @@
 import { AsyncNedb } from 'nedb-async'
 import { remote } from 'electron';
 import { Pier } from '../services/pier-service';
-const userData = remote.app.getAppPath();
+const userData = remote.app.getPath('userData');
 
-console.log(userData)
+console.log('db location:', userData)
 
 export interface SettingsDocument {
     name: string;
