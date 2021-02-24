@@ -1,25 +1,29 @@
 const path = require('path');
-const fs = require('fs');
 const fse = require('fs-extra');
 const getPlatform = require('./src/get-platform');
 const AppRootDir = require('app-root-dir');
+require('dotenv').config()
 
 module.exports = {
   packagerConfig: {
-    //extraResource: "resources",
-    icon: "icons/urbit-logo"
+    appBundleId: 'dev.hmiller.taisho',
+    icon: "icons/urbit-logo",
+    osxSign: {
+      identity: 'Developer ID Application: Hunter Miller (8YA38DLJ3T)',
+      "entitlements": "entitlements.plist",
+      "entitlements-inherit": "entitlements.plist",
+      'hardened-runtime': true,
+      'gatekeeper-assess': false,
+      'signature-flags': 'library',
+    },
+    osxNotarize: {
+      appleId: process.env.APPLE_ID,
+      appleIdPassword: process.env.APPLE_ID_PASSWORD,
+      ascProvider: '8YA38DLJ3T'
+    }
   },
   hooks: {
     packageAfterCopy: (forgeConfig, buildPath, electronVersion, platform) => {
-      //console.log({ buildPath, electronVersion, arch, platform, })
-
-      // const os = ['linux', 'mac', 'win'].filter(target => target !== getPlatform(platform))
-      // const dirPath = (os) => path.resolve(buildPath, `../resources/${os}`)
-      // os.forEach(osDir => {
-      //   const dir = dirPath(osDir)
-      //   console.log(dir)
-      //   fs.rmSync(dir, { recursive: true })
-      // })
       const os = getPlatform(platform)
       fse.copySync(path.join(AppRootDir.get(), 'resources', os), path.resolve(buildPath, '..', 'resources', os))
       console.log({ platform, os })
@@ -30,6 +34,13 @@ module.exports = {
       name: "@electron-forge/maker-squirrel",
       config: {
         name: "taisho"
+      }
+    },
+    {
+      name: '@electron-forge/maker-dmg',
+      config: {
+        name: "taisho",
+        icon: "icons/urbit-logo.icns"
       }
     },
     {
