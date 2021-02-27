@@ -1,4 +1,4 @@
-# Taisho, Star-captain, Mothership, aka Urbit Desktop (ALPHA)
+# Taisho/Mothership aka Urbit Desktop (ALPHA)
 
 Not sure what name to pick haha.
 
@@ -7,6 +7,16 @@ Not sure what name to pick haha.
 ## Intro
 
 This app allows you to spin up, access, and manage your ships whether they are comets, planets or potentially stars. It gives people the ability to immediately download and run Urbit without any knowledge of the command line.
+
+## Screenshots
+![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-02-15%20at%2011.34.00%20AM.png)  
+![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-02-15%20at%2011.34.25%20AM.png)
+![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-02-15%20at%2011.43.17%20AM.png)
+![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-02-15%20at%2011.48.21%20AM.png)
+
+## Installing
+
+Head over to [releases](https://github.com/arthyn/taisho/releases) and download the installer from the latest release. Currently only available for MacOS and Linux.
 
 ## Architecture
 
@@ -30,10 +40,4 @@ The urbit binaries for each respective OS should live in the `resources` folder 
 
 **Windows**
 
-The current plan for Windows is to run `containerd` and run Urbit inside a Docker container. No work has been done here yet though.
-
-## Screenshots
-![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-02-15%20at%2011.34.00%20AM.png)  
-![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-02-15%20at%2011.34.25%20AM.png)
-![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-02-15%20at%2011.43.17%20AM.png)
-![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-02-15%20at%2011.48.21%20AM.png)
+The current plan for Windows is to initiate an install of WSL for the user and standup the AlpineWSL distro for speed. No work has been done here yet though.
