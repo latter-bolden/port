@@ -1,6 +1,6 @@
 const path = require('path');
 const fse = require('fs-extra');
-const getPlatform = require('./src/get-platform');
+const gp = require('./src/get-platform');
 const AppRootDir = require('app-root-dir');
 require('dotenv').config()
 
@@ -24,8 +24,8 @@ module.exports = {
   },
   hooks: {
     packageAfterCopy: (forgeConfig, buildPath, electronVersion, platform) => {
-      const os = getPlatform(platform)
-      fse.copySync(path.join(AppRootDir.get(), 'resources', os), path.resolve(buildPath, '../../Frameworks', 'resources', os), {
+      const os = gp.getPlatform(platform)
+      fse.copySync(path.join(AppRootDir.get(), 'resources', os), path.resolve(buildPath, ...gp.getPlatformPathSegments(os), 'resources', os), {
         filter: (src) => !src.includes('.gitignore')
       })
       console.log({ platform, os })

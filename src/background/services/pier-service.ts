@@ -3,16 +3,17 @@ import { spawn } from 'child_process';
 import axios from 'axios'
 import { DB } from '../db'
 import { HandlerEntry } from '../server/ipc';
-import getPlatform from '../../get-platform';
+import { getPlatform, getPlatformPathSegments} from '../../get-platform';
 import { rootPath as root } from 'electron-root-path';
 import appRootDir from 'app-root-dir'
 
 const IS_PROD = process.env.NODE_ENV === 'production';
+const platform = getPlatform();
 
 const binariesPath =
   IS_PROD // the path to a bundled electron app.
-    ? joinPath(root, '..', '..', 'Frameworks', 'resources', getPlatform())
-    : joinPath(appRootDir.get(), 'resources', getPlatform());
+    ? joinPath(root, ...getPlatformPathSegments(platform), 'resources', platform)
+    : joinPath(appRootDir.get(), 'resources', platform);
 
 console.log({ root, IS_PROD, binariesPath })
 
