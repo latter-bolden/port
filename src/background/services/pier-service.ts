@@ -11,7 +11,7 @@ const IS_PROD = process.env.NODE_ENV === 'production';
 
 const binariesPath =
   IS_PROD // the path to a bundled electron app.
-    ? joinPath(root, '../resources', getPlatform())
+    ? joinPath(root, '..', '..', 'Frameworks', 'resources', getPlatform())
     : joinPath(appRootDir.get(), 'resources', getPlatform());
 
 console.log({ root, IS_PROD, binariesPath })

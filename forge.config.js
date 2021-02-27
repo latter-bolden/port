@@ -14,7 +14,7 @@ module.exports = {
       "entitlements-inherit": "entitlements.plist",
       'hardened-runtime': true,
       'gatekeeper-assess': false,
-      'signature-flags': 'library',
+      'signature-flags': 'library'
     },
     osxNotarize: {
       appleId: process.env.APPLE_ID,
@@ -25,7 +25,9 @@ module.exports = {
   hooks: {
     packageAfterCopy: (forgeConfig, buildPath, electronVersion, platform) => {
       const os = getPlatform(platform)
-      fse.copySync(path.join(AppRootDir.get(), 'resources', os), path.resolve(buildPath, '..', 'resources', os))
+      fse.copySync(path.join(AppRootDir.get(), 'resources', os), path.resolve(buildPath, '../../Frameworks', 'resources', os), {
+        filter: (src) => !src.includes('.gitignore')
+      })
       console.log({ platform, os })
     }
   },
