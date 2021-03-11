@@ -46,7 +46,7 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, classN
             <main className={`mt-10 ${className}`}>
                 { children }
             </main>
-            <footer className="flex items-center h-8 py-2">
+            <footer className="flex items-center h-8 py-2 z-20">
                 { footer }
                 <div className="fixed right-2 bottom-2 flex justify-end items-center leading-none">
                     <input 

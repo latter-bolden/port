@@ -7,6 +7,7 @@ import { getPlatform, getPlatformPathSegments} from '../../get-platform';
 import { rootPath as root } from 'electron-root-path';
 import appRootDir from 'app-root-dir'
 import find from 'find-process';
+import fs from 'fs'
 
 const IS_PROD = process.env.NODE_ENV === 'production';
 const platform = getPlatform();
@@ -27,6 +28,7 @@ export interface PierHandlers {
     'resume-pier': PierService["resumePier"]
     'check-pier': PierService["checkPier"]
     'stop-pier': PierService["stopPier"]
+    'delete-pier': PierService["deletePier"]
 }
 
 export class PierService {
@@ -47,7 +49,8 @@ export class PierService {
             { name: 'boot-pier', handler: this.bootPier.bind(this) },
             { name: 'resume-pier', handler: this.resumePier.bind(this) },
             { name: 'check-pier', handler: this.checkPier.bind(this) },
-            { name: 'stop-pier', handler: this.stopPier.bind(this) }
+            { name: 'stop-pier', handler: this.stopPier.bind(this) },
+            { name: 'delete-pier', handler: this.deletePier.bind(this) }
         ]
     }
 
@@ -177,6 +180,14 @@ export class PierService {
         await this.stopUrbit(updatedPier.loopbackPort, updatedPier.shipName);
 
         return await this.updatePier({ ...updatedPier, running: false });
+    }
+
+    async deletePier(pier: Pier): Promise<void> {
+        if (pier.type !== 'remote' && fs.existsSync(pier.directory)) {
+            fs.rmdirSync(pier.directory, { recursive: true })
+        }
+
+        await this.db.piers.asyncRemove({ slug: pier.slug })  
     }
 
     private async stopUrbit(loopbackPort: number, shipName: string): Promise<void> {

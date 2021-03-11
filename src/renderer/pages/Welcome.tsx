@@ -39,15 +39,15 @@ export const Welcome = () => {
                     </header>
                     <nav>
                         <h2 className="font-semibold px-2 mb-1">Boot Menu</h2>
-                        <ul className="min-w-52 text-gray-400">
-                            <li>
-                                <Link to="/boot/comet" className="group flex items-center px-2 py-1 border-b border-gray-700 hover:border-white focus:border-white focus:outline-none transition-colors no-underline">
+                        <ul className="min-w-52 divide-y text-gray-400">
+                            <li className="border-gray-700">
+                                <Link to="/boot/comet" className="group flex items-center px-2 py-1 hover:text-white focus:text-white default-ring transition-colors no-underline">
                                     Comet
                                     <RightArrow className="ml-auto w-7 h-7" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" />
                                 </Link>
                             </li>
-                            <li>
-                                <Link to="/boot/remote" className="group flex items-center px-2 py-1 border-b border-gray-700 hover:border-white focus:border-white focus:outline-none transition-colors no-underline">
+                            <li className="group border-gray-700">
+                                <Link to="/boot/remote" className="group flex items-center px-2 py-1 hover:text-white focus:text-white default-ring transition-colors no-underline">
                                     Remote Ship
                                     <RightArrow className="ml-auto w-7 h-7" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" />
                                 </Link>

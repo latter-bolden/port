@@ -19,8 +19,12 @@ export const ShipList = ({ piers }: { piers: Pier[]}) => {
                     <Link to={`/pier/${pier.slug}`} className="ml-auto font-semibold text-gray-500 hover:text-white transition-colors text-sm">
                         Manage
                     </Link>
-                    <Link to={`/pier/${pier.slug}/launch`} className="button py-1 pr-1 ml-4 text-sm font-semibold">
-                        Launch <RightArrow className="ml-1 w-5 h-5" primary="fill-current text-transparent" secondary="fill-current"/>
+                    <Link 
+                        to={`/pier/${pier.slug}/launch`} 
+                        className="button min-w-22 py-1 pr-1 ml-4 text-sm font-semibold"
+                        onClick={async () => await send('clear-data')}
+                    >
+                        { pier.running ? 'Open' : 'Launch' } <RightArrow className="ml-auto w-5 h-5" primary="fill-current text-transparent" secondary="fill-current"/>
                     </Link>
                 </li>
             ))}
