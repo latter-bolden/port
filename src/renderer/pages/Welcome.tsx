@@ -1,7 +1,9 @@
 import React from 'react'
 import { useQuery } from 'react-query'
+import { Link } from 'react-router-dom'
 import { send } from '../client/ipc'
 import { Logo } from '../icons/Logo'
+import { RightArrow } from '../icons/RightArrow'
 import { BootOptions } from '../pier/BootOptions'
 import { ShipList } from '../pier/ShipList'
 import { Layout } from '../shared/Layout'
@@ -29,19 +31,33 @@ export const Welcome = () => {
 
     return (
         <Layout title="Welcome" className="flex justify-center items-center min-content-area-height">
-            <div className="grid grid-cols-3 gap-x-12 gap-y-8 max-w-3xl">
-                <header className="col-span-3 flex items-center">
-                    <Logo className="h-14 w-14 mr-3" />
-                    <h1 className="text-4xl font-normal text-center">urbit</h1> 
-                </header>
+            <div className="grid grid-cols-3 gap-x-12 gap-y-8 max-w-3xl mt-20">
                 <aside className="col-span-1">
+                    <header className="col-span-3 flex items-center mb-8">
+                        <Logo className="h-14 w-14 mr-3" />
+                        <h1 className="text-4xl font-normal text-center">urbit</h1> 
+                    </header>
                     <nav>
-                        <BootOptions className="grid gap-8 grid-cols-1" />
+                        <h2 className="font-semibold px-2 mb-1">Boot Menu</h2>
+                        <ul className="min-w-52 text-gray-400">
+                            <li>
+                                <Link to="/boot/comet" className="group flex items-center px-2 py-1 border-b border-gray-700 hover:border-white focus:border-white focus:outline-none transition-colors no-underline">
+                                    Comet
+                                    <RightArrow className="ml-auto w-7 h-7" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" />
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/boot/remote" className="group flex items-center px-2 py-1 border-b border-gray-700 hover:border-white focus:border-white focus:outline-none transition-colors no-underline">
+                                    Remote Ship
+                                    <RightArrow className="ml-auto w-7 h-7" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" />
+                                </Link>
+                            </li>
+                        </ul>
                     </nav>
                 </aside>
                 <section className="col-span-2">
-                    <nav className="">
-                        <h2 className="font-semibold px-2">Ships</h2>
+                    <nav className="mt-6">
+                        <h2 className="font-semibold px-2 mb-2">Ships</h2>
                         <ShipList piers={piers} />
                     </nav>
                 </section>
