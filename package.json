@@ -63,9 +63,11 @@
   "dependencies": {
     "app-root-dir": "^1.0.2",
     "axios": "^0.21.1",
+    "date-fns": "^2.19.0",
     "electron-is-dev": "^1.2.0",
     "electron-root-path": "^1.0.16",
     "electron-squirrel-startup": "^1.0.0",
+    "find-process": "^1.4.4",
     "nedb": "^1.8.0",
     "nedb-async": "^0.1.6",
     "node-ipc": "^9.1.3",

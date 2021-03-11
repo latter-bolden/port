@@ -7,6 +7,8 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { Launch } from './pier/Launch';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorPage } from './pages/ErrorPage';
+import { Ship } from './pier/Ship';
+import { RemotePierDetails } from './pier/RemotePierDetails';
 
 const queryClient = new QueryClient();
 
@@ -16,9 +18,11 @@ const App = () => {
             <HashRouter>
                 <ErrorBoundary fallbackRender={ErrorPage}>
                     <Switch>
-                        <Route path="/pier/launch/:slug" component={Launch} />
-                        <Route path="/boot/comet" component={CometIndex}/>
-                        <Route exact path="/" component={Welcome}/>
+                        <Route exact path="/pier/:slug/launch" component={Launch} />
+                        <Route path="/pier/:slug" component={Ship} />
+                        <Route path="/boot/remote" component={RemotePierDetails} />
+                        <Route path="/boot/comet" component={CometIndex} />
+                        <Route exact path="/" component={Welcome} />
                     </Switch>
                 </ErrorBoundary>
             </HashRouter>

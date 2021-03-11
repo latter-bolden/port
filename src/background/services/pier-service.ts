@@ -6,6 +6,7 @@ import { HandlerEntry } from '../server/ipc';
 import { getPlatform, getPlatformPathSegments} from '../../get-platform';
 import { rootPath as root } from 'electron-root-path';
 import appRootDir from 'app-root-dir'
+import find from 'find-process';
 
 const IS_PROD = process.env.NODE_ENV === 'production';
 const platform = getPlatform();
@@ -24,6 +25,8 @@ export interface PierHandlers {
     'get-pier-auth': PierService["getPierAuth"]
     'boot-pier': PierService["bootPier"]
     'resume-pier': PierService["resumePier"]
+    'check-pier': PierService["checkPier"]
+    'stop-pier': PierService["stopPier"]
 }
 
 export class PierService {
@@ -42,17 +45,19 @@ export class PierService {
             { name: 'get-piers', handler: this.getPiers.bind(this) },
             { name: 'get-pier-auth', handler: this.getPierAuth.bind(this) },
             { name: 'boot-pier', handler: this.bootPier.bind(this) },
-            { name: 'resume-pier', handler: this.resumePier.bind(this) }
+            { name: 'resume-pier', handler: this.resumePier.bind(this) },
+            { name: 'check-pier', handler: this.checkPier.bind(this) },
+            { name: 'stop-pier', handler: this.stopPier.bind(this) }
         ]
     }
 
     async addPier(data: AddPier): Promise<Pier | null> {
         return await this.db.piers.asyncInsert({
-            ...data,
             slug: pierSlugify(data.name),
             lastUsed: (new Date()).toISOString(),
             running: false,
-            booted: false
+            booted: false,
+            ...data,
         })
     }
 
@@ -62,6 +67,11 @@ export class PierService {
     
     async getPiers(): Promise<Pier[] | null> {
         return await this.db.piers.asyncFind({})
+    }
+
+    async updatePier(newPier: Pier): Promise<Pier> {
+        await this.db.piers.asyncUpdate({ slug: newPier.slug }, newPier)
+        return newPier;
     }
 
     async getPierAuth(pier: Pier): Promise<PierAuth> {
@@ -96,11 +106,8 @@ export class PierService {
     async checkPier(pier: Pier): Promise<Pier> {
         const loopback = `http://localhost:${pier.loopbackPort}`
 
-        const update = async (): Promise<Pier> => {
-            const updatedPier = { ...pier, running: false }
-            await this.db.piers.asyncUpdate({ slug: pier.slug }, updatedPier)
-            return updatedPier
-        }
+        if (pier.type === 'remote')
+            return pier
 
         try {
             const check = await this.dojo(loopback, 'our')
@@ -108,9 +115,9 @@ export class PierService {
                 return pier
             }
 
-            return await update();
+            return await this.updatePier({ ...pier, running: false });
         } catch (err) {
-            return await update();
+            return await this.updatePier({ ...pier, running: false });
         }
     }
 
@@ -160,6 +167,29 @@ export class PierService {
         return null
     }
 
+    async stopPier(pier: Pier): Promise<Pier> {
+        const updatedPier = await this.checkPier(pier);
+
+        if (!updatedPier.running) {
+            return updatedPier;
+        }
+
+        await this.stopUrbit(updatedPier.loopbackPort, updatedPier.shipName);
+
+        return await this.updatePier({ ...updatedPier, running: false });
+    }
+
+    private async stopUrbit(loopbackPort: number, shipName: string): Promise<void> {
+        const processes = await find('port', loopbackPort)
+        const check = await this.dojo(`http://localhost:${loopbackPort}`, 'our')
+
+        processes.forEach(async proc => {
+            if (check && check === shipName && proc.name.includes('urbit')) {
+                process.kill(proc.pid)
+            }
+        })
+    }
+
     private spawnUrbit(pierSlug: string, pierPath: string, isNew: boolean): Promise<{ loopback: number, web: number } | null> {
         const flags = `-t${isNew ? 'c' : ''}`
         const urbit = spawn(this.urbitPath, [flags, pierSlug], { cwd: pierPath });
@@ -207,7 +237,7 @@ export class PierService {
     }
 }
 
-type PierType = 'comet' | 'planet';
+type PierType = 'comet' | 'planet' |  'remote';
 
 export interface Pier {
     name: string;
@@ -231,5 +261,5 @@ export interface PierAuth {
 }
 
 export function pierSlugify(name: string): string {
-    return name.replace(' ', '-').toLocaleLowerCase();
+    return name.replace(/\s+/ig, '-').toLocaleLowerCase();
 }

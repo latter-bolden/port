@@ -18,7 +18,7 @@ export const Launch = () => {
     )
     const { data, isSuccess: isPostSuccess } = useQuery(['auth', slug], 
         async () => await send('get-pier-auth', pier), {
-            enabled: !!pier && pier.running,
+            enabled: !!pier && pier.running && pier.type !== 'remote',
             refetchOnWindowFocus: false
         })
 
@@ -32,6 +32,8 @@ export const Launch = () => {
         </>
     )
 
+    const url = pier.type === 'remote' ? pier.directory : `http://localhost:${pier.webPort}`
+
     return (
         <Layout 
             title={pier?.name || 'Landscape'} 
@@ -43,7 +45,7 @@ export const Launch = () => {
             { isSuccess && pier?.running &&
                 <iframe
                     className="h-full w-full"
-                    src={`http://localhost:${pier.webPort}`} 
+                    src={url} 
                     allowFullScreen 
                 />
             }

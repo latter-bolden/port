@@ -16,10 +16,10 @@ function setTitle(window: BrowserWindow, event: IpcMainInvokeEvent, title: strin
 async function clearData(window: BrowserWindow) {
     const session = window.webContents.session;
     //possibly clear everything not sure what's the issue
-    //await session.clearAuthCache()
     await session.clearCache()
-    await session.clearStorageData()
-    //await session.clearHostResolverCache()
+    await session.clearStorageData({
+        storages: ['appcache', 'filesystem', 'indexdb', 'localstorage', 'cachestorage']
+    })
 }
 
 async function toggleDevTools(mainWindow: BrowserWindow, bgWindow?: BrowserWindow) {

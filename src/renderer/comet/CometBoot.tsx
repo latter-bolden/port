@@ -44,7 +44,7 @@ export const CometBoot = () => {
                             <h1 className="font-semibold">Your Ship is Ready</h1>
                             <div className="text-gray-600">Enjoy the Landscape</div>
                         </div>
-                        <Link to={`/pier/launch/${slug}`} className="inline-flex justify-center items-center px-2 py-1 bg-transparent border border-gray-700 hover:border-white focus:outline-none focus:border-white focus:ring focus:ring-gray-600 focus:ring-opacity-50 transition-colors rounded no-underline">
+                        <Link to={`/pier/${slug}/launch`} className="inline-flex justify-center items-center px-2 py-1 bg-transparent border border-gray-700 hover:border-white focus:outline-none focus:border-white focus:ring focus:ring-gray-600 focus:ring-opacity-50 transition-colors rounded no-underline">
                             Launch Ship into Urbit
                             <RightArrow className="ml-1 w-7 h-7" secondary="fill-current" />
                         </Link>                            

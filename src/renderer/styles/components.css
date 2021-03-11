@@ -1,0 +1,8 @@
+.default-ring {
+    @apply focus:outline-none focus:ring focus:ring-gray-600 focus:ring-opacity-50;
+  }
+
+.button {
+    @apply inline-flex justify-center items-center px-2 py-1 text-gray-500 hover:text-white focus:text-white bg-transparent border border-gray-700 hover:border-gray-500 focus:outline-none focus:border-gray-500 focus:ring focus:ring-gray-600 focus:ring-opacity-50 transition-colors rounded no-underline;
+}
+
