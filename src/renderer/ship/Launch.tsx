@@ -8,7 +8,7 @@ import { Spinner } from '../shared/Spinner'
 
 export const Launch = () => {
     const { slug } = useParams<{ slug: string }>()
-    const { data: pier, isLoading, isSuccess } = useQuery(['pier', slug], 
+    const { data: pier, isLoading } = useQuery(['pier', slug], 
         async () => {
             const pier = await send('get-pier', slug)
             return await send('resume-pier', pier)
@@ -32,23 +32,33 @@ export const Launch = () => {
         </>
     )
 
+    if (!pier || isLoading) {
+        return (
+            <Layout 
+                title="Landscape" 
+                className="flex justify-center items-center content-area-height w-screen" 
+                footer={<Footer />}
+            >
+                { (isLoading || !pier?.running) &&
+                    <Spinner className="h-24 w-24" />
+                }
+            </Layout>
+        )
+    }
+
     const url = pier.type === 'remote' ? pier.directory : `http://localhost:${pier.webPort}`
 
     return (
         <Layout 
-            title={pier?.name || 'Landscape'} 
+            title={pier.name} 
             className="flex justify-center items-center content-area-height w-screen" 
-            footer={<Footer />}>
-            { (isLoading || !pier?.running) &&
-                <Spinner className="h-24 w-24" />
-            }
-            { isSuccess && pier?.running &&
-                <iframe
-                    className="h-full w-full"
-                    src={url} 
-                    allowFullScreen 
-                />
-            }
+            footer={<Footer />}
+        >
+            <iframe
+                className="h-full w-full"
+                src={url} 
+                allowFullScreen 
+            />
         </Layout>
     )
 }

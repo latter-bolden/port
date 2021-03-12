@@ -4,11 +4,11 @@ import { hot } from 'react-hot-loader';
 import { Welcome } from './pages/Welcome'
 import { CometIndex } from './pages/CometIndex';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { Launch } from './pier/Launch';
+import { Launch } from './ship/Launch';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorPage } from './pages/ErrorPage';
-import { Ship } from './pier/Ship';
-import { RemotePierDetails } from './pier/RemotePierDetails';
+import { Ship } from './ship/Ship';
+import { RemotePierDetails } from './ship/RemotePierDetails';
 
 const queryClient = new QueryClient();
 

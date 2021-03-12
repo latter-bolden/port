@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom'
 import { send } from '../client/ipc'
 import { Logo } from '../icons/Logo'
 import { RightArrow } from '../icons/RightArrow'
-import { BootOptions } from '../pier/BootOptions'
-import { ShipList } from '../pier/ShipList'
+import { BootOptions } from '../ship/components/BootOptions'
+import { ShipList } from '../ship/components/ShipList'
 import { Layout } from '../shared/Layout'
 
 const CenteredLayout = () => (

@@ -62,6 +62,8 @@
   },
   "dependencies": {
     "@radix-ui/react-dialog": "0.0.8",
+    "@types/adm-zip": "^0.4.33",
+    "adm-zip": "^0.5.4",
     "app-root-dir": "^1.0.2",
     "axios": "^0.21.1",
     "date-fns": "^2.19.0",
