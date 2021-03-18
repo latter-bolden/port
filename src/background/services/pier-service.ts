@@ -3,7 +3,7 @@ import { spawn } from 'child_process';
 import { shell } from 'electron';
 import axios from 'axios'
 import { DB } from '../db'
-import { HandlerEntry } from '../server/ipc';
+import { HandlerEntry, send } from '../server/ipc';
 import { getPlatform, getPlatformPathSegments} from '../../get-platform';
 import { rootPath as root } from 'electron-root-path';
 import appRootDir from 'app-root-dir'
@@ -215,7 +215,7 @@ export class PierService {
 
         processes.forEach(async proc => {
             if (check && check === shipName && proc.name.includes('urbit')) {
-                process.kill(proc.pid)
+                process.kill(proc.pid, 'SIGTSTP')
             }
         })
     }
@@ -225,6 +225,7 @@ export class PierService {
         const urbit = spawn(this.urbitPath, [flags, pierSlug], { cwd: pierPath });
         const webPattern = /http:\s+web interface live on http:\/\/localhost:(\d+)/
         const loopbackPattern = /http:\s+loopback live on http:\/\/localhost:(\d+)/
+        const messages = [];
         let web, loopback;
 
         console.log('spawning', pierSlug, 'with flags', flags)
@@ -242,11 +243,26 @@ export class PierService {
                 reject(err)
             })
 
-            urbit.stderr.on('data', (data) => console.error(data.toString()))
+            urbit.stderr.on('data', (data) => {
+                console.error(data.toString())
+                messages.push({
+                    type: 'error',
+                    text: data.toString()
+                })
+                
+                send('boot-log', messages)
+            })
 
             urbit.stdout.on('data', (data) => {
                 const line = data.toString() 
                 console.log(line)
+
+                messages.push({
+                    type: 'out',
+                    text: data.toString()
+                })
+                
+                send('boot-log', messages)
 
                 const webMatch = line.match(webPattern)
                 if (webMatch) {
@@ -288,6 +304,11 @@ export type AddPier = Pick<Pier, 'name' | 'type' | 'directory' | 'default'>
 export interface PierAuth {
     username: string;
     code: string;
+}
+
+export interface BootMessage {
+    type: 'out' | 'error';
+    text: string;
 }
 
 export function pierSlugify(name: string): string {

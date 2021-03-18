@@ -7,6 +7,7 @@ import { RightArrow } from '../icons/RightArrow'
 import { BootOptions } from '../ship/components/BootOptions'
 import { ShipList } from '../ship/components/ShipList'
 import { Layout } from '../shared/Layout'
+import { Spinner } from '../shared/Spinner'
 
 const CenteredLayout = () => (
     <Layout title="Welcome" className="flex justify-center items-center min-content-area-height">
@@ -23,7 +24,13 @@ const CenteredLayout = () => (
 )
 
 export const Welcome = () => {
-    const { data: piers } = useQuery('piers', async () => await send('get-piers'))
+    const { data: piers, isIdle, isLoading } = useQuery('piers', async () => await send('get-piers'))
+
+    if (isIdle || isLoading) {
+        return <Layout title="Welcome" className="flex justify-center items-center min-content-area-height">
+            <Spinner className="h-24 w-24" />
+        </Layout>
+    }
 
     if (!piers || piers.length === 0) {
         return <CenteredLayout />
@@ -46,7 +53,13 @@ export const Welcome = () => {
                                     <RightArrow className="ml-auto w-7 h-7" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" />
                                 </Link>
                             </li>
-                            <li className="group border-gray-700">
+                            <li className="border-gray-700">
+                                <Link to="/boot/existing" className="group flex items-center px-2 py-1 hover:text-white focus:text-white default-ring transition-colors no-underline">
+                                    Existing Ship
+                                    <RightArrow className="ml-auto w-7 h-7" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" />
+                                </Link>
+                            </li>
+                            <li className="border-gray-700">
                                 <Link to="/boot/remote" className="group flex items-center px-2 py-1 hover:text-white focus:text-white default-ring transition-colors no-underline">
                                     Remote Ship
                                     <RightArrow className="ml-auto w-7 h-7" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" />

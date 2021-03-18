@@ -7,6 +7,7 @@ import { Layout } from '../shared/Layout'
 import { Spinner } from '../shared/Spinner'
 
 export const Launch = () => {
+    debugger;
     const { slug } = useParams<{ slug: string }>()
     const { data: pier, isLoading } = useQuery(['pier', slug], 
         async () => {
