@@ -1,8 +1,8 @@
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { useQueryClient } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 import { Link, useHistory } from 'react-router-dom'
-import { AddPier } from '../../background/services/pier-service'
+import { AddPier, Pier } from '../../background/services/pier-service'
 import { send } from '../client/ipc'
 import { LeftArrow } from '../icons/LeftArrow'
 import { RightArrow } from '../icons/RightArrow'
@@ -14,19 +14,22 @@ export const ExistingShipDetails = () => {
     const { register, handleSubmit, control, formState: { isValid } } = useForm<AddPier>({
         mode: 'onChange'
     });
+    const { mutate } = useMutation(async (data: AddPier) => await send('collect-existing-pier', data), {
+        onSuccess: (pier: Pier) => {
+            if (!pier)
+                return;
+
+            queryClient.setQueryData(['pier', pier.slug], pier);
+            history.push(`/pier/${pier.slug}/launch`)
+        }
+    })
 
     async function setDirectory() {
         return await send('get-directory')
     }
 
-    async function onSubmit(data) {
-        const pier = await send('add-pier', { ...data, booted: true })
-
-        if (!pier)
-            return;
-
-        queryClient.setQueryData(['pier', pier.slug], pier);
-        history.push(`/pier/${pier.slug}/launch`)
+    function onSubmit(data: AddPier) {
+        mutate(data)
     }
 
     return (

@@ -54,6 +54,12 @@ export const Welcome = () => {
                                 </Link>
                             </li>
                             <li className="border-gray-700">
+                                <Link to="/boot/moon" className="group flex items-center px-2 py-1 hover:text-white focus:text-white default-ring transition-colors no-underline">
+                                    Moon
+                                    <RightArrow className="ml-auto w-7 h-7" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" />
+                                </Link>
+                            </li>
+                            <li className="border-gray-700">
                                 <Link to="/boot/existing" className="group flex items-center px-2 py-1 hover:text-white focus:text-white default-ring transition-colors no-underline">
                                     Existing Ship
                                     <RightArrow className="ml-auto w-7 h-7" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" />

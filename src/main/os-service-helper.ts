@@ -1,11 +1,7 @@
 import { BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent } from 'electron'
 
 async function openDialog(event: IpcMainInvokeEvent, options: Electron.OpenDialogOptions) {
-    return await dialog.showOpenDialog({
-        title: 'Select a Directory',
-        properties: ['openDirectory', 'createDirectory'],
-        ...options
-    });
+    return await dialog.showOpenDialog(options);
 }
 
 function setTitle(window: BrowserWindow, event: IpcMainInvokeEvent, title: string) {

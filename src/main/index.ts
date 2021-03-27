@@ -54,11 +54,12 @@ function createBackgroundWindow(socketName: string) {
 
   //make sure isVisible is false for devtools toggle
   win.hide()
-
-  win.loadURL(BACKGROUND_WINDOW_WEBPACK_ENTRY)
+  isDev && win.webContents.openDevTools();
   win.webContents.on('did-finish-load', () => {
+    console.log('background finished loading')
     win.webContents.send('set-socket', { name: socketName })
   })
+  win.loadURL(BACKGROUND_WINDOW_WEBPACK_ENTRY)
 
   return win;
 }
@@ -67,6 +68,7 @@ async function start(bootBg: boolean) {
   const serverSocket = await findOpenSocket()
   let bgWindow;
 
+  console.log('server socket', serverSocket)
   if (bootBg) {
     bgWindow = createBackgroundWindow(serverSocket)
   }

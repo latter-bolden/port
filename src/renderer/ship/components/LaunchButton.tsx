@@ -9,9 +9,9 @@ type LaunchButtonProps = {
     className?: string;
 }
 
-export const LaunchButton = ({ ship, className = '' }: LaunchButtonProps) => {
+export const LaunchButton: React.FC<LaunchButtonProps> = ({ ship, className = '' }) => {
     const buttonClass = `button min-w-22 py-1 pr-1 font-semibold text-sm ${className}`
-    const path = ship.booted ? `/pier/${ship.slug}/launch` : `/boot/comet/${ship.slug}`;
+    const path = ship.booted ? `/pier/${ship.slug}/launch` : `/boot/${ship.slug}`;
     let buttonText = 'Boot';
 
     if (ship.booted && ship.running) {
