@@ -80,6 +80,7 @@ export class PierService {
             lastUsed: (new Date()).toISOString(),
             running: false,
             booted: false,
+            default: false,
             ...data,
         })
     }
@@ -88,8 +89,8 @@ export class PierService {
         return await this.db.piers.asyncFindOne({ slug })
     }
     
-    async getPiers(): Promise<Pier[] | null> {
-        return await this.db.piers.asyncFind({})
+    async getPiers(query: Partial<Pier>): Promise<Pier[] | null> {
+        return await this.db.piers.asyncFind(query || {})
     }
 
     async updatePier(newPier: Pier): Promise<Pier> {
@@ -175,16 +176,32 @@ export class PierService {
         })
 
         return await this.updatePier({ 
-            ...pier, 
+            ...pier,
             booted: true,
             directory: this.pierDirectory 
         });
     }
 
+    async generateMoon(data: NewMoon): Promise<Pier> {
+        const planet = await this.getPier(data.planet)
+        const loopback = `http://localhost:${planet.loopbackPort}`
+        const response = await this.dojo(loopback, `|moon ${data.shipName || ''}`)
+        const keyfile = ''
+        const shipName = ''
+
+        return await this.addPier({
+            name: data.name,
+            type: 'moon',
+            directory: this.pierDirectory,
+            keyFile: keyfile,
+            shipName
+        })
+    }
+
     async bootPier(slug: string): Promise<Pier | null> {
         const pier = await this.getPier(slug);
 
-        if (!pier || pier.booted)
+        if (!pier)
             return null;
 
         const ports = await this.spawnUrbit(this.getSpawnArgs(pier))
@@ -360,8 +377,14 @@ export interface Pier {
     loopbackPort?: number;
 }
 
-export type AddPier = Pick<Pier, 'name' | 'type' | 'default' | 'shipName' | 'keyFile'> & {
+export type AddPier = Pick<Pier, 'name' | 'type' | 'shipName' | 'keyFile'> & {
     directory?: string;
+}
+
+export interface NewMoon {
+    name: string;
+    planet: string;
+    shipName?: string;
 }
 
 export interface PierAuth {

@@ -20,7 +20,7 @@ export const ExistingShipDetails = () => {
                 return;
 
             queryClient.setQueryData(['pier', pier.slug], pier);
-            history.push(`/pier/${pier.slug}/launch`)
+            history.push(`/boot/${pier.slug}`)
         }
     })
 

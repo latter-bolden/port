@@ -8,16 +8,19 @@ import { BootOptions } from '../ship/components/BootOptions'
 import { ShipList } from '../ship/components/ShipList'
 import { Layout } from '../shared/Layout'
 import { Spinner } from '../shared/Spinner'
+import { routes } from '../routes'
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import { ChevronDown } from '../icons/ChevronDown'
 
 const CenteredLayout = () => (
-    <Layout title="Welcome" className="flex justify-center items-center min-content-area-height">
-        <section className="max-w-xl">
+    <Layout title="Welcome" className="flex justify-center items-center min-content-area-height px-8">
+        <section className="max-w-4xl">
             <div className="flex flex-col items-center">
                 <Logo className="h-40 w-40 text-white" />
                 <h1 className="text-2xl mt-8 mb-20 text-center">Welcome to Urbit</h1>
             </div>
             <nav>
-                <BootOptions className="grid gap-8 grid-cols-2" />
+                <BootOptions className="grid gap-8 grid-cols-1 sm:grid-cols-3" />
             </nav>
         </section>
     </Layout>
@@ -40,38 +43,28 @@ export const Welcome = () => {
         <Layout title="Welcome" className="flex justify-center items-center min-content-area-height">
             <div className="grid grid-cols-3 gap-x-12 gap-y-8 max-w-3xl mt-20">
                 <aside className="col-span-1">
-                    <header className="col-span-3 flex items-center mb-8">
+                    <header className="col-span-3 flex items-center justify-end mb-4">
                         <Logo className="h-14 w-14 mr-3" />
                         <h1 className="text-4xl font-normal text-center">urbit</h1> 
                     </header>
-                    <nav>
-                        <h2 className="font-semibold px-2 mb-1">Boot Menu</h2>
-                        <ul className="min-w-52 divide-y text-gray-400">
-                            <li className="border-gray-700">
-                                <Link to="/boot/comet" className="group flex items-center px-2 py-1 hover:text-white focus:text-white default-ring transition-colors no-underline">
-                                    Comet
-                                    <RightArrow className="ml-auto w-7 h-7" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" />
-                                </Link>
-                            </li>
-                            <li className="border-gray-700">
-                                <Link to="/boot/moon" className="group flex items-center px-2 py-1 hover:text-white focus:text-white default-ring transition-colors no-underline">
-                                    Moon
-                                    <RightArrow className="ml-auto w-7 h-7" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" />
-                                </Link>
-                            </li>
-                            <li className="border-gray-700">
-                                <Link to="/boot/existing" className="group flex items-center px-2 py-1 hover:text-white focus:text-white default-ring transition-colors no-underline">
-                                    Existing Ship
-                                    <RightArrow className="ml-auto w-7 h-7" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" />
-                                </Link>
-                            </li>
-                            <li className="border-gray-700">
-                                <Link to="/boot/remote" className="group flex items-center px-2 py-1 hover:text-white focus:text-white default-ring transition-colors no-underline">
-                                    Remote Ship
-                                    <RightArrow className="ml-auto w-7 h-7" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" />
-                                </Link>
-                            </li>
-                        </ul>
+                    <nav className="flex justify-end min-w-48 pl-16">
+                        <DropdownMenu.Root>
+                            <DropdownMenu.Trigger className="button text-sm">
+                                Boot Menu
+                                <ChevronDown className="ml-3 w-5 h-5" primary="fill-current" />
+                                {/* <DownCaret /> */}
+                            </DropdownMenu.Trigger>
+                            <DropdownMenu.Content as="ul" align="end" sideOffset={-30} className="min-w-52 text-sm text-gray-400 bg-gray-900 rounded shadow-lg">
+                                { routes.map(route => (
+                                    <li className="border-gray-700">
+                                        <Link to={route.path} className="group flex items-center px-5 py-2 hover:text-white focus:text-white focus:outline-none focus:ring-0 transition-colors no-underline">
+                                            { route.title }
+                                            <RightArrow className="ml-auto w-5 h-5" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" primary="fill-current text-transparent" />
+                                        </Link>
+                                    </li>
+                                ))}
+                            </DropdownMenu.Content>
+                        </DropdownMenu.Root>
                     </nav>
                 </aside>
                 <section className="col-span-2">

@@ -13,6 +13,7 @@ import { MoonDetails } from './details/MoonDetails';
 import { CometDetails } from './details/CometDetails';
 import { Boot } from './ship/Boot';
 import { PlanetDetails } from './details/PlanetDetails';
+import { routeMap } from './routes';
 
 const queryClient = new QueryClient();
 
@@ -22,11 +23,11 @@ const App = () => {
             <HashRouter>
                 <ErrorBoundary fallbackRender={ErrorPage}>
                     <Switch>                        
-                        <Route exact path="/boot/remote" component={RemotePierDetails} />
-                        <Route exact path="/boot/existing" component={ExistingShipDetails} />
-                        <Route exact path="/boot/planet" component={PlanetDetails} />
-                        <Route exact path="/boot/moon" component={MoonDetails} />
-                        <Route exact path="/boot/comet" component={CometDetails} />
+                        <Route exact path={routeMap.remote.path} component={RemotePierDetails} />
+                        <Route exact path={routeMap.existing.path} component={ExistingShipDetails} />
+                        <Route exact path={routeMap.planet.path} component={PlanetDetails} />
+                        <Route exact path={routeMap.moon.path} component={MoonDetails} />
+                        <Route exact path={routeMap.comet.path} component={CometDetails} />
                         <Route path="/boot/:slug" component={Boot} />
                         <Route exact path="/pier/:slug/launch" component={Launch} />
                         <Route path="/pier/:slug" component={Ship} />
