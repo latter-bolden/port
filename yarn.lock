@@ -667,6 +667,15 @@
     "@radix-ui/react-id" "0.0.5"
     "@radix-ui/react-use-controllable-state" "0.0.6"
 
+"@radix-ui/react-slot@0.0.9":
+  "integrity" "sha512-EC20mo4n24cz//C16JseBBtMtDtms3RL5Uv4fVznILJ+kXtVazfhJ8lax1FCPdxJu/iGoMpT8SqnK+wZ+Bnymw=="
+  "resolved" "https://registry.npmjs.org/@radix-ui/react-slot/-/react-slot-0.0.9.tgz"
+  "version" "0.0.9"
+  dependencies:
+    "@babel/runtime" "^7.13.10"
+    "@radix-ui/primitive" "0.0.5"
+    "@radix-ui/react-compose-refs" "0.0.5"
+
 "@radix-ui/react-tabs@^0.0.11":
   "integrity" "sha512-7igaTrJrTEgpeltwu42afXd+cHwGpyAwjjSj6ZwHBUWTREe4e1sj5d14c4Aei6jr0OR04yDo9U0ISrSFNwYbgA=="
   "resolved" "https://registry.npmjs.org/@radix-ui/react-tabs/-/react-tabs-0.0.11.tgz"
@@ -681,6 +690,29 @@
     "@radix-ui/react-roving-focus" "0.0.11"
     "@radix-ui/react-use-callback-ref" "0.0.5"
     "@radix-ui/react-use-controllable-state" "0.0.6"
+
+"@radix-ui/react-tooltip@^0.0.16":
+  "integrity" "sha512-9t7re+G4SQE/INjXvutww0oy8UK9wA5UTOCMC20vcGZijUKnNTTV+wuxcQhP4NDQD08bT85EOWQc6vAjF3/+Eg=="
+  "resolved" "https://registry.npmjs.org/@radix-ui/react-tooltip/-/react-tooltip-0.0.16.tgz"
+  "version" "0.0.16"
+  dependencies:
+    "@babel/runtime" "^7.13.10"
+    "@radix-ui/primitive" "0.0.5"
+    "@radix-ui/react-compose-refs" "0.0.5"
+    "@radix-ui/react-context" "0.0.5"
+    "@radix-ui/react-id" "0.0.5"
+    "@radix-ui/react-polymorphic" "0.0.10"
+    "@radix-ui/react-popper" "0.0.14"
+    "@radix-ui/react-portal" "0.0.11"
+    "@radix-ui/react-presence" "0.0.13"
+    "@radix-ui/react-primitive" "0.0.11"
+    "@radix-ui/react-slot" "0.0.9"
+    "@radix-ui/react-use-controllable-state" "0.0.6"
+    "@radix-ui/react-use-escape-keydown" "0.0.6"
+    "@radix-ui/react-use-layout-effect" "0.0.5"
+    "@radix-ui/react-use-previous" "0.0.5"
+    "@radix-ui/react-use-rect" "0.0.6"
+    "@radix-ui/react-visually-hidden" "0.0.11"
 
 "@radix-ui/react-use-body-pointer-events@0.0.1":
   "integrity" "sha512-03/HHTwoEX6+s+S5NUujBrqAthSALXGuCoRptDXMYnwL0Jk1llVkvfjfHlxS5Yz3xUqcHp+5SG0pKxzyCkEJug=="
@@ -744,6 +776,13 @@
   dependencies:
     "@babel/runtime" "^7.13.10"
 
+"@radix-ui/react-use-previous@0.0.5":
+  "integrity" "sha512-GjtJlWlDAEMqCm2RDnVdWI6tk4/ZQfRq/VlP05Xy5rFZj6lD37VZWVWUELMBasRPzd2AS/9wPmphOgjH0VnE5A=="
+  "resolved" "https://registry.npmjs.org/@radix-ui/react-use-previous/-/react-use-previous-0.0.5.tgz"
+  "version" "0.0.5"
+  dependencies:
+    "@babel/runtime" "^7.13.10"
+
 "@radix-ui/react-use-rect@0.0.6":
   "integrity" "sha512-2FaIR235tYqJNaRhOkdnzYPE5yhKjRBqxobxOOXPf+8wQf+EEnEmF9pF6YpMP0GlkpEmUFAvK4E1N3526hozBQ=="
   "resolved" "https://registry.npmjs.org/@radix-ui/react-use-rect/-/react-use-rect-0.0.6.tgz"
@@ -759,6 +798,15 @@
   "version" "0.0.5"
   dependencies:
     "@babel/runtime" "^7.13.10"
+
+"@radix-ui/react-visually-hidden@0.0.11":
+  "integrity" "sha512-kTOrQ4+kkyfEt/td8puteOFvJ2ysXI/OekNxqCJjAk9tU3C8mespS2Z+sql5Dtt9T3vslbW2xLWO7RMKuvKrDA=="
+  "resolved" "https://registry.npmjs.org/@radix-ui/react-visually-hidden/-/react-visually-hidden-0.0.11.tgz"
+  "version" "0.0.11"
+  dependencies:
+    "@babel/runtime" "^7.13.10"
+    "@radix-ui/react-polymorphic" "0.0.10"
+    "@radix-ui/react-primitive" "0.0.11"
 
 "@radix-ui/rect@0.0.5":
   "integrity" "sha512-gXw171KbjyttA7K1DRIvPguLmKsg8raitB67MIcsdZwcquy+a1O2w3xY21NIKEqGhJwqJkECPUmMJDXgMNYuAg=="

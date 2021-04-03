@@ -14,7 +14,7 @@ import { ShipStatus } from './components/ShipStatus'
 import { LaunchButton } from './components/LaunchButton'
 
 
-export const Ship = () => {
+export const Ship: React.FC = () => {
     const history = useHistory()
     const { slug } = useParams<{ slug: string }>()
     const queryClient = useQueryClient();
@@ -29,7 +29,10 @@ export const Ship = () => {
             queryClient.invalidateQueries(['pier', slug])
         }
     })
-    const { mutate: ejectShip, isLoading } = useMutation(() => send('eject-pier', ship), {
+    const { mutate: ejectShip, isLoading } = useMutation(async () => {
+        await send('stop-pier', ship)
+        return send('eject-pier', ship)
+    }, {
         onSuccess: () => {
             queryClient.prefetchQuery('piers')
             history.push('/')

@@ -8,7 +8,7 @@ import { getPlatform, getPlatformPathSegments} from '../../get-platform';
 import { rootPath as root } from 'electron-root-path';
 import appRootDir from 'app-root-dir'
 import find from 'find-process';
-import { unlink, rmdir, exists } from 'fs'
+import { unlink, rmdir, access, readFile } from 'fs'
 import { promisify } from 'util'
 import ADMZip from 'adm-zip'
 import mv from 'mv'
@@ -19,7 +19,8 @@ const platform = getPlatform();
 
 const asyncRm = promisify(unlink);
 const asyncRmdir = promisify(rmdir);
-const asyncExists = promisify(exists);
+const asyncAccess = promisify(access);
+const asyncRead = promisify(readFile);
 
 const binariesPath =
   IS_PROD // the path to a bundled electron app.
@@ -34,6 +35,7 @@ export interface PierHandlers {
     'get-piers': PierService["getPiers"]
     'get-pier-auth': PierService["getPierAuth"]
     'collect-existing-pier': PierService["collectExistingPier"]
+    'generate-moon': PierService["generateMoon"]
     'boot-pier': PierService["bootPier"]
     'resume-pier': PierService["resumePier"]
     'check-pier': PierService["checkPier"]
@@ -59,6 +61,7 @@ export class PierService {
             { name: 'get-piers', handler: this.getPiers.bind(this) },
             { name: 'get-pier-auth', handler: this.getPierAuth.bind(this) },
             { name: 'collect-existing-pier', handler: this.collectExistingPier.bind(this) },
+            { name: 'generate-moon', handler: this.generateMoon.bind(this) },
             { name: 'boot-pier', handler: this.bootPier.bind(this) },
             { name: 'resume-pier', handler: this.resumePier.bind(this) },
             { name: 'check-pier', handler: this.checkPier.bind(this) },
@@ -94,7 +97,10 @@ export class PierService {
     }
 
     async updatePier(newPier: Pier): Promise<Pier> {
-        await this.db.piers.asyncUpdate({ slug: newPier.slug }, newPier)
+        await this.db.piers.asyncUpdate({ slug: newPier.slug }, {
+            lastUsed: (new Date()).toISOString(),
+            ...newPier
+        })
         return newPier;
     }
 
@@ -103,7 +109,7 @@ export class PierService {
         const username = await this.dojo(loopback, 'our');
         const code = await this.dojo(loopback, '+code');
 
-        await this.db.piers.asyncUpdate({ slug: pier.slug }, {
+        await this.updatePier({
             ...pier,
             shipName: username
         })
@@ -128,20 +134,65 @@ export class PierService {
     }
 
     async checkPier(pier: Pier): Promise<Pier> {
-        const loopback = `http://localhost:${pier.loopbackPort}`
-
         if (pier.type === 'remote')
             return pier
 
+        const update = (updates) => this.updatePier({ ...pier, ...updates });
+
         try {
-            const check = await this.dojo(loopback, 'our')
-            if (check && pier.running && check === pier.shipName) {
-                return pier
+            const dojoCheck = await this.runningCheck(pier);
+
+            if (dojoCheck) {
+                return await update({ ...dojoCheck, running: true });
             }
 
-            return await this.updatePier({ ...pier, running: false });
+            return await update({ running: false });
         } catch (err) {
-            return await this.updatePier({ ...pier, running: false });
+            return await update({ running: false });
+        }
+    }
+
+    private async runningCheck(pier: Pier): Promise<{ loopbackPort: number, webPort: number } | null> {
+        const ports = await this.portRunningCheck(pier);
+        if (!ports || !ports.webPort || !ports.loopbackPort || !pier.shipName) {
+            return null;
+        }
+
+        try {
+            const loopback = `http://localhost:${ports.loopbackPort}`
+            const check = await this.dojo(loopback, 'our')
+
+            if (check && check === pier.shipName) {
+                return ports
+            }
+
+            return null
+        } catch (err) {
+            console.error(err)
+            return null;
+        }
+    }
+
+    private async portRunningCheck(pier: Pier): Promise<{ loopbackPort: number, webPort: number } | null> {
+        const portPath = joinPath(pier.directory, pier.slug, '.http.ports');
+
+        try {
+            await asyncAccess(portPath)
+        } catch {
+            return null
+        }
+
+        const portFile = (await asyncRead(portPath)).toString()
+        const loopback = portFile.match(/(\d+).*loopback/)
+        const web = portFile.match(/(\d+).*public/)
+
+        if (!loopback || !web || !loopback[1] || !web[1]) {
+            throw new Error('Issue with read .http.ports file')
+        }
+
+        return {
+            loopbackPort: parseInt(loopback[1]),
+            webPort: parseInt(web[1])
         }
     }
 
@@ -151,16 +202,14 @@ export class PierService {
             return accuratePier
 
         const ports = await this.spawnUrbit(this.getSpawnArgs(accuratePier))
-        const updatedPier = {
+        const updatedPier: Pier = {
             ...accuratePier,
             webPort: ports.web,
             loopbackPort: ports.loopback,
             running: true
         }
-        
-        await this.db.piers.asyncUpdate({ slug: pier.slug }, updatedPier)
 
-        return updatedPier;
+        return await this.updatePier(updatedPier);
     }
 
     async collectExistingPier(data: AddPier): Promise<Pier> {
@@ -183,11 +232,23 @@ export class PierService {
     }
 
     async generateMoon(data: NewMoon): Promise<Pier> {
-        const planet = await this.getPier(data.planet)
+        const pier = await this.getPier(data.planet)
+        const planet = await this.stopPier(pier)
         const loopback = `http://localhost:${planet.loopbackPort}`
-        const response = await this.dojo(loopback, `|moon ${data.shipName || ''}`)
-        const keyfile = ''
-        const shipName = ''
+
+        const cmd = data.shipName ? `|moon ${data.shipName}` : '|moon'
+        // const response = await this.dojo(loopback, cmd)
+        const responses = await this.runDojo(this.getSpawnArgs(planet, true), cmd)
+        await this.stopPier(planet)
+
+        const lines = responses[responses.length-1].split(/\r?\n/)
+        const shipMatch = lines[0]?.match(/moon:\s*([~\w-]+)/g)
+        const shipName = shipMatch ? shipMatch[1] : undefined
+        const keyfile = lines[1]
+
+        if (!shipName || !keyfile) {
+            throw new Error('Unable to generate moon')
+        }
 
         return await this.addPier({
             name: data.name,
@@ -208,16 +269,14 @@ export class PierService {
         //make sure OTAs start
         //this.dojo(`http://localhost:${ports.loopback}`, '|ota (sein:title our now our) %kids')
         const shipName = await this.dojo(`http://localhost:${ports.loopback}`, 'our')
-        const updatedPier = {
+        const updatedPier = await this.updatePier({
             ...pier,
             shipName,
             webPort: ports.web,
             loopbackPort: ports.loopback,
             running: true,
             booted: true
-        }
-        
-        await this.db.piers.asyncUpdate({ slug: pier.slug }, updatedPier, {})
+        })
         
         if (pier.keyFile) {
             await asyncRm(pier.keyFile)
@@ -253,8 +312,15 @@ export class PierService {
 
     async deletePier(pier: Pier): Promise<void> {
         const pierPath = joinPath(pier.directory, pier.slug);
+        let pierExists = true;
 
-        if (pier.type !== 'remote' && await asyncExists(pierPath)) {
+        try {
+            await asyncAccess(pierPath)
+        } catch {
+            pierExists = false
+        }
+
+        if (pier.type !== 'remote' && pierExists) {
             asyncRmdir(pierPath, { recursive: true })
         }
 
@@ -272,10 +338,14 @@ export class PierService {
         })
     }
 
-    private getSpawnArgs(pier: Pier): string[] {
-        let args = ['-t']
+    private getSpawnArgs(pier: Pier, interactive = false): string[] {
+        let args = []
         const pierPath = joinPath(pier.directory, pier.slug);
         const unbooted = !pier.booted;
+
+        if (!interactive) {
+            args.push('-t')
+        }
 
         if (pier.type === 'comet' && unbooted) {
             args.push('-c')
@@ -293,12 +363,40 @@ export class PierService {
         return args;
     }
 
-    private spawnUrbit(args: string[]): Promise<{ loopback: number, web: number } | null> {
-        const urbit = spawn(this.urbitPath, args);
-        const webPattern = /http:\s+web interface live on http:\/\/localhost:(\d+)/
-        const loopbackPattern = /http:\s+loopback live on http:\/\/localhost:(\d+)/
+    private spawnUrbit(args: string[], options?: any): Promise<{ loopback: number, web: number } | null> {
+        const urbit = spawn(this.urbitPath, args, options);
         const messages = [];
         let web, loopback;
+
+        async function getPorts(data, resolve) {
+            const webPattern = /http:\s+web interface live on http:\/\/localhost:(\d+)/
+            const loopbackPattern = /http:\s+loopback live on http:\/\/localhost:(\d+)/
+            const line = data.toString() 
+            console.log(line)
+
+            messages.push({
+                type: 'out',
+                text: this.formatBootLog(data)
+            })
+            
+            await send('boot-log', messages)
+
+            const webMatch = line.match(webPattern)
+            if (webMatch) {
+                web = webMatch[1]
+            }
+
+            const loopbackMatch = line.match(loopbackPattern)
+            if (loopbackMatch) {
+                loopback = loopbackMatch[1]
+                console.log('matched', line, webMatch, web, loopbackMatch, loopback)
+
+                resolve({
+                    web,
+                    loopback
+                })
+            }
+        }
 
         console.log('spawning urbit with ', ...args)
 
@@ -326,30 +424,48 @@ export class PierService {
             })
 
             urbit.stdout.on('data', (data) => {
-                const line = data.toString() 
-                console.log(line)
+                (getPorts.bind(this))(data, resolve)
+            })
+        })
+    }
 
-                messages.push({
-                    type: 'out',
-                    text: this.formatBootLog(data)
-                })
-                
-                send('boot-log', messages)
+    private runDojo(args: string[], cmd: string): Promise<string[]> {
+        const urbit = spawn(this.urbitPath, args, { shell: true });
+        const messages = [];
+        let done = false;
 
-                const webMatch = line.match(webPattern)
-                if (webMatch) {
-                    web = webMatch[1]
+        return new Promise((resolve, reject) => {
+            urbit.on('close', (code) => {
+                if (code !== 0) {
+                    console.error(`Exited with code ${code}`)
+                    reject(code.toString())
+                }
+            })
+
+            urbit.on('error', (err) => {
+                console.error(err)
+                reject(err)
+            })
+
+            urbit.stderr.on('data', (data) => {
+                console.error(data.toString())
+            })
+
+            urbit.stdout.on('data', (data) => {
+                messages.push(data.toString())
+
+                if (done) {
+                    resolve(messages)
+                }
+            })
+
+            urbit.stdin.write(`${cmd}\n`, (error) => {
+                if (error) {
+                    return reject(error)
                 }
 
-                const loopbackMatch = line.match(loopbackPattern)
-                if (loopbackMatch) {
-                    loopback = loopbackMatch[1]
-
-                    resolve({
-                        web,
-                        loopback
-                    })
-                }
+                done = true;
+                urbit.stdin.end()
             })
         })
     }
@@ -385,6 +501,10 @@ export interface NewMoon {
     name: string;
     planet: string;
     shipName?: string;
+}
+
+export function isNewMoon(data: any): data is NewMoon {
+    return typeof data.name !== 'undefined' && typeof data.planet !== 'undefined'
 }
 
 export interface PierAuth {
