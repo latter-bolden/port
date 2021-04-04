@@ -25,13 +25,10 @@ export const MoonDetails: React.FC = () => {
     const { 
         register, 
         handleSubmit, 
-        control, 
-        watch, 
+        control,
         formState: { 
-            isValid, 
-            dirtyFields 
-        }, 
-        errors 
+            isValid 
+        },
     } = useForm<AddPier | NewMoon>({
         mode: 'onChange'
     });
@@ -48,17 +45,9 @@ export const MoonDetails: React.FC = () => {
             history.push(`/boot/${pier.slug}`)
         }
     })
-    const noPlanets = planets && planets.length === 0;
-    const watchedFields = watch(['name', 'shipName', 'keyFile', 'planet'])
-    console.log(watchedFields, dirtyFields, errors, { isValid })
-    const fromPlanetValidate = (value: any) => {
-        debugger;
-        return (!!value && tab === 'from-planet') || tab !== 'from-planet';
-    }
-    const manualValidate = (value: any) => {
-        debugger;
-        return (!!value && tab === 'manual') || tab !== 'manual';
-    }
+    
+    const fromPlanetValidate = (value: any) => (!!value && tab === 'from-planet') || tab !== 'from-planet';
+    const manualValidate = (value: any) => (!!value && tab === 'manual') || tab !== 'manual';
 
     async function setFile(onChange) {
         const file = await send('get-file')
@@ -95,7 +84,7 @@ export const MoonDetails: React.FC = () => {
                         <Tabs.List className="flex mb-4 border-b border-gray-700">
                             <Tooltip.Root>
                                 <Tooltip.Trigger className="default-ring">
-                                    <Tabs.Tab value="from-planet" className={`flex justify-center px-3 py-2 border-b-2 default-ring  transition-colors ${/*noPlanets*/ true ? 'text-gray-700' : ''} ${tab === 'from-planet' ? 'border-white font-semibold' : 'border-transparent'}`} disabled={true}>From Planet</Tabs.Tab>
+                                    <Tabs.Tab value="from-planet" className={`flex justify-center px-3 py-2 border-b-2 default-ring  transition-colors text-gray-700 ${tab === 'from-planet' ? 'border-white font-semibold' : 'border-transparent'}`} disabled={true}>From Planet</Tabs.Tab>
                                 </Tooltip.Trigger>
                                 <Tooltip.Content side="top" className="px-3 py-2 text-sm bg-gray-800 rounded">
                                     Currently waiting for changes to Urbit for this to be supported

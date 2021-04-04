@@ -201,7 +201,7 @@ export class PierService {
         if (accuratePier.running)
             return accuratePier
 
-        const ports = await this.spawnUrbit(this.getSpawnArgs(accuratePier))
+        const ports = await this.spawnUrbit(this.getSpawnArgs(accuratePier), accuratePier.slug)
         const updatedPier: Pier = {
             ...accuratePier,
             webPort: ports.web,
@@ -265,7 +265,7 @@ export class PierService {
         if (!pier)
             return null;
 
-        const ports = await this.spawnUrbit(this.getSpawnArgs(pier))
+        const ports = await this.spawnUrbit(this.getSpawnArgs(pier), pier.slug)
         //make sure OTAs start
         //this.dojo(`http://localhost:${ports.loopback}`, '|ota (sein:title our now our) %kids')
         const shipName = await this.dojo(`http://localhost:${ports.loopback}`, 'our')
@@ -363,7 +363,7 @@ export class PierService {
         return args;
     }
 
-    private spawnUrbit(args: string[], options?: any): Promise<{ loopback: number, web: number } | null> {
+    private spawnUrbit(args: string[], slug: string, options?: any): Promise<{ loopback: number, web: number } | null> {
         const urbit = spawn(this.urbitPath, args, options);
         const messages = [];
         let web, loopback;
@@ -379,7 +379,7 @@ export class PierService {
                 text: this.formatBootLog(data)
             })
             
-            await send('boot-log', messages)
+            await send('boot-log', { slug, messages })
 
             const webMatch = line.match(webPattern)
             if (webMatch) {
@@ -420,7 +420,7 @@ export class PierService {
                     text: this.formatBootLog(data)
                 })
                 
-                send('boot-log', messages)
+                send('boot-log', { slug, messages })
             })
 
             urbit.stdout.on('data', (data) => {
@@ -515,6 +515,11 @@ export interface PierAuth {
 export interface BootMessage {
     type: 'out' | 'error';
     text: string;
+}
+
+export interface BootMessageSet {
+    slug: string;
+    messages: BootMessage[];
 }
 
 export function pierSlugify(name: string): string {

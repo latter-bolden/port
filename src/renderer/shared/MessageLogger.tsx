@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react'
-import { BootMessage } from '../../background/services/pier-service';
+import { BootMessage, BootMessageSet } from '../../background/services/pier-service';
 import { listen } from '../client/ipc';
 
-export const MessageLogger: React.FC = () => {
+export const MessageLogger: React.FC<{ slug: string }> = ({ slug }) => {
     const [messages, setMessages] = useState<BootMessage[]>([]);
 
     useEffect(() => {
-        const unlisten = listen('boot-log', data => setMessages((data as BootMessage[]).reverse()))
+        const unlisten = listen('boot-log', (data: BootMessageSet) => {
+            if (slug === data.slug) {
+                setMessages((data.messages).reverse())
+            }
+        })
 
         return () => unlisten()
     }, [])

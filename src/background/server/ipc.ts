@@ -76,7 +76,7 @@ function serve<T extends HandlerMap<T>>(handlers: HandlerMap<T>) {
     })
 }
 
-export function send(name: string, args: unknown[]): void {
+export function send(name: string, ...args: unknown[]): void {
     const msg: Push = { type: 'push', name, args };
     ipc.server.broadcast('message', JSON.stringify(msg))
     isDev && console.log(Date.now(), 'server sending:', msg);

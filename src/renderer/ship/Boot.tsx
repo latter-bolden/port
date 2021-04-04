@@ -46,7 +46,7 @@ export const Boot: React.FC = () => {
                                 {ship?.type !== 'comet' && <div className="text-gray-600">This could take up to a few minutes.</div>}
                             </div>
                         </div>
-                        <MessageLogger />
+                        <MessageLogger slug={ship?.slug} />
                     </>
                 }
                 {isSuccess &&

@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, UploadBlob } from 'electron';
 import { ChildProcess } from 'child_process'
 import findOpenSocket from '../renderer/client/find-open-socket'
 import isDev from 'electron-is-dev'
@@ -10,6 +10,30 @@ let serverProcess: ChildProcess;
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
+}
+
+function setupNewWindowHandler(window: BrowserWindow) {
+  window.webContents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures, referrer, postBody) => {
+    event.preventDefault()
+
+    const win = new BrowserWindow({
+      titleBarStyle: 'default',
+      show: false
+    })
+    win.once('ready-to-show', () => win.show())
+    const loadOptions: Electron.LoadURLOptions = {
+      httpReferrer: referrer
+    }
+    if (postBody != null) {
+      const { data, contentType, boundary } = postBody
+      loadOptions.postData = data as UploadBlob[]
+      loadOptions.extraHeaders = `content-type: ${contentType}; boundary=${boundary}`
+    }
+
+    win.loadURL(url, loadOptions) // existing webContents will be navigated automatically
+    event.newGuest = win
+  })
+  
 }
 
 async function createWindow(socketName: string, bgWindow?: BrowserWindow): Promise<void> {
@@ -24,8 +48,12 @@ async function createWindow(socketName: string, bgWindow?: BrowserWindow): Promi
     }
   });
 
-  await mainWindow.webContents.session.clearStorageData();
+  await mainWindow.webContents.session.clearStorageData({
+    storages: ['appcache', 'filesystem', 'indexdb', 'localstorage', 'cachestorage']
+  });
   await mainWindow.webContents.session.clearCache();
+  setupNewWindowHandler(mainWindow)
+
   mainWindow.webContents.on('dom-ready', () => {
     mainWindow.webContents.send('set-socket', {
       name: socketName
