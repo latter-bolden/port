@@ -2,57 +2,78 @@ import React from 'react'
 import { useQuery } from 'react-query'
 import { Link } from 'react-router-dom'
 import { send } from '../client/ipc'
+import { Logo } from '../icons/Logo'
 import { RightArrow } from '../icons/RightArrow'
+import { BootOptions } from '../ship/components/BootOptions'
+import { ShipList } from '../ship/components/ShipList'
 import { Layout } from '../shared/Layout'
+import { Spinner } from '../shared/Spinner'
+import { routes } from '../routes'
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import { ChevronDown } from '../icons/ChevronDown'
+
+const CenteredLayout = () => (
+    <Layout title="Welcome" className="flex justify-center items-center min-content-area-height px-8">
+        <section className="max-w-4xl">
+            <div className="flex flex-col items-center">
+                <Logo className="h-40 w-40 text-white" />
+                <h1 className="text-2xl mt-8 mb-20 text-center">Welcome to Urbit</h1>
+            </div>
+            <nav>
+                <BootOptions className="grid gap-8 grid-cols-1 sm:grid-cols-3" />
+            </nav>
+        </section>
+    </Layout>
+)
 
 export const Welcome = () => {
-    const { data: piers } = useQuery('piers', async () => await send('get-piers'))
+    const { data: piers, isIdle, isLoading } = useQuery('piers', async () => await send('get-piers'))
+
+    if (isIdle || isLoading) {
+        return <Layout title="Welcome" className="flex justify-center items-center min-content-area-height">
+            <Spinner className="h-24 w-24" />
+        </Layout>
+    }
+
+    if (!piers || piers.length === 0) {
+        return <CenteredLayout />
+    }
 
     return (
         <Layout title="Welcome" className="flex justify-center items-center min-content-area-height">
-            <section className="max-w-xl">
-                <div className="flex flex-col items-center">
-                    <svg className="h-40 w-40" viewBox="0 0 216 216" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M108 195.75C59.537 195.75 20.25 156.463 20.25 108C20.25 59.537 59.537 20.25 108 20.25C156.463 20.25 195.75 59.537 195.75 108C195.75 156.463 156.463 195.75 108 195.75Z" stroke="white" strokeWidth="13.5"/>
-                        <path d="M148.5 94.8294H132.507C131.302 101.909 128.207 106.189 122.704 106.189C112.729 106.189 107.054 94.5 91.5766 94.5C76.6145 94.5 68.7035 103.72 67.5 121.335H83.4935C84.6977 114.091 87.7932 109.811 93.4679 109.811C103.442 109.811 108.774 121.5 124.596 121.5C139.213 121.5 147.296 112.28 148.5 94.8294Z" fill="white"/>
-                    </svg>
-                    <h1 className="text-2xl mt-8 mb-20 text-center">Welcome to Urbit</h1>
-                </div>
-                <nav>
-                    <ul className="grid gap-8 grid-cols-2">
-                        <li>
-                            <div className="block w-full p-4 text-gray-700 border border-gray-700 rounded">
-                                <strong className="block font-semibold mb-2">Coming Soon™ {/*Have an ID already?*/}</strong>
-                                <span>Boot your planet with the key or pier</span>
-                            </div>
-                        </li>
-                        <li>
-                            <Link to="/boot/comet" className="block w-full p-4 border border-gray-700 hover:border-white focus:border-white transition-colors rounded">
-                                <strong className="block font-semibold mb-2">Start without an ID</strong>
-                                <span className="text-gray-300">Generate a disposable identity and boot as a comet</span>
-                            </Link>
-                        </li>
-                    </ul>
-                </nav>
-                {piers && piers.length > 0 &&
-                    <nav className="max-w-md mx-auto mt-10">
-                        <h2 className="font-semibold px-2">Ships</h2>
-                        <ul>
-                            {piers.sort((a,b) => b.lastUsed.localeCompare(a.lastUsed)).map(pier => (
-                                <li key={pier.slug}>
-                                    <Link 
-                                        className="group flex items-center px-2 py-1 border-b border-gray-700 hover:border-white focus:border-white focus:outline-none transition-colors no-underline" to={`/pier/launch/${pier.slug}`} 
-                                        onClick={async () => await send('clear-data')}
-                                    >
-                                        {pier.name}
-                                        <RightArrow className="ml-auto w-7 h-7" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" />
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
+            <div className="grid grid-cols-3 gap-x-12 gap-y-8 max-w-3xl mt-20">
+                <aside className="col-span-1">
+                    <header className="col-span-3 flex items-center justify-end mb-4">
+                        <Logo className="h-14 w-14 mr-3" />
+                        <h1 className="text-4xl font-normal text-center">urbit</h1> 
+                    </header>
+                    <nav className="flex justify-end min-w-48 pl-16">
+                        <DropdownMenu.Root>
+                            <DropdownMenu.Trigger className="button text-sm">
+                                Boot Menu
+                                <ChevronDown className="ml-3 w-5 h-5" primary="fill-current" />
+                                {/* <DownCaret /> */}
+                            </DropdownMenu.Trigger>
+                            <DropdownMenu.Content as="ul" align="end" sideOffset={-30} className="min-w-52 text-sm text-gray-400 bg-gray-900 rounded shadow-lg">
+                                { routes.map(route => (
+                                    <li className="border-gray-700">
+                                        <Link to={route.path} className="group flex items-center px-5 py-2 hover:text-white focus:text-white focus:outline-none focus:ring-0 transition-colors no-underline">
+                                            { route.title }
+                                            <RightArrow className="ml-auto w-5 h-5" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" primary="fill-current text-transparent" />
+                                        </Link>
+                                    </li>
+                                ))}
+                            </DropdownMenu.Content>
+                        </DropdownMenu.Root>
                     </nav>
-                }
-            </section>
+                </aside>
+                <section className="col-span-2">
+                    <nav className="mt-6">
+                        <h2 className="font-semibold px-2 mb-2">Ships</h2>
+                        <ShipList piers={piers} />
+                    </nav>
+                </section>
+            </div>                               
         </Layout>
     )
 }

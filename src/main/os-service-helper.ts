@@ -1,11 +1,7 @@
 import { BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent } from 'electron'
 
 async function openDialog(event: IpcMainInvokeEvent, options: Electron.OpenDialogOptions) {
-    return await dialog.showOpenDialog({
-        title: 'Select a Directory',
-        properties: ['openDirectory', 'createDirectory'],
-        ...options
-    });
+    return await dialog.showOpenDialog(options);
 }
 
 function setTitle(window: BrowserWindow, event: IpcMainInvokeEvent, title: string) {
@@ -16,10 +12,10 @@ function setTitle(window: BrowserWindow, event: IpcMainInvokeEvent, title: strin
 async function clearData(window: BrowserWindow) {
     const session = window.webContents.session;
     //possibly clear everything not sure what's the issue
-    //await session.clearAuthCache()
     await session.clearCache()
-    await session.clearStorageData()
-    //await session.clearHostResolverCache()
+    await session.clearStorageData({
+        storages: ['appcache', 'filesystem', 'indexdb', 'localstorage', 'cachestorage']
+    })
 }
 
 async function toggleDevTools(mainWindow: BrowserWindow, bgWindow?: BrowserWindow) {

@@ -1,8 +1,8 @@
 import db from './db'
-import { HandlerEntry, HandlerMap } from './server/ipc';
-import { init } from './server'
+import { HandlerEntry, HandlerMap, init } from './server/ipc';
 import { OSHandlers, OSService } from './services/os-service';
 import { PierHandlers, PierService } from './services/pier-service';
+import { ipcRenderer } from 'electron';
 
 export type Handlers = OSHandlers & PierHandlers//& { init: () => Promise<PierData> };
 
@@ -14,8 +14,6 @@ function addHandlers(handlerMap: HandlerMap<Handlers>, handlers: HandlerEntry<Ha
     }
 }
 
-
-
 async function start() {
     const handlerMap: HandlerMap<Handlers> = {} as HandlerMap<Handlers>;
     const osService = new OSService();
@@ -24,10 +22,12 @@ async function start() {
     addHandlers(handlerMap, osService.handlers());
     addHandlers(handlerMap, pierService.handlers());
 
-    // addHandlers(handlerMap, [
-    //     { name: 'init', handler: async () => await projectService.init() }
-    // ])
-    init(handlerMap);
+    ipcRenderer.on('set-socket', (event, { name }) => {
+      console.log('received socket set', name)
+      init(name, handlerMap)
+    })
+
+    pierService.setPierDirectory();
 
     console.log('initializing background process')
 }
