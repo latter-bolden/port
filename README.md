@@ -1,6 +1,4 @@
-# Taisho/Mothership aka Urbit Desktop (ALPHA)
-
-Not sure what name to pick haha.
+# Taisho aka Urbit Client (ALPHA)
 
 ![Mothership](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/BALEEN%20CLASS_PATREON_190519.jpg)
 
@@ -11,10 +9,11 @@ Not sure what name to pick haha.
 This app allows you to spin up, access, and manage your ships whether they are comets, planets or potentially stars. It gives people the ability to immediately download and run Urbit without any knowledge of the command line.
 
 ## Screenshots
-![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-02-15%20at%2011.34.00%20AM.png)  
-![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-02-15%20at%2011.34.25%20AM.png)
-![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-02-15%20at%2011.43.17%20AM.png)
-![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-02-15%20at%2011.48.21%20AM.png)
+![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-04-06%20at%204.06.09%20PM.png)  
+![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-04-06%20at%204.09.15%20PM.png)
+![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-04-06%20at%204.10.16%20PM.png)
+![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-04-06%20at%204.14.11%20PM.png)
+![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-04-06%20at%204.16.14%20PM.png)
 
 ## Installing
 
