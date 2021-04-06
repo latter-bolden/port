@@ -9,11 +9,11 @@
 This app allows you to spin up, access, and manage your ships whether they are comets, planets or potentially stars. It gives people the ability to immediately download and run Urbit without any knowledge of the command line.
 
 ## Screenshots
-![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-04-06%20at%204.06.09%20PM.png)  
-![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-04-06%20at%204.09.15%20PM.png)
-![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-04-06%20at%204.10.16%20PM.png)
-![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-04-06%20at%204.14.11%20PM.png)
-![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/Screen%20Shot%202021-04-06%20at%204.16.14%20PM.png)
+![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/taisho-welcome.jpg)  
+![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/taisho-moon.jpg)
+![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/taisho-boot.jpg)
+![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/taisho-launch.jpg)
+![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/taisho-home.jpg)
 
 ## Installing
 
