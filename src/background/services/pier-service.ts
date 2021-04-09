@@ -8,7 +8,7 @@ import { getPlatform, getPlatformPathSegments} from '../../get-platform';
 import { rootPath as root } from 'electron-root-path';
 import appRootDir from 'app-root-dir'
 import find from 'find-process';
-import { unlink, rmdir, access, readFile } from 'fs'
+import { unlink, mkdir, rmdir, access, readFile } from 'fs'
 import { promisify } from 'util'
 import ADMZip from 'adm-zip'
 import mv from 'mv'
@@ -21,6 +21,7 @@ const asyncRm = promisify(unlink);
 const asyncRmdir = promisify(rmdir);
 const asyncAccess = promisify(access);
 const asyncRead = promisify(readFile);
+const asyncMkdir = promisify(mkdir);
 
 const binariesPath =
   IS_PROD // the path to a bundled electron app.
@@ -74,6 +75,20 @@ export class PierService {
     async setPierDirectory(): Promise<void> {
         const pierDirectory = await this.db.settings.asyncFindOne({ name: 'pier-directory' })
         this.pierDirectory = pierDirectory?.value || joinPath(remote.app.getPath('userData'), 'piers')
+
+        try {
+            await asyncAccess(this.pierDirectory)
+            return;
+        } catch {
+            console.log('Pier directory missing, creating...')
+        }
+
+        try {
+            await asyncMkdir(this.pierDirectory, { recursive: true })
+        } catch (err) {
+            console.log('Error creating piers directory:', err, 'Reverting to userData folder')
+            this.pierDirectory = remote.app.getPath('userData')
+        }
     }
 
     async addPier(data: AddPier): Promise<Pier | null> {

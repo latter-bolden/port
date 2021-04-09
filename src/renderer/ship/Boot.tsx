@@ -16,6 +16,7 @@ export const Boot: React.FC = () => {
     const { mutate, isIdle, isLoading, isSuccess } = useMutation(() => send('boot-pier', slug), {
         onSuccess: () => {
             queryClient.invalidateQueries(['pier', slug])
+            queryClient.invalidateQueries('piers')
         }
     })
 
