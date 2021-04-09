@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useMutation, useQuery } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { Link, useParams } from 'react-router-dom'
 import { Pier } from '../../background/services/pier-service'
 import { send } from '../client/ipc'
@@ -9,6 +9,7 @@ import { Layout } from '../shared/Layout'
 import { Spinner } from '../shared/Spinner'
 
 export const Launch = () => {
+    const queryClient = useQueryClient();
     const { slug } = useParams<{ slug: string }>()
     const [pier, setPier] = useState<Pier>();
     const [showCopied, setShowCopied] = useState(false);
@@ -50,7 +51,7 @@ export const Launch = () => {
 
     const Footer = () => (
         <>
-            <Link to="/" className="inline-flex items-center ml-2 mr-8 text-xs text-gray-500 hover:text-white focus:text-white transition-colors">
+            <Link to="/" className="inline-flex items-center ml-2 mr-8 text-xs text-gray-500 hover:text-white focus:text-white transition-colors" onMouseOver={() => queryClient.prefetchQuery('piers')}>
                 <LeftArrow className="w-5 h-5 mr-2" secondary="fill-current" />
                 Home
             </Link>

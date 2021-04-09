@@ -27,7 +27,7 @@ const moon: RouteInfo = {
     path: '/boot/moon',
     title: 'Moon',
     heading: 'Boot a child ID',
-    description: 'Boot a moon with the keyfile from running <pre className="inline">|moon</pre> in dojo'
+    description: 'Boot a moon with the keyfile from running <pre class="inline">|moon</pre> in dojo'
 }
 
 const existing: RouteInfo = {

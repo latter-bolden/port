@@ -52,7 +52,6 @@ export const Welcome = () => {
                             <DropdownMenu.Trigger className="button text-sm">
                                 Boot Menu
                                 <ChevronDown className="ml-3 w-5 h-5" primary="fill-current" />
-                                {/* <DownCaret /> */}
                             </DropdownMenu.Trigger>
                             <DropdownMenu.Content as="ul" align="end" sideOffset={-30} className="min-w-52 text-sm text-gray-400 bg-gray-900 rounded shadow-lg">
                                 { routes.map(route => (
