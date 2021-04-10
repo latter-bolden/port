@@ -11,7 +11,7 @@ export const ShipList = ({ piers }: { piers: Pier[]}) => {
                 <li key={pier.slug} className="flex items-center p-2 bg-gray-900 rounded">
                     <div>
                         <div className="leading-tight">{ pier.name }</div>
-                        <div className="flex items-center mt-1 text-sm">
+                        <div className="mt-1 text-sm">
                             <ShipStatus ship={pier} />
                         </div>
                     </div>

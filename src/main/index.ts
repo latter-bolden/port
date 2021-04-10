@@ -42,6 +42,7 @@ async function createWindow(socketName: string, bgWindow?: BrowserWindow): Promi
     height: 800,
     width: 1200,
     titleBarStyle: 'hiddenInset',
+    backgroundColor: '#000000',
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
