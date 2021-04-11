@@ -1,70 +1,17 @@
-import { app, BrowserWindow, UploadBlob } from 'electron';
-import { ChildProcess } from 'child_process'
+import { app, BrowserWindow } from 'electron';
 import findOpenSocket from '../renderer/client/find-open-socket'
 import isDev from 'electron-is-dev'
-import { start as osHelperStart } from './os-service-helper'
+import { isOSX } from './helpers';
+import { createMainWindow } from './main-window';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const BACKGROUND_WINDOW_WEBPACK_ENTRY: string;
-let serverProcess: ChildProcess;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
 }
 
-function setupNewWindowHandler(window: BrowserWindow) {
-  window.webContents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures, referrer, postBody) => {
-    event.preventDefault()
-
-    const win = new BrowserWindow({
-      titleBarStyle: 'default',
-      show: false
-    })
-    win.once('ready-to-show', () => win.show())
-    const loadOptions: Electron.LoadURLOptions = {
-      httpReferrer: referrer
-    }
-    if (postBody != null) {
-      const { data, contentType, boundary } = postBody
-      loadOptions.postData = data as UploadBlob[]
-      loadOptions.extraHeaders = `content-type: ${contentType}; boundary=${boundary}`
-    }
-
-    win.loadURL(url, loadOptions) // existing webContents will be navigated automatically
-    event.newGuest = win
-  })
-  
-}
-
-async function createWindow(socketName: string, bgWindow?: BrowserWindow): Promise<void> {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    height: 800,
-    width: 1200,
-    titleBarStyle: 'hiddenInset',
-    backgroundColor: '#000000',
-    webPreferences: {
-      nodeIntegration: true,
-      enableRemoteModule: true,
-    }
-  });
-
-  await mainWindow.webContents.session.clearStorageData({
-    storages: ['appcache', 'filesystem', 'indexdb', 'localstorage', 'cachestorage']
-  });
-  await mainWindow.webContents.session.clearCache();
-  setupNewWindowHandler(mainWindow)
-
-  mainWindow.webContents.on('dom-ready', () => {
-    mainWindow.webContents.send('set-socket', {
-      name: socketName
-    });
-  })
-  
-  osHelperStart(mainWindow, bgWindow)
-  // and load the index.html of the app.
-  await mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-}
+let mainWindow: BrowserWindow;
 
 function createBackgroundWindow(socketName: string) {
   const win = new BrowserWindow({
@@ -102,7 +49,7 @@ async function start(bootBg: boolean) {
     bgWindow = createBackgroundWindow(serverSocket)
   }
 
-  await createWindow(serverSocket, bgWindow)
+  mainWindow = createMainWindow(MAIN_WINDOW_WEBPACK_ENTRY, serverSocket, app.quit.bind(this), bgWindow)
 }
 
 // This method will be called when Electron has finished
@@ -114,27 +61,38 @@ app.on('ready', () => start(true));
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+  if (!isOSX()) {
     app.quit();
   }
 });
 
 app.on('before-quit', () => {
-  if (serverProcess) {
-    serverProcess.kill()
-    serverProcess = null
+  // not fired when the close button on the window is clicked
+  if (isOSX()) {
+    // need to force a quit as a workaround here to simulate the osx app hiding behaviour
+    // Somehow sokution at https://github.com/atom/electron/issues/444#issuecomment-76492576 does not work,
+    // e.prevent default appears to persist
+
+    // might cause issues in the future as before-quit and will-quit events are not called
+    app.exit(0);
   }
 })
 
-app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open. except background
-  const windows = BrowserWindow.getAllWindows();
-  const hasBackground = !!windows.find(win => win.title === 'background')
-  if (windows.length === 1 && hasBackground) {
-    start(false);
+app.on('activate', (event, hasVisibleWindows) => {
+  if (isOSX()) {
+    // this is called when the dock is clicked
+    if (!hasVisibleWindows) {
+      mainWindow.show();
+    } else {
+      const windows = BrowserWindow.getAllWindows();
+      const hasBackground = !!windows.find(win => win.title === 'background')
+      if (windows.length === 1 && hasBackground) {
+        start(false);
+      }
+    }
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+app.on('new-window-for-tab', () => {
+  mainWindow.emit('new-tab');
+});
