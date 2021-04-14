@@ -12,10 +12,11 @@ import { Layout } from '../shared/Layout'
 export const CometDetails: React.FC = () => {
     const history = useHistory();
     const queryClient = useQueryClient();
-    const { register, handleSubmit, formState: { isValid } } = useForm<AddPier>({
+    const { register, handleSubmit, errors, formState: { isValid } } = useForm<AddPier>({
         mode: 'onChange'
     });
-    const { data: comet } = useQuery(pierKey())
+    const { data: piers } = useQuery(pierKey(), () => send('get-piers'))
+    const invalidName = errors.name?.type === 'validate';
 
     async function onSubmit(data) {
         const pier = await send('add-pier', { ...data, type: 'comet' })
@@ -36,7 +37,7 @@ export const CometDetails: React.FC = () => {
                         <span className="sr-only">Back</span>
                     </Link>
                 </div>
-                <div className="grid grid-cols-1 gap-4 text-sm">
+                <div className="grid grid-cols-1 gap-4 min-w-64 -mt-12 text-sm">
                     <h1 className="font-semibold text-base mb-2">Enter Comet Details</h1>
                     <div>
                         <label htmlFor="name">Name <span className="text-gray-700">(local only)</span></label>
@@ -44,10 +45,19 @@ export const CometDetails: React.FC = () => {
                             id="name" 
                             name="name" 
                             type="text"
-                            ref={register({ required: true })}
-                            className="flex w-full px-2 py-1 mt-2 bg-transparent border border-gray-700 focus:outline-none focus:border-gray-500 transition-colors rounded" 
-                            placeholder="My Comet" 
+                            ref={register({ 
+                                required: true,
+                                validate: (value: string) => {
+                                    return !piers.find(pier => pier.name === value)
+                                }
+                            })}
+                            className="flex w-full px-2 py-1 mt-2 -mx-2 bg-transparent border border-gray-700 focus:outline-none focus:border-gray-500 transition-colors rounded" 
+                            placeholder="My Comet"
+                            aria-invalid={invalidName}
                         />
+                        <span className={`inline-block mt-2 text-sm text-red-600 ${invalidName ? 'visible' : 'invisible'}`} role="alert">
+                            Name must be unique
+                        </span>
                     </div>
                 </div>
                 <div className="ml-12">
