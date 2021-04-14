@@ -55,7 +55,12 @@ module.exports = {
     {
       name: "@electron-forge/maker-deb",
       config: {
-        icon: "icons/urbit-logo.png"
+        options: {
+          icon: "icons/urbit-logo.png",
+          depends: [
+            "libx11-xcb1"
+          ]
+        }        
       }
     }
   ],
