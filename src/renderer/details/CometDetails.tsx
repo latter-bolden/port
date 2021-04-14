@@ -1,11 +1,12 @@
 import React from 'react'
 import { useForm } from 'react-hook-form'
-import { useQueryClient } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { Link, useHistory } from 'react-router-dom'
 import { AddPier } from '../../background/services/pier-service'
 import { send } from '../client/ipc'
 import { LeftArrow } from '../icons/LeftArrow'
 import { RightArrow } from '../icons/RightArrow'
+import { pierKey } from '../query-keys'
 import { Layout } from '../shared/Layout'
 
 export const CometDetails: React.FC = () => {
@@ -14,6 +15,7 @@ export const CometDetails: React.FC = () => {
     const { register, handleSubmit, formState: { isValid } } = useForm<AddPier>({
         mode: 'onChange'
     });
+    const { data: comet } = useQuery(pierKey())
 
     async function onSubmit(data) {
         const pier = await send('add-pier', { ...data, type: 'comet' })
@@ -21,7 +23,7 @@ export const CometDetails: React.FC = () => {
         if (!pier)
             return;
 
-        queryClient.setQueryData(['pier', pier.slug], pier);
+        queryClient.setQueryData(pierKey(pier.slug), pier);
         history.push(`/boot/${pier.slug}`)
     }
 

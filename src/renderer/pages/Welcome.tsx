@@ -11,6 +11,7 @@ import { Spinner } from '../shared/Spinner'
 import { routes } from '../routes'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { ChevronDown } from '../icons/ChevronDown'
+import { pierKey } from '../query-keys'
 
 const CenteredLayout = () => (
     <Layout title="Welcome" className="flex justify-center items-center min-content-area-height px-8">
@@ -27,7 +28,7 @@ const CenteredLayout = () => (
 )
 
 export const Welcome = () => {
-    const { data: piers, isIdle, isLoading } = useQuery('piers', async () => await send('get-piers'))
+    const { data: piers, isIdle, isLoading } = useQuery(pierKey(), async () => await send('get-piers'))
 
     if (isIdle || isLoading) {
         return <Layout title="Welcome" className="flex justify-center items-center min-content-area-height">

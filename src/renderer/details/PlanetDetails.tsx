@@ -6,6 +6,7 @@ import { AddPier, Pier } from '../../background/services/pier-service'
 import { send } from '../client/ipc'
 import { LeftArrow } from '../icons/LeftArrow'
 import { RightArrow } from '../icons/RightArrow'
+import { pierKey } from '../query-keys'
 import { Layout } from '../shared/Layout'
 
 export const PlanetDetails: React.FC = () => {
@@ -19,7 +20,7 @@ export const PlanetDetails: React.FC = () => {
             if (!pier)
                 return;
 
-            queryClient.setQueryData(['pier', pier.slug], pier);
+            queryClient.setQueryData(pierKey(pier.slug), pier);
             history.push(`/boot/${pier.slug}`)
         }
     })

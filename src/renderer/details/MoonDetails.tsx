@@ -9,6 +9,7 @@ import { RightArrow } from '../icons/RightArrow'
 import { Layout } from '../shared/Layout'
 import * as Tabs from '@radix-ui/react-tabs'
 import * as Tooltip from '@radix-ui/react-tooltip'
+import { pierKey } from '../query-keys'
 
 export const MoonDetails: React.FC = () => {
     const history = useHistory();
@@ -41,7 +42,7 @@ export const MoonDetails: React.FC = () => {
             if (!pier)
                 return;
 
-            queryClient.setQueryData(['pier', pier.slug], pier);
+            queryClient.setQueryData(pierKey(pier.slug), pier);
             history.push(`/boot/${pier.slug}`)
         }
     })

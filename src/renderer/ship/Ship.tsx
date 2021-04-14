@@ -12,13 +12,14 @@ import { Close } from '../icons/Close'
 import * as Dialog from '@radix-ui/react-dialog'
 import { ShipStatus } from './components/ShipStatus'
 import { LaunchButton } from './components/LaunchButton'
+import { pierKey } from '../query-keys'
 
 
 export const Ship: React.FC = () => {
     const history = useHistory()
     const { slug } = useParams<{ slug: string }>()
     const queryClient = useQueryClient();
-    const { data: ship } = useQuery(['pier', slug], async () => {
+    const { data: ship } = useQuery(pierKey(slug), async () => {
         const pier = await send('get-pier', slug)
         return send('check-pier', pier)
     }, {
@@ -26,7 +27,7 @@ export const Ship: React.FC = () => {
     })
     const { mutate: stopShip } = useMutation(() => send('stop-pier', ship), {
         onSuccess: () => {
-            queryClient.invalidateQueries(['pier', slug])
+            queryClient.invalidateQueries(pierKey(slug))
         }
     })
     const { mutate: ejectShip, isLoading } = useMutation(async () => {
@@ -34,7 +35,7 @@ export const Ship: React.FC = () => {
         return send('eject-pier', ship)
     }, {
         onSuccess: () => {
-            queryClient.prefetchQuery('piers')
+            queryClient.prefetchQuery(pierKey())
             history.push('/')
         }
     })

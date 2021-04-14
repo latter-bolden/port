@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { Link, useParams } from 'react-router-dom'
 import { send } from '../client/ipc'
 import { RightArrow } from '../icons/RightArrow'
+import { pierKey } from '../query-keys'
 import { Layout } from '../shared/Layout'
 import { MessageLogger } from '../shared/MessageLogger'
 import { Spinner } from '../shared/Spinner'
@@ -10,13 +11,12 @@ import { Spinner } from '../shared/Spinner'
 export const Boot: React.FC = () => {
     const queryClient = useQueryClient()
     const { slug } = useParams<{ slug: string }>();
-    const { data: ship } = useQuery(['pier', slug], () => send('get-pier', slug), {
+    const { data: ship } = useQuery(pierKey(slug), () => send('get-pier', slug), {
         refetchOnWindowFocus: false
     })
     const { mutate, isIdle, isLoading, isSuccess } = useMutation(() => send('boot-pier', slug), {
         onSuccess: () => {
-            queryClient.invalidateQueries(['pier', slug])
-            queryClient.invalidateQueries('piers')
+            queryClient.invalidateQueries(pierKey())
         }
     })
 
