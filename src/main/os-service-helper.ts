@@ -18,7 +18,7 @@ async function clearData(window: BrowserWindow) {
     })
 }
 
-async function toggleDevTools(mainWindow: BrowserWindow, bgWindow?: BrowserWindow) {
+export async function toggleDevTools(mainWindow: BrowserWindow, bgWindow?: BrowserWindow) {
     mainWindow.webContents.toggleDevTools()
 
     if (bgWindow) {
