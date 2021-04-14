@@ -4,9 +4,13 @@ import contextMenu from 'electron-context-menu';
 //Taken from https://github.com/nativefier/nativefier/blob/master/app/src/components/contextMenu.ts
 export function initContextMenu(createNewWindow, createNewTab): void {
   contextMenu({
+    showInspectElement: false,
     prepend: (actions, params) => {
       const items = [];
-      if (params.linkURL) {
+      const urlParts = params.pageURL.split('/');
+      const onLaunch = urlParts[urlParts.length - 1] === 'launch'
+
+      if (params.linkURL && onLaunch) {
         items.push({
           label: 'Open Link in Default Browser',
           click: () => {
