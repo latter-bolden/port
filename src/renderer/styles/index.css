@@ -6,7 +6,7 @@
 @import "tailwindcss/utilities";
 
 a {
-  @apply focus:outline-none focus:ring focus:ring-gray-600 focus:ring-opacity-50;
+  @apply inline-block focus:outline-none focus:ring focus:ring-gray-600 focus:ring-opacity-50;
 }
 
 .border-t-gray-300 {
@@ -17,10 +17,14 @@ a {
   -webkit-app-region: drag
 }
 
-.content-area-height {
-  height: calc(100vh - 4.5rem);
+.body-rows {
+  grid-template-rows: 1fr 2rem;
 }
 
-.min-content-area-height {
-  min-height: calc(100vh - 4.5rem);
+.min-content-mac {
+  min-height: calc(100vh - 3.75rem);
+}
+
+.min-content {
+  min-height: calc(100vh - 2rem);
 }

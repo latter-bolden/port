@@ -4,7 +4,7 @@ import { Layout } from '../shared/Layout'
 
 export const ErrorPage: FunctionComponent<FallbackProps> = ({ error, resetErrorBoundary }) => {
     return (
-        <Layout title={error.name} className="flex items-center min-content-area-height p-4">
+        <Layout title={error.name} className="p-4">
             <section className="w-full max-w-2xl mx-auto space-y-4">
                 <h1>
                     <span className="font-semibold text-red-500">{ error.name }:</span>

@@ -3,21 +3,23 @@ import isDev from 'electron-is-dev'
 import { useHistory } from 'react-router-dom'
 import { send } from '../client/ipc';
 import { Bug } from '../icons/Bug';
+import { isOSX } from '../../main/helpers';
 
 interface LayoutProps {
     title: string;
+    center?: boolean;
     className?: string;
     footer?: React.ReactElement
 }
 
-export const Layout: FunctionComponent<LayoutProps> = ({ children, title, className = '', footer }) => {
+export const Layout: FunctionComponent<LayoutProps> = ({ children, title, center = true, className = '', footer }) => {
     const history = useHistory();
     const url = stringifyHistory();
     const [showDevTools, setShowDevTools] = useState(false);
 
     useEffect(() => {
         send('set-title', title)
-    }, [])
+    }, [title])
 
     function stringifyHistory() {
         let url = history.location.pathname;
@@ -39,16 +41,18 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, classN
     }
 
     return (
-        <>
-            <header className="fixed window-drag top-0 left-0 w-full h-10 p-3">
-                <h1 className="text-center text-sm leading-none font-medium tracking-tighter text-gray-700">{title}</h1>
-            </header>
-            <main className={`mt-10 ${className}`}>
+        <div className="grid grid-cols-1 body-rows min-h-screen">
+            { isOSX() &&
+                <header className="fixed window-drag top-0 left-0 w-full h-7 p-2">
+                    <h1 className="text-center text-sm leading-none font-medium tracking-tighter text-gray-700">{title}</h1>
+                </header>
+            }
+            <main className={`grid ${center ? 'justify-center content-center' : ''} ${isOSX() ? 'mt-7' : ''} ${className}`}>
                 { children }
             </main>
-            <footer className="flex items-center h-8 py-2 z-20">
+            <footer className="flex items-center h-8 p-2 z-20">
                 { footer }
-                <div className="fixed right-2 bottom-2 flex justify-end items-center leading-none">
+                <div className="flex justify-end items-center ml-auto leading-none">
                     <input 
                         type="text" 
                         className={`min-w-64 text-white text-xs bg-transparent border border-gray-700 hover:border-white focus:border-white ${isDev || showDevTools ? '' : 'hidden'}`}
@@ -64,6 +68,6 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, classN
                     </button>
                 </div>
             </footer>
-        </>
+        </div>
     )
 }

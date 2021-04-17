@@ -93,6 +93,6 @@ app.on('activate', (event, hasVisibleWindows) => {
   }
 });
 
-app.on('new-window-for-tab', () => {
-  mainWindow.emit('new-tab');
-});
+// app.on('new-window-for-tab', () => {
+//   mainWindow.emit('new-tab');
+// });

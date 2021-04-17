@@ -14,7 +14,7 @@ import { ChevronDown } from '../icons/ChevronDown'
 import { pierKey } from '../query-keys'
 
 const CenteredLayout = () => (
-    <Layout title="Welcome" className="flex justify-center items-center min-content-area-height px-8">
+    <Layout title="Welcome" className="px-8">
         <section className="max-w-4xl">
             <div className="flex flex-col items-center">
                 <Logo className="h-40 w-40 text-white" />
@@ -31,7 +31,7 @@ export const Welcome = () => {
     const { data: piers, isIdle, isLoading } = useQuery(pierKey(), async () => await send('get-piers'))
 
     if (isIdle || isLoading) {
-        return <Layout title="Welcome" className="flex justify-center items-center min-content-area-height">
+        return <Layout title="Welcome">
             <Spinner className="h-24 w-24" />
         </Layout>
     }
@@ -41,8 +41,8 @@ export const Welcome = () => {
     }
 
     return (
-        <Layout title="Welcome" className="flex justify-center items-center min-content-area-height">
-            <div className="grid grid-cols-3 gap-x-12 gap-y-8 max-w-3xl mt-20">
+        <Layout title="Welcome">
+            <div className="grid grid-cols-3 gap-x-12 gap-y-8 max-w-3xl">
                 <aside className="col-span-1">
                     <header className="col-span-3 flex items-center justify-end mb-4">
                         <Logo className="h-14 w-14 mr-3" />

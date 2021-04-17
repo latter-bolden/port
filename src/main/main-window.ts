@@ -50,7 +50,7 @@ export function createMainWindow(
   const DEFAULT_WINDOW_OPTIONS: BrowserWindowConstructorOptions = {
     // Convert dashes to spaces because on linux the app name is joined with dashes
     title: 'taisho',
-    tabbingIdentifier: nativeTabsSupported() ? 'taisho' : undefined,
+    //tabbingIdentifier: nativeTabsSupported() ? 'taisho' : undefined,
     webPreferences: {
       javascript: true,
       plugins: true,
@@ -64,7 +64,7 @@ export function createMainWindow(
     ...DEFAULT_WINDOW_OPTIONS,
     width: mainWindowState.width,
     height: mainWindowState.height,
-    titleBarStyle: 'hiddenInset',
+    titleBarStyle: 'hidden',
     backgroundColor: '#000000',
     //icon: getAppIcon(),
     webPreferences: {
@@ -256,7 +256,7 @@ export function createMainWindow(
   osHelperStart(mainWindow, bgWindow)
   mainWindow.loadURL(mainUrl);
 
-  mainWindow.on('new-tab' as any, () => createNewTab(mainUrl, true));
+  //mainWindow.on('new-tab' as any, () => createNewTab(mainUrl, true));
 
   mainWindow.on('close', (event) => {
     if (mainWindow.isFullScreen()) {

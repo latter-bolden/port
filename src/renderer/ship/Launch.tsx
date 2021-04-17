@@ -52,7 +52,7 @@ export const Launch = () => {
 
     const Footer = () => (
         <>
-            <Link to="/" className="inline-flex items-center ml-2 mr-8 text-xs text-gray-500 hover:text-white focus:text-white transition-colors" onMouseOver={() => queryClient.prefetchQuery(pierKey())}>
+            <Link to="/" className="inline-flex items-center mr-8 text-xs text-gray-500 hover:text-white focus:text-white transition-colors" onMouseOver={() => queryClient.prefetchQuery(pierKey())}>
                 <LeftArrow className="w-5 h-5 mr-2" secondary="fill-current" />
                 Home
             </Link>
@@ -68,8 +68,7 @@ export const Launch = () => {
     if (!pier || isIdle || isLoading) {
         return (
             <Layout 
-                title="Landscape" 
-                className="flex justify-center items-center content-area-height w-screen" 
+                title="Landscape"
                 footer={<Footer />}
             >
                 { (isLoading || !pier?.running) &&
@@ -84,8 +83,8 @@ export const Launch = () => {
 
     return (
         <Layout 
-            title={pier.name} 
-            className="flex justify-center items-center content-area-height w-screen" 
+            title={pier.name}
+            center={false}
             footer={<Footer />}
         >
             <iframe
