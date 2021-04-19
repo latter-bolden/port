@@ -87,34 +87,39 @@ export const Ship: React.FC = () => {
                 <div className="px-4 py-5 bg-gray-900 rounded">               
                     <h2 className="text-base font-semibold text-white mb-4">Ship Removal</h2>
                     <div className="flex items-center font-semibold">
-                        <Dialog.Root>
-                            <Dialog.Trigger className="mr-3 hover:text-red-800 focus:text-red-800 transition-colors default-ring">
-                                Delete
-                            </Dialog.Trigger>
-                            <Dialog.Overlay className="fixed z-10 top-0 left-0 right-0 bottom-0 bg-black opacity-30" />
-                            <Dialog.Content className="fixed z-40 top-1/2 left-1/2 min-w-80 bg-gray-900 rounded default-ring transform -translate-y-1/2 -translate-x-1/2">
-                                <div className="relative p-4">
-                                    <div className="my-6 pr-6">Are you sure you want to delete your ship? This action is irreversible.</div>
-                                    <div className="flex justify-end items-center">
-                                        <Dialog.Close className="text-gray-500 hover:text-white focus:text-white transition-colors mr-4 default-ring">Cancel</Dialog.Close>
-                                        <Dialog.Close className="button text-red-600 hover:text-red-600 focus:text-red-600 border border-red-900 hover:border-red-700 focus:border-red-700 focus:outline-none transition-colors default-ring" onClick={async () => await deleteShip()}>Delete</Dialog.Close>
-                                    </div>
-                                    <Dialog.Close className="absolute top-2 right-2 text-gray-700 hover:text-gray-500 focus:text-gray-500 default-ring rounded">
-                                        <Close className="w-7 h-7" primary="fill-current" />
-                                    </Dialog.Close>
-                                </div>
-                                
-                            </Dialog.Content>
-                        </Dialog.Root>
+                        { ship.type === 'remote' && 
+                            <button className="button text-red-600 hover:text-red-600 focus:text-red-600 border border-red-900 hover:border-red-700 focus:border-red-700 focus:outline-none transition-colors default-ring" onClick={async () => await deleteShip()}>Remove</button>
+                        }
                         { ship.type !== 'remote' &&
-                            <button className="button" onClick={async () => await ejectShip()}>
-                                {!isLoading && <>
-                                    <Upload className="w-5 h-5 mr-2" primary="fill-current opacity-50" secondary="fill-current" /> Eject
-                                </>}
-                                {isLoading && <>
-                                    <Spinner className="w-4 h-4 mr-2" /> Ejecting
-                                </>}
-                            </button>
+                            <>
+                                <Dialog.Root>
+                                    <Dialog.Trigger className="mr-3 hover:text-red-800 focus:text-red-800 transition-colors default-ring">
+                                        Delete
+                                    </Dialog.Trigger>
+                                    <Dialog.Overlay className="fixed z-10 top-0 left-0 right-0 bottom-0 bg-black opacity-30" />
+                                    <Dialog.Content className="fixed z-40 top-1/2 left-1/2 min-w-80 bg-gray-900 rounded default-ring transform -translate-y-1/2 -translate-x-1/2">
+                                        <div className="relative p-4">
+                                            <div className="my-6 pr-6">Are you sure you want to delete your ship? This action is irreversible.</div>
+                                            <div className="flex justify-end items-center">
+                                                <Dialog.Close className="text-gray-500 hover:text-white focus:text-white transition-colors mr-4 default-ring">Cancel</Dialog.Close>
+                                                <Dialog.Close className="button text-red-600 hover:text-red-600 focus:text-red-600 border border-red-900 hover:border-red-700 focus:border-red-700 focus:outline-none transition-colors default-ring" onClick={async () => await deleteShip()}>Delete</Dialog.Close>
+                                            </div>
+                                            <Dialog.Close className="absolute top-2 right-2 text-gray-700 hover:text-gray-500 focus:text-gray-500 default-ring rounded">
+                                                <Close className="w-7 h-7" primary="fill-current" />
+                                            </Dialog.Close>
+                                        </div>
+                                        
+                                    </Dialog.Content>
+                                </Dialog.Root>
+                                <button className="button" onClick={async () => await ejectShip()}>
+                                    {!isLoading && <>
+                                        <Upload className="w-5 h-5 mr-2" primary="fill-current opacity-50" secondary="fill-current" /> Eject
+                                    </>}
+                                    {isLoading && <>
+                                        <Spinner className="w-4 h-4 mr-2" /> Ejecting
+                                    </>}
+                                </button>
+                            </>
                         }
                     </div>
                 </div>

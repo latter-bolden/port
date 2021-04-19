@@ -13,29 +13,6 @@ import { createMenu } from './menu';
 
 const ZOOM_INTERVAL = 0.1;
 
-function hideWindow(
-  window: BrowserWindow,
-  event: Event,
-  fastQuit: boolean,
-  tray,
-): void {
-  if (isOSX() && !fastQuit) {
-    // this is called when exiting from clicking the cross button on the window
-    event.preventDefault();
-    window.hide();
-  } else if (!fastQuit && tray) {
-    event.preventDefault();
-    window.hide();
-  }
-  // will close the window on other platforms
-}
-
-async function clearCache(browserWindow: BrowserWindow): Promise<void> {
-  const { session } = browserWindow.webContents;
-  await session.clearStorageData();
-  await session.clearCache();
-}
-
 export function createMainWindow(
   mainUrl: string,
   socketName: string,
@@ -266,11 +243,31 @@ export function createMainWindow(
       mainWindow.setFullScreen(false);
       mainWindow.once(
         'leave-full-screen',
-        hideWindow.bind(this, mainWindow, event, false),
+        hideOrCloseWindow.bind(this, mainWindow, bgWindow, event),
       );
     }
-    hideWindow(mainWindow, event, false, false);
+    hideOrCloseWindow(mainWindow, bgWindow, event);
   });
 
   return mainWindow;
+}
+
+function hideOrCloseWindow(
+  window: BrowserWindow,
+  bgWindow: BrowserWindow,
+  event: Event
+): void {
+  if (isOSX()) {
+    // this is called when exiting from clicking the cross button on the window
+    event.preventDefault();
+    window.hide();
+  } else {
+    bgWindow.close();
+  }
+}
+
+async function clearCache(browserWindow: BrowserWindow): Promise<void> {
+  const { session } = browserWindow.webContents;
+  await session.clearStorageData();
+  await session.clearCache();
 }
