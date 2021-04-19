@@ -41,7 +41,7 @@ export const ExistingShipDetails = () => {
             </div>
             <div>
                 <label htmlFor="type">Ship Type</label>
-                <select name="type" ref={form.register({ required: true })} className="px-2 py-1 ml-3 bg-transparent border border-gray-700 focus:outline-none focus:border-gray-500 transition-colors rounded">
+                <select name="type" ref={form.register({ required: true })} className="px-2 py-1 ml-3 bg-black border border-gray-700 focus:outline-none focus:border-gray-500 transition-colors rounded">
                     <option value="planet">Planet</option>
                     <option value="moon">Moon</option>
                     <option value="comet">Comet</option>
