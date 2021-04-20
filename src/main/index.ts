@@ -37,6 +37,11 @@ function createBackgroundWindow(socketName: string) {
   })
   win.loadURL(BACKGROUND_WINDOW_WEBPACK_ENTRY)
 
+  win.on('close', (event) => {
+    event.preventDefault();
+    win.hide();
+  });
+
   return win;
 }
 
