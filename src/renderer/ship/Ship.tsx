@@ -13,6 +13,7 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { ShipStatus } from './components/ShipStatus'
 import { LaunchButton } from './components/LaunchButton'
 import { pierKey } from '../query-keys'
+import { Pier } from '../../background/services/pier-service'
 
 
 export const Ship: React.FC = () => {
@@ -26,8 +27,9 @@ export const Ship: React.FC = () => {
         refetchOnWindowFocus: false
     })
     const { mutate: stopShip } = useMutation(() => send('stop-pier', ship), {
-        onSuccess: () => {
+        onSuccess: (newShip: Pier) => {
             queryClient.invalidateQueries(pierKey(slug))
+            queryClient.setQueryData(pierKey(slug), newShip)
         }
     })
     const { mutate: ejectShip, isLoading } = useMutation(async () => {

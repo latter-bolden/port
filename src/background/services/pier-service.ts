@@ -135,16 +135,17 @@ export class PierService {
         }
     }
 
-    async dojo(url: string, command: string): Promise<string> {
-        const res = await axios.post(url, {
+    async dojo(url: string, command: string | Record<string, unknown>): Promise<string> {
+        const req = typeof command === 'object' ? command : {
             sink: {
                 stdout: null
             },
             source: {
                 dojo: command
             }
-        })
-    
+        };
+
+        const res = await axios.post(url, req);
         return await res.data
     }
 
@@ -343,12 +344,19 @@ export class PierService {
     }
 
     private async stopUrbit(loopbackPort: number, shipName: string): Promise<void> {
-        const processes = await find('port', loopbackPort)
-        const check = await this.dojo(`http://localhost:${loopbackPort}`, 'our')
+        const url = `http://localhost:${loopbackPort}`
+        const check = await this.dojo(url, 'our')
 
-        processes.forEach(async proc => {
-            if (check && check === shipName && proc.name.includes('urbit')) {
-                process.kill(proc.pid, 'SIGTSTP')
+        if (check !== shipName) {
+            return;
+        }
+
+        await this.dojo(url, {
+            sink: {
+                app: 'hood'
+            },
+            source: {
+                dojo: '+hood/exit'
             }
         })
     }
