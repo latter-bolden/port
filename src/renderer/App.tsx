@@ -14,8 +14,14 @@ import { CometDetails } from './details/CometDetails';
 import { Boot } from './ship/Boot';
 import { PlanetDetails } from './details/PlanetDetails';
 import { routeMap } from './routes';
+import create from 'zustand';
+import { LandscapeHaven } from './ship/components/LandscapeHaven';
 
 const queryClient = new QueryClient();
+
+export const useStore = create(() => ({
+    piers: []
+}))
 
 const App = () => {
     return (
@@ -33,6 +39,7 @@ const App = () => {
                         <Route path="/pier/:slug" component={Ship} />
                         <Route exact path="/" component={Welcome} />
                     </Switch>
+                    <LandscapeHaven />
                 </ErrorBoundary>
             </HashRouter>
         </QueryClientProvider>

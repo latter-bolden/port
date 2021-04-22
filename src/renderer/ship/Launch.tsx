@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { Link, useParams } from 'react-router-dom'
 import { Pier } from '../../background/services/pier-service'
+import { useStore } from '../App'
 import { send } from '../client/ipc'
 import { LeftArrow } from '../icons/LeftArrow'
 import { pierKey } from '../query-keys'
@@ -12,6 +13,7 @@ import { Spinner } from '../shared/Spinner'
 export const Launch = () => {
     const queryClient = useQueryClient();
     const { slug } = useParams<{ slug: string }>()
+    const piers = useStore(state => state.piers);
     const [pier, setPier] = useState<Pier>();
     const [showCopied, setShowCopied] = useState(false);
     const { mutate, isIdle, isLoading } = useMutation(async (slug: string) => {
@@ -32,6 +34,13 @@ export const Launch = () => {
     useEffect(() => {
         mutate(slug)
     }, [slug])
+
+    useEffect(() => {
+        debugger;
+        if (pier && !piers.find(p => p?.slug === slug)) {
+            useStore.setState({ piers: piers.concat(pier) })
+        }
+    }, [slug, pier, JSON.stringify(piers)]);
 
     useEffect(() => {
         if (!showCopied) {
@@ -78,8 +87,8 @@ export const Launch = () => {
         )
     }
 
-    const url = pier.type === 'remote' ? pier.directory : `http://localhost:${pier.webPort}`
-    const key = pier.lastUsed + url
+    // const url = pier.type === 'remote' ? pier.directory : `http://localhost:${pier.webPort}`
+    // const key = pier.lastUsed + url
 
     return (
         <Layout 
@@ -87,12 +96,7 @@ export const Launch = () => {
             center={false}
             footer={<Footer />}
         >
-            <iframe
-                key={key}
-                className="h-full w-full"
-                src={url} 
-                allowFullScreen 
-            />
+            <div id="landscape"></div>
         </Layout>
     )
 }
