@@ -19,7 +19,7 @@ export const DetailsContainer: React.FC<DetailsContainerProps> = ({ title, onSub
                     <span className="sr-only">Back</span>
                 </Link>
             </div>
-            <div className="grid grid-cols-1 gap-4 w-full min-w-64 text-sm">
+            <div className="grid grid-cols-1 gap-4 w-80 text-sm">
                 { children }
             </div>
             <div className="ml-12">

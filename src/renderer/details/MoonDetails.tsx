@@ -13,7 +13,7 @@ export const MoonDetails: React.FC = () => {
     const {
         form,
         mutate,
-        invalidName,
+        nameNotUnique,
         nameValidator
     } = useAddPier((data: AddPier | NewMoon) => {
         return isNewMoon(data) && data.planet && tab === 'from-planet'
@@ -55,9 +55,9 @@ export const MoonDetails: React.FC = () => {
                     ref={form.register({ required: true, validate: nameValidator })}
                     className="flex w-full px-2 py-1 mt-2 bg-transparent border border-gray-700 focus:outline-none focus:border-gray-500 transition-colors rounded" 
                     placeholder="My Ship" 
-                    aria-invalid={invalidName}
+                    aria-invalid={nameNotUnique}
                 />
-                <span className={`inline-block mt-2 text-sm text-red-600 ${invalidName ? 'visible' : 'invisible'}`} role="alert">
+                <span className={`inline-block mt-2 text-sm text-red-600 ${nameNotUnique ? 'visible' : 'invisible'}`} role="alert">
                     Name must be unique
                 </span>
             </div>
