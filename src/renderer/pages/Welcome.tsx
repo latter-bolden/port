@@ -56,7 +56,7 @@ export const Welcome = () => {
                             </DropdownMenu.Trigger>
                             <DropdownMenu.Content as="ul" align="end" sideOffset={-30} className="min-w-52 text-sm text-gray-400 bg-gray-900 rounded shadow-lg">
                                 { routes.map(route => (
-                                    <li className="border-gray-700">
+                                    <li key={route.path} className="border-gray-700">
                                         <Link to={route.path} className="group flex items-center px-5 py-2 hover:text-white focus:text-white focus:outline-none focus:ring-0 transition-colors no-underline">
                                             { route.title }
                                             <RightArrow className="ml-auto w-5 h-5" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" primary="fill-current text-transparent" />

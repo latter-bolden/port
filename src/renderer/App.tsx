@@ -7,12 +7,12 @@ import { Launch } from './ship/Launch';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorPage } from './pages/ErrorPage';
 import { Ship } from './ship/Ship';
-import { RemotePierDetails } from './details/RemotePierDetails';
-import { ExistingShipDetails } from './details/ExistingShipDetails';
-import { MoonDetails } from './details/MoonDetails';
-import { CometDetails } from './details/CometDetails';
+import { RemotePierDetails } from './details/pages/RemotePierDetails';
+import { ExistingShipDetails } from './details/pages/ExistingShipDetails';
+import { MoonDetails } from './details/pages/MoonDetails';
+import { CometDetails } from './details/pages/CometDetails';
 import { Boot } from './ship/Boot';
-import { PlanetDetails } from './details/PlanetDetails';
+import { PlanetDetails } from './details/pages/PlanetDetails';
 import { routeMap } from './routes';
 
 const queryClient = new QueryClient();

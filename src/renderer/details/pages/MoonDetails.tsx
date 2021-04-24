@@ -1,20 +1,20 @@
 import React, { useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { useQuery } from 'react-query'
-import { AddPier, isNewMoon, NewMoon } from '../../background/services/pier-service'
-import { send } from '../client/ipc'
+import { AddPier, isNewMoon, NewMoon } from '../../../background/services/pier-service'
+import { send } from '../../client/ipc'
 import * as Tabs from '@radix-ui/react-tabs'
 import * as Tooltip from '@radix-ui/react-tooltip'
-import { useAddPier } from './useAddPier'
-import { DetailsContainer } from './DetailsContainer'
+import { useAddPier } from '../useAddPier'
+import { DetailsContainer } from '../components/DetailsContainer'
+import { NameField } from '../components/NameField'
+import { ShipNameField } from '../components/ShipNameField'
 
 export const MoonDetails: React.FC = () => {
     const [tab, setTab] = useState('manual')
     const {
         form,
-        mutate,
-        nameNotUnique,
-        nameValidator
+        mutate
     } = useAddPier((data: AddPier | NewMoon) => {
         return isNewMoon(data) && data.planet && tab === 'from-planet'
             ? send('generate-moon', data)
@@ -45,21 +45,10 @@ export const MoonDetails: React.FC = () => {
             buttonDisabled={!isValid || tab === 'from-planet'}
             onSubmit={form.handleSubmit(data => mutate(data))}
         >
-            <h1 className="font-semibold text-base mb-2">Enter Moon Details</h1>                    
+            <h1 className="font-semibold text-base mb-6">Enter Moon Details</h1>                    
             <div>
                 <label htmlFor="name">Name <span className="text-gray-700">(local only)</span></label>
-                <input 
-                    id="name" 
-                    name="name" 
-                    type="text"
-                    ref={form.register({ required: true, validate: nameValidator })}
-                    className="flex w-full px-2 py-1 mt-2 bg-transparent border border-gray-700 focus:outline-none focus:border-gray-500 transition-colors rounded" 
-                    placeholder="My Ship" 
-                    aria-invalid={nameNotUnique}
-                />
-                <span className={`inline-block mt-2 text-sm text-red-600 ${nameNotUnique ? 'visible' : 'invisible'}`} role="alert">
-                    Name must be unique
-                </span>
+                <NameField form={form} />
             </div>
             <Tabs.Root value={tab} onValueChange={setTab}>
                 <Tabs.List className="flex mb-4 border-b border-gray-700">
@@ -74,17 +63,10 @@ export const MoonDetails: React.FC = () => {
                     </Tooltip.Root>
                     <Tabs.Tab value="manual" className={`flex justify-center px-3 py-2 border-b-2 default-ring transition-colors ${tab === 'manual' ? 'border-white font-semibold' : 'border-transparent'}`}>Existing Key File</Tabs.Tab>
                 </Tabs.List>
-                <Tabs.Panel value="from-planet" className="space-y-6 default-ring">
+                <Tabs.Panel value="from-planet" className="default-ring">
                     <div>
                         <label htmlFor="shipname">Shipname <span className="text-gray-700">(optional)</span></label>
-                        {tab === 'from-planet' && <input 
-                            id="shipname" 
-                            name="shipName" 
-                            type="text"
-                            ref={form.register}
-                            className="flex w-full px-2 py-1 mt-2 bg-transparent border border-gray-700 focus:outline-none focus:border-gray-500 transition-colors rounded" 
-                            placeholder="~sampel-palnet-migtyl-wallys" 
-                        />}
+                        {tab === 'from-planet' && <ShipNameField form={form} placeholder="~sampel-palnet-migtyl-wallys" />}
                     </div>
                     <div>
                         <label htmlFor="planet">Planet:</label>
@@ -98,17 +80,10 @@ export const MoonDetails: React.FC = () => {
                         </select>
                     </div>
                 </Tabs.Panel>
-                <Tabs.Panel value="manual" className="space-y-6 default-ring">
+                <Tabs.Panel value="manual" className="default-ring">
                     <div>
                         <label htmlFor="shipname">Shipname</label>
-                        <input 
-                            id="shipname" 
-                            name="shipName" 
-                            type="text"
-                            ref={form.register({ validate: manualValidate })}
-                            className="flex w-full px-2 py-1 mt-2 bg-transparent border border-gray-700 focus:outline-none focus:border-gray-500 transition-colors rounded" 
-                            placeholder="~sampel-palnet-migtyl-wallys" 
-                        />
+                        <ShipNameField form={form} validator={manualValidate} placeholder="~sampel-palnet-migtyl-wallys" />
                     </div>                          
                     <div>
                         <label htmlFor="directory">Key File</label>
