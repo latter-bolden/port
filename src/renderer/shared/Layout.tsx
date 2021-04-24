@@ -50,7 +50,7 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, center
             <main className={`grid ${center ? 'justify-center content-center' : ''} ${isOSX() ? 'mt-7' : ''} ${className}`}>
                 { children }
             </main>
-            <footer className="flex items-center h-8 p-2 z-20">
+            <footer className="flex items-center h-8 py-2 z-20">
                 { footer }
                 <div className="flex justify-end items-center ml-auto leading-none">
                     <input 
@@ -63,7 +63,7 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, center
                             }
                         }}
                     />
-                    <button className="ml-4 text-gray-300 hover:text-white focus:text-white focus:outline-none" onClick={toggleDevTools}>
+                    <button className="p-2 ml-4 text-gray-500 hover:text-white focus:text-white focus:outline-none" onClick={toggleDevTools}>
                         <Bug className="h-4 w-4" primary="fill-current" secondary="fill-current opacity-40" />
                     </button>
                 </div>

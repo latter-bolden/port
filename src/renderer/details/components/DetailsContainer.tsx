@@ -1,8 +1,8 @@
 import React, { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { LeftArrow } from '../icons/LeftArrow'
-import { RightArrow } from '../icons/RightArrow'
-import { Layout } from '../shared/Layout'
+import { LeftArrow } from '../../icons/LeftArrow'
+import { RightArrow } from '../../icons/RightArrow'
+import { Layout } from '../../shared/Layout'
 
 interface DetailsContainerProps {
     title: string;
@@ -19,7 +19,7 @@ export const DetailsContainer: React.FC<DetailsContainerProps> = ({ title, onSub
                     <span className="sr-only">Back</span>
                 </Link>
             </div>
-            <div className="grid grid-cols-1 gap-4 w-80 text-sm">
+            <div className="grid grid-cols-1 w-80 text-sm">
                 { children }
             </div>
             <div className="ml-12">
