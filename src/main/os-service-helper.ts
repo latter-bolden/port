@@ -1,4 +1,9 @@
-import { BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent } from 'electron'
+import { BrowserView, BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent } from 'electron'
+import isDev from 'electron-is-dev'
+import { ViewData } from '../background/services/os-service';
+
+const views = new Map<string, BrowserView>();
+const viewQueue: string[] = [];
 
 async function openDialog(event: IpcMainInvokeEvent, options: Electron.OpenDialogOptions) {
     return await dialog.showOpenDialog(options);
@@ -32,9 +37,49 @@ export async function toggleDevTools(mainWindow: BrowserWindow, bgWindow?: Brows
     }
 }
 
+async function createView(mainWindow: BrowserWindow, data: ViewData) {
+    const { url, bounds } = data;
+    let view = views.get(url)
+    if (!view) {
+        view = new BrowserView();
+        view.webContents.loadURL(url);
+        views.set(url, view);
+        viewQueue.push(url);
+    }
+
+    mainWindow.addBrowserView(view);
+    view.setBounds(bounds);
+}
+
+async function updateViewBounds(data: ViewData) {
+    const view = views.get(data.url)
+    if (view) {
+        view.setBounds(data.bounds)
+    }
+}
+
+async function removeView(mainWindow: BrowserWindow, url: string) {
+    const view = views.get(url)
+
+    if (view) {
+        isDev && console.log('removing', url)
+        mainWindow.removeBrowserView(view)
+
+        if (viewQueue.length >= 5) {
+            const oldUrl = viewQueue.shift()
+            const oldView = views.get(oldUrl);
+            (oldView.webContents as any).destroy();
+            views.delete(oldUrl)
+        }
+    }
+}
+
 export function start(mainWindow: BrowserWindow, bgWindow?: BrowserWindow): void {
     ipcMain.handle('open-dialog', openDialog)
     ipcMain.handle('set-title', (event, args) => setTitle(mainWindow, event, args))
     ipcMain.handle('clear-data', () => clearData(mainWindow))
     ipcMain.handle('toggle-dev-tools', () => toggleDevTools(mainWindow, bgWindow))
+    ipcMain.handle('create-view', (event, args) => createView(mainWindow, args))
+    ipcMain.handle('update-view-bounds', (event, args) => updateViewBounds(args))
+    ipcMain.handle('remove-view', (event, args) => removeView(mainWindow, args))
 }

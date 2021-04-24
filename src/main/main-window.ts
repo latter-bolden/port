@@ -34,6 +34,7 @@ export function createMainWindow(
       nodeIntegration: false, // `true` is *insecure*, and cause trouble with messenger.com
       webSecurity: true,
       zoomFactor: 1,
+      contextIsolation: false
     },
   };
 
@@ -46,7 +47,7 @@ export function createMainWindow(
     //icon: getAppIcon(),
     webPreferences: {
       nodeIntegration: true,
-      enableRemoteModule: true,
+      enableRemoteModule: true
     }
   });
 

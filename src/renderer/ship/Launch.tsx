@@ -7,31 +7,16 @@ import { LeftArrow } from '../icons/LeftArrow'
 import { pierKey } from '../query-keys'
 import { Button } from '../shared/Button'
 import { Layout } from '../shared/Layout'
-import { Spinner } from '../shared/Spinner'
+import { LandscapeWindow } from './components/LandscapeWindow'
 
-export const Launch = () => {
+const LaunchFooter: React.FC<{ pier: Pier }> = ({ pier }) => {
     const queryClient = useQueryClient();
-    const { slug } = useParams<{ slug: string }>()
-    const [pier, setPier] = useState<Pier>();
     const [showCopied, setShowCopied] = useState(false);
-    const { mutate, isIdle, isLoading } = useMutation(async (slug: string) => {
-            const pier = await send('get-pier', slug)
-            return send('resume-pier', pier)
-        }, {
-            onSuccess: (data: Pier) => {
-                setPier(data)
-            }
-        }
-    )
-    const { data, isSuccess: isPostSuccess } = useQuery(['auth', slug], 
-        () => send('get-pier-auth', pier), {
-            enabled: !!pier && pier.running && pier.type !== 'remote',
-            refetchOnWindowFocus: false
-        })
-
-    useEffect(() => {
-        mutate(slug)
-    }, [slug])
+    const { data, isSuccess: isPostSuccess } = useQuery(['auth', pier?.slug], 
+    () => send('get-pier-auth', pier), {
+        enabled: !!pier && pier.running && pier.type !== 'remote',
+        refetchOnWindowFocus: false
+    })
 
     useEffect(() => {
         if (!showCopied) {
@@ -50,7 +35,7 @@ export const Launch = () => {
         setShowCopied(true);
     }
 
-    const Footer = () => (
+    return (
         <>
             <Link to="/" className="inline-flex items-center ml-2 mr-8 text-xs text-gray-500 hover:text-white focus:text-white transition-colors" onMouseOver={() => queryClient.prefetchQuery(pierKey())}>
                 <LeftArrow className="w-5 h-5 mr-2" secondary="fill-current" />
@@ -64,35 +49,31 @@ export const Launch = () => {
             }
         </>
     )
+}
 
-    if (!pier || isIdle || isLoading) {
-        return (
-            <Layout 
-                title="Landscape"
-                footer={<Footer />}
-            >
-                { (isLoading || !pier?.running) &&
-                    <Spinner className="h-24 w-24" />
-                }
-            </Layout>
-        )
-    }
+export const Launch = () => {
+    const { slug } = useParams<{ slug: string }>()
+    const [pier, setPier] = useState<Pier>();
+    const { data: initialPier } = useQuery(pierKey(slug), () => send('get-pier', slug))
+    const { mutate, isIdle, isLoading } = useMutation(() => send('resume-pier', initialPier), 
+        {
+            onSuccess: (data: Pier) => {
+                setPier(data)
+            }
+        }
+    )
 
-    const url = pier.type === 'remote' ? pier.directory : `http://localhost:${pier.webPort}`
-    const key = pier.lastUsed + url
+    useEffect(() => {
+        mutate()
+    }, [initialPier])
 
     return (
         <Layout 
-            title={pier.name}
+            title={pier?.name || 'Landscape'}
             center={false}
-            footer={<Footer />}
+            footer={<LaunchFooter pier={pier} />}
         >
-            <iframe
-                key={key}
-                className="h-full w-full"
-                src={url} 
-                allowFullScreen 
-            />
+            <LandscapeWindow pier={pier} loading={isIdle || isLoading} />
         </Layout>
     )
 }

@@ -89,6 +89,7 @@
     "react-hot-loader": "^4.13.0",
     "react-query": "^3.9.2",
     "react-router-dom": "^5.2.0",
+    "use-resize-observer": "^7.0.0",
     "zustand": "^3.3.1"
   }
 }
