@@ -15,6 +15,7 @@ module.exports = {
       },
       minWidth: {
         ...theme.spacing,
+        ...theme.maxWidth,
         '22': '5.5rem'
       },
       height: {

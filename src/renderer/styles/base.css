@@ -1,0 +1,24 @@
+a {
+  @apply inline-block focus:outline-none focus:ring focus:ring-gray-600 focus:ring-opacity-50;
+}
+
+* {
+    scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+    @apply w-1.5 h-1.5 bg-transparent;
+}
+ 
+*::-webkit-scrollbar-track {
+    @apply bg-transparent;
+}
+ 
+*::-webkit-scrollbar-thumb {
+    @apply bg-gray-700 rounded-full;
+}
+
+*::-webkit-scrollbar-corner,
+*::-webkit-resizer {
+    @apply hidden;
+}
