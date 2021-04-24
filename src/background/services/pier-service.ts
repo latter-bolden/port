@@ -214,11 +214,12 @@ export class PierService {
     async resumePier(pier: Pier): Promise<Pier | null> {
         const accuratePier = await this.checkPier(pier)
         if (accuratePier.running)
-            return accuratePier
+            return await this.updatePier({ ...accuratePier, lastUsed: (new Date()).toISOString() });
 
         const ports = await this.spawnUrbit(this.getSpawnArgs(accuratePier), accuratePier.slug)
         const updatedPier: Pier = {
             ...accuratePier,
+            lastUsed: (new Date()).toISOString(),
             webPort: ports.web,
             loopbackPort: ports.loopback,
             running: true
