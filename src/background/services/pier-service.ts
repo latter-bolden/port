@@ -7,7 +7,6 @@ import { HandlerEntry, send } from '../server/ipc';
 import { getPlatform, getPlatformPathSegments} from '../../get-platform';
 import { rootPath as root } from 'electron-root-path';
 import appRootDir from 'app-root-dir'
-import find from 'find-process';
 import { unlink, mkdir, rmdir, access, readFile } from 'fs'
 import { promisify } from 'util'
 import ADMZip from 'adm-zip'

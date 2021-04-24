@@ -7,17 +7,16 @@ import { LeftArrow } from '../icons/LeftArrow'
 import { pierKey } from '../query-keys'
 import { Button } from '../shared/Button'
 import { Layout } from '../shared/Layout'
-import { Spinner } from '../shared/Spinner'
+import { LandscapeWindow } from './components/LandscapeWindow'
 
 export const Launch = () => {
     const queryClient = useQueryClient();
     const { slug } = useParams<{ slug: string }>()
     const [pier, setPier] = useState<Pier>();
     const [showCopied, setShowCopied] = useState(false);
-    const { mutate, isIdle, isLoading } = useMutation(async (slug: string) => {
-            const pier = await send('get-pier', slug)
-            return send('resume-pier', pier)
-        }, {
+    const { data: initialPier } = useQuery(pierKey(slug), () => send('get-pier', slug))
+    const { mutate, isIdle, isLoading } = useMutation(() => send('resume-pier', initialPier), 
+        {
             onSuccess: (data: Pier) => {
                 setPier(data)
             }
@@ -30,8 +29,8 @@ export const Launch = () => {
         })
 
     useEffect(() => {
-        mutate(slug)
-    }, [slug])
+        mutate()
+    }, [initialPier])
 
     useEffect(() => {
         if (!showCopied) {
@@ -65,34 +64,13 @@ export const Launch = () => {
         </>
     )
 
-    if (!pier || isIdle || isLoading) {
-        return (
-            <Layout 
-                title="Landscape"
-                footer={<Footer />}
-            >
-                { (isLoading || !pier?.running) &&
-                    <Spinner className="h-24 w-24" />
-                }
-            </Layout>
-        )
-    }
-
-    const url = pier.type === 'remote' ? pier.directory : `http://localhost:${pier.webPort}`
-    const key = pier.lastUsed + url
-
     return (
         <Layout 
-            title={pier.name}
+            title={pier?.name || 'Landscape'}
             center={false}
             footer={<Footer />}
         >
-            <iframe
-                key={key}
-                className="h-full w-full"
-                src={url} 
-                allowFullScreen 
-            />
+            <LandscapeWindow pier={pier} loading={isIdle || isLoading} />
         </Layout>
     )
 }

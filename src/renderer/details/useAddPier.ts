@@ -9,7 +9,8 @@ export function useAddPier<Action = AddPier>(mutator: MutationFunction<Pier, Act
     const history = useHistory();
     const queryClient = useQueryClient();
     const form = useForm<AddPier>({
-        mode: 'onChange'
+        mode: 'onChange',
+        reValidateMode: 'onChange'
     });
     const { mutate } = useMutation(mutator, {
         onSuccess: (pier: Pier) => {
@@ -21,16 +22,19 @@ export function useAddPier<Action = AddPier>(mutator: MutationFunction<Pier, Act
         }
     })
     const { data: piers } = useQuery(pierKey(), () => send('get-piers'))
-    const invalidName = form.errors.name?.type === 'validate';
     
     function nameValidator(value: string) {
-        return !piers.find(pier => pier.name === value)
+        return !piers.find(pier => pier.name.toLocaleLowerCase() === value.toLocaleLowerCase())
     }
 
     return {
         form,
         mutate,
-        invalidName,
-        nameValidator
+        nameValidator,
+        namePattern: /^[\w_ -]*$/i,
+        shipnamePattern: /^[a-z~-]*$/i,
+        nameNotUnique: form.errors.name?.type === 'validate',
+        nameContainsInvalidCharacters: form.errors.name?.type === 'pattern',
+        shipnameContainsInvalidCharacters: form.errors.shipName?.type === 'pattern',
     }
 }

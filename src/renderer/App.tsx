@@ -14,8 +14,13 @@ import { CometDetails } from './details/CometDetails';
 import { Boot } from './ship/Boot';
 import { PlanetDetails } from './details/PlanetDetails';
 import { routeMap } from './routes';
+import create from 'zustand';
 
 const queryClient = new QueryClient();
+
+export const useStore = create(() => ({
+    piers: []
+}))
 
 const App = () => {
     return (

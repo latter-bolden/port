@@ -7,6 +7,9 @@ export interface OSHandlers {
     'set-title': OSService['setTitle'];
     'clear-data': OSService['clearData'];
     'toggle-dev-tools': OSService['toggleDevTools'];
+    'create-view': OSService['createView'];
+    'update-view-bounds': OSService['updateViewBounds'];
+    'remove-view': OSService['removeView'];
 }
 
 export class OSService {
@@ -16,7 +19,10 @@ export class OSService {
             { name: 'get-file', handler: this.getFile.bind(this) },
             { name: 'set-title', handler: this.setTitle.bind(this) },
             { name: 'clear-data', handler: this.clearData.bind(this) },
-            { name: 'toggle-dev-tools', handler: this.toggleDevTools.bind(this) }
+            { name: 'toggle-dev-tools', handler: this.toggleDevTools.bind(this) },
+            { name: 'create-view', handler: this.createView.bind(this) },
+            { name: 'update-view-bounds', handler: this.updateViewBounds.bind(this) },
+            { name: 'remove-view', handler: this.removeView.bind(this) }
         ]
     }
 
@@ -62,6 +68,28 @@ export class OSService {
 
     async toggleDevTools(): Promise<void> {
         await ipc.invoke('toggle-dev-tools')
+    }
+
+    async createView(data: ViewData): Promise<void> {
+        await ipc.invoke('create-view', data);
+    }
+
+    async updateViewBounds(data: ViewData): Promise<void> {
+        await ipc.invoke('update-view-bounds', data);
+    }
+
+    async removeView(url: string): Promise<void> {
+        await ipc.invoke('remove-view', url);
+    }
+}
+
+export interface ViewData {
+    url: string;
+    bounds: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
     }
 }
 
