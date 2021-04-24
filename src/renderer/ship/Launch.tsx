@@ -9,28 +9,14 @@ import { Button } from '../shared/Button'
 import { Layout } from '../shared/Layout'
 import { LandscapeWindow } from './components/LandscapeWindow'
 
-export const Launch = () => {
+const LaunchFooter: React.FC<{ pier: Pier }> = ({ pier }) => {
     const queryClient = useQueryClient();
-    const { slug } = useParams<{ slug: string }>()
-    const [pier, setPier] = useState<Pier>();
     const [showCopied, setShowCopied] = useState(false);
-    const { data: initialPier } = useQuery(pierKey(slug), () => send('get-pier', slug))
-    const { mutate, isIdle, isLoading } = useMutation(() => send('resume-pier', initialPier), 
-        {
-            onSuccess: (data: Pier) => {
-                setPier(data)
-            }
-        }
-    )
-    const { data, isSuccess: isPostSuccess } = useQuery(['auth', slug], 
-        () => send('get-pier-auth', pier), {
-            enabled: !!pier && pier.running && pier.type !== 'remote',
-            refetchOnWindowFocus: false
-        })
-
-    useEffect(() => {
-        mutate()
-    }, [initialPier])
+    const { data, isSuccess: isPostSuccess } = useQuery(['auth', pier?.slug], 
+    () => send('get-pier-auth', pier), {
+        enabled: !!pier && pier.running && pier.type !== 'remote',
+        refetchOnWindowFocus: false
+    })
 
     useEffect(() => {
         if (!showCopied) {
@@ -49,9 +35,9 @@ export const Launch = () => {
         setShowCopied(true);
     }
 
-    const Footer = () => (
+    return (
         <>
-            <Link to="/" className="inline-flex items-center mr-8 text-xs text-gray-500 hover:text-white focus:text-white transition-colors" onMouseOver={() => queryClient.prefetchQuery(pierKey())}>
+            <Link to="/" className="inline-flex items-center mr-8 text-xs text-gray-500 hover:text-white focus:text-white transition-colors" onMouseEnter={() => queryClient.prefetchQuery(pierKey())}>
                 <LeftArrow className="w-5 h-5 mr-2" secondary="fill-current" />
                 Home
             </Link>
@@ -63,12 +49,29 @@ export const Launch = () => {
             }
         </>
     )
+}
+
+export const Launch = () => {
+    const { slug } = useParams<{ slug: string }>()
+    const [pier, setPier] = useState<Pier>();
+    const { data: initialPier } = useQuery(pierKey(slug), () => send('get-pier', slug))
+    const { mutate, isIdle, isLoading } = useMutation(() => send('resume-pier', initialPier), 
+        {
+            onSuccess: (data: Pier) => {
+                setPier(data)
+            }
+        }
+    )
+
+    useEffect(() => {
+        mutate()
+    }, [initialPier])
 
     return (
         <Layout 
             title={pier?.name || 'Landscape'}
             center={false}
-            footer={<Footer />}
+            footer={<LaunchFooter pier={pier} />}
         >
             <LandscapeWindow pier={pier} loading={isIdle || isLoading} />
         </Layout>
