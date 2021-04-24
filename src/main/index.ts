@@ -24,7 +24,8 @@ function createBackgroundWindow(socketName: string) {
     webPreferences: {
       enableRemoteModule: true,
       nodeIntegration: true,
-      webSecurity: false
+      webSecurity: false,
+      contextIsolation: false
     }
   })
 
@@ -32,7 +33,7 @@ function createBackgroundWindow(socketName: string) {
   win.hide()
   isDev && win.webContents.openDevTools();
   win.webContents.on('did-finish-load', () => {
-    console.log('background finished loading')
+    isDev && console.log('background finished loading')
     win.webContents.send('set-socket', { name: socketName })
   })
   win.loadURL(BACKGROUND_WINDOW_WEBPACK_ENTRY)
@@ -49,7 +50,7 @@ async function start(bootBg: boolean) {
   const serverSocket = await findOpenSocket()
   let bgWindow;
 
-  console.log('server socket', serverSocket)
+  isDev && console.log('server socket', serverSocket)
   if (bootBg) {
     bgWindow = createBackgroundWindow(serverSocket)
   }
@@ -97,7 +98,3 @@ app.on('activate', (event, hasVisibleWindows) => {
     }
   }
 });
-
-// app.on('new-window-for-tab', () => {
-//   mainWindow.emit('new-tab');
-// });

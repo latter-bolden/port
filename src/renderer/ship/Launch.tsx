@@ -2,24 +2,21 @@ import React, { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { Link, useParams } from 'react-router-dom'
 import { Pier } from '../../background/services/pier-service'
-import { useStore } from '../App'
 import { send } from '../client/ipc'
 import { LeftArrow } from '../icons/LeftArrow'
 import { pierKey } from '../query-keys'
 import { Button } from '../shared/Button'
 import { Layout } from '../shared/Layout'
-import { Spinner } from '../shared/Spinner'
+import { LandscapeWindow } from './components/LandscapeWindow'
 
 export const Launch = () => {
     const queryClient = useQueryClient();
     const { slug } = useParams<{ slug: string }>()
-    const piers = useStore(state => state.piers);
     const [pier, setPier] = useState<Pier>();
     const [showCopied, setShowCopied] = useState(false);
-    const { mutate, isIdle, isLoading } = useMutation(async (slug: string) => {
-            const pier = await send('get-pier', slug)
-            return send('resume-pier', pier)
-        }, {
+    const { data: initialPier } = useQuery(pierKey(slug), () => send('get-pier', slug))
+    const { mutate, isIdle, isLoading } = useMutation(() => send('resume-pier', initialPier), 
+        {
             onSuccess: (data: Pier) => {
                 setPier(data)
             }
@@ -32,15 +29,8 @@ export const Launch = () => {
         })
 
     useEffect(() => {
-        mutate(slug)
-    }, [slug])
-
-    useEffect(() => {
-        debugger;
-        if (pier && !piers.find(p => p?.slug === slug)) {
-            useStore.setState({ piers: piers.concat(pier) })
-        }
-    }, [slug, pier, JSON.stringify(piers)]);
+        mutate()
+    }, [initialPier])
 
     useEffect(() => {
         if (!showCopied) {
@@ -74,29 +64,13 @@ export const Launch = () => {
         </>
     )
 
-    if (!pier || isIdle || isLoading) {
-        return (
-            <Layout 
-                title="Landscape"
-                footer={<Footer />}
-            >
-                { (isLoading || !pier?.running) &&
-                    <Spinner className="h-24 w-24" />
-                }
-            </Layout>
-        )
-    }
-
-    // const url = pier.type === 'remote' ? pier.directory : `http://localhost:${pier.webPort}`
-    // const key = pier.lastUsed + url
-
     return (
         <Layout 
-            title={pier.name}
+            title={pier?.name || 'Landscape'}
             center={false}
             footer={<Footer />}
         >
-            <div id="landscape"></div>
+            <LandscapeWindow pier={pier} loading={isIdle || isLoading} />
         </Layout>
     )
 }
