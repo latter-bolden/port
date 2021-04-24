@@ -1,13 +1,10 @@
 @import "tailwindcss/base";
+@import "./base";
 
 @import "tailwindcss/components";
 @import "./components";
 
 @import "tailwindcss/utilities";
-
-a {
-  @apply inline-block focus:outline-none focus:ring focus:ring-gray-600 focus:ring-opacity-50;
-}
 
 .border-t-gray-300 {
   border-top-color: rgba(209,213,219,var(--tw-border-opacity));

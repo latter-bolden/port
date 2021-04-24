@@ -14,7 +14,7 @@ export const ShipList = ({ piers }: { piers: Pier[]}) => {
     }
 
     return (
-        <ul className="space-y-4">
+        <ul className="space-y-4 overflow-y-auto max-h-96 pr-1">
             {piers.sort((a,b) => b.lastUsed.localeCompare(a.lastUsed)).map(pier => (
                 <li key={pier.slug} className="flex items-center p-2 bg-gray-900 rounded">
                     <div>
