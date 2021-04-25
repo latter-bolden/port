@@ -18,7 +18,7 @@ export const MessageLogger: React.FC<{ slug: string }> = ({ slug }) => {
     return (
         <div className="relative min-w-xl">
             <div className="absolute top-0 left-0 right-0 bottom-0 z-20 bg-gradient-to-b from-black to-transparent pointer-events-none" />
-            <pre className="flex flex-col-reverse h-56 space-y-0 pt-10 pl-10 font-mono text-xs text-gray-500 overflow-auto">
+            <pre className="flex flex-col-reverse h-56 space-y-0 pt-10 pl-10 font-mono text-xs text-gray-500 overflow-y-auto overflow-x-hidden">
                 {messages.map((msg, index) => (
                     <div key={index + msg.text}>{msg.text}</div>
                 ))}

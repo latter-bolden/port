@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { HashRouter, Route, Switch } from 'react-router-dom'
 import { hot } from 'react-hot-loader';
 import { Welcome } from './pages/Welcome'
-import { QueryClient, QueryClientProvider, useInfiniteQuery, useQuery } from 'react-query';
+import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
 import { Launch } from './ship/Launch';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorPage } from './pages/ErrorPage';
@@ -17,6 +17,7 @@ import { routeMap } from './routes';
 import create from 'zustand';
 import { pierKey } from './query-keys';
 import { send } from './client/ipc';
+import { Star } from './details/pages/Star';
 
 const queryClient = new QueryClient();
 
@@ -55,6 +56,7 @@ const App = () => {
             <Route exact path={routeMap.planet.path} component={PlanetDetails} />
             <Route exact path={routeMap.moon.path} component={MoonDetails} />
             <Route exact path={routeMap.comet.path} component={CometDetails} />
+            <Route exact path={routeMap.star.path} component={Star} />
             <Route path="/boot/:slug" component={Boot} />
             <Route exact path="/pier/:slug/launch" component={Launch} />
             <Route path="/pier/:slug" component={Ship} />

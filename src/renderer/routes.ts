@@ -22,6 +22,14 @@ const planet: RouteInfo = {
     description: 'Boot your planet with the keyfile from Bridge'
 }
 
+const star: RouteInfo = {
+    key: 'star',
+    path: '/boot/star',
+    title: 'Star',
+    heading: 'Boot a star',
+    description: 'Boot your star, not recommended for sponsorship'
+}
+
 const moon: RouteInfo = {
     key: 'moon',
     path: '/boot/moon',
@@ -48,6 +56,7 @@ const remote: RouteInfo = {
 
 
 export const routeMap = {
+    star,
     comet,
     planet,
     moon,
@@ -56,6 +65,7 @@ export const routeMap = {
 }
 
 export const routes: RouteInfo[] = [
+    star,
     planet,
     moon,
     comet,
