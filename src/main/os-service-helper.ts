@@ -1,6 +1,7 @@
 import { BrowserView, BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent } from 'electron'
 import isDev from 'electron-is-dev'
 import { ViewData } from '../background/services/os-service';
+import { initContextMenu } from './context-menu';
 
 const views = new Map<string, BrowserView>();
 const viewQueue: string[] = [];
@@ -37,11 +38,12 @@ export async function toggleDevTools(mainWindow: BrowserWindow, bgWindow?: Brows
     }
 }
 
-async function createView(mainWindow: BrowserWindow, data: ViewData) {
+async function createView(mainWindow: BrowserWindow, createNewWindow, data: ViewData) {
     const { url, bounds } = data;
     let view = views.get(url)
     if (!view) {
         view = new BrowserView();
+        initContextMenu(createNewWindow, undefined, mainWindow.webContents.getURL(), view)
         view.webContents.loadURL(url);
         views.set(url, view);
         viewQueue.push(url);
@@ -74,12 +76,12 @@ async function removeView(mainWindow: BrowserWindow, url: string) {
     }
 }
 
-export function start(mainWindow: BrowserWindow, bgWindow?: BrowserWindow): void {
+export function start(mainWindow: BrowserWindow, createNewWindow, bgWindow?: BrowserWindow): void {
     ipcMain.handle('open-dialog', openDialog)
     ipcMain.handle('set-title', (event, args) => setTitle(mainWindow, event, args))
     ipcMain.handle('clear-data', () => clearData(mainWindow))
     ipcMain.handle('toggle-dev-tools', () => toggleDevTools(mainWindow, bgWindow))
-    ipcMain.handle('create-view', (event, args) => createView(mainWindow, args))
+    ipcMain.handle('create-view', (event, args) => createView(mainWindow, createNewWindow, args))
     ipcMain.handle('update-view-bounds', (event, args) => updateViewBounds(args))
     ipcMain.handle('remove-view', (event, args) => removeView(mainWindow, args))
 }

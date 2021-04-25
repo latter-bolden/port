@@ -209,7 +209,8 @@ export function createMainWindow(
   createMenu(menuOptions);
   initContextMenu(
     createNewWindow,
-    undefined //nativeTabsSupported() ? createNewTab : undefined,
+    undefined, //nativeTabsSupported() ? createNewTab : undefined,
+    mainUrl
   );
 
   mainWindow.webContents.on('new-window', onNewWindow);
@@ -231,7 +232,7 @@ export function createMainWindow(
     storages: ['appcache', 'filesystem', 'indexdb', 'localstorage', 'cachestorage']
   });
   mainWindow.webContents.session.clearCache();
-  osHelperStart(mainWindow, bgWindow)
+  osHelperStart(mainWindow, createNewWindow, bgWindow)
   mainWindow.loadURL(mainUrl);
 
   //mainWindow.on('new-tab' as any, () => createNewTab(mainUrl, true));
