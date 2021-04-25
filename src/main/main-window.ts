@@ -214,6 +214,15 @@ export function createMainWindow(
 
   mainWindow.webContents.on('new-window', onNewWindow);
   mainWindow.webContents.on('will-navigate', onWillNavigate);
+  mainWindow.webContents.on('did-start-loading', () => {
+    const loadingUrl = mainWindow.webContents.getURL().split('#')[0]
+    if (mainUrl === loadingUrl) {
+      const view = mainWindow.getBrowserView();
+      if (view) {
+        view.webContents.reload();
+      }
+    }
+  })
   mainWindow.webContents.on('did-finish-load', () => {
     // Restore pinch-to-zoom, disabled by default in recent Electron.
     // See https://github.com/nativefier/nativefier/issues/379#issuecomment-598309817
