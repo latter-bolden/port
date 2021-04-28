@@ -17,7 +17,7 @@ export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading 
     useResizeObserver<HTMLDivElement>({ 
         ref: landscapeRef,
         onResize: ({ width, height }) => {
-            if (landscapeRef.current) {
+            if (landscapeRef.current && pier) {
                 requestAnimationFrame(() => {
                     send('update-view-bounds', {
                         url: getUrl(pier),
@@ -61,11 +61,12 @@ function getBounds(element: HTMLDivElement, width?: number, height?: number) {
         return null
     }
 
+    const rect = element.getBoundingClientRect()
     return {
-        x: element.offsetLeft,
-        y: element.offsetTop,
-        width: width || element.offsetWidth,
-        height: height || element.offsetHeight
+        x: rect.left,
+        y: rect.top,
+        width: width || rect.width,
+        height: height || rect.height
     }
 }
 

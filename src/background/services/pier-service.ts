@@ -110,7 +110,7 @@ export class PierService {
         return await this.db.piers.asyncFind(query || {})
     }
 
-    async updatePier(newPier: Pier): Promise<Pier> {
+    async updatePier({ _id, ...newPier }: Pier): Promise<Pier> {
         await this.db.piers.asyncUpdate({ slug: newPier.slug }, {
             lastUsed: (new Date()).toISOString(),
             ...newPier

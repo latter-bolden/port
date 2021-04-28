@@ -40,8 +40,10 @@ export async function toggleDevTools(mainWindow: BrowserWindow, bgWindow?: Brows
 
 async function createView(mainWindow: BrowserWindow, createNewWindow, data: ViewData) {
     const { url, bounds } = data;
-    let view = views.get(url)
-    if (!view) {
+    let view = views.get(url);
+    const newView = !view;
+
+    if (newView) {
         view = new BrowserView();
         initContextMenu(createNewWindow, undefined, mainWindow.webContents.getURL(), view)
         view.webContents.loadURL(url);
@@ -50,13 +52,25 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, data: View
     }
 
     mainWindow.addBrowserView(view);
-    view.setBounds(bounds);
+    setViewBounds(view, data, mainWindow.webContents.getZoomFactor());
+}
+
+function setViewBounds(view: BrowserView, { bounds }: ViewData, zoomFactor?: number) {
+    const { x, y, width, height } = bounds;
+    const zoom = zoomFactor || view.webContents.getZoomFactor() || 1;
+    
+    view.setBounds({
+        x: Math.round(x * zoom),
+        y: Math.round(y * zoom),
+        width: Math.round(width * zoom),
+        height: Math.round(height * zoom)
+    })
 }
 
 async function updateViewBounds(data: ViewData) {
     const view = views.get(data.url)
     if (view) {
-        view.setBounds(data.bounds)
+        setViewBounds(view, data);
     }
 }
 

@@ -1,4 +1,4 @@
-import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions } from 'electron';
+import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents } from 'electron';
 import windowStateKeeper from 'electron-window-state';
 
 import {
@@ -12,6 +12,11 @@ import { start as osHelperStart } from './os-service-helper'
 import { createMenu } from './menu';
 
 const ZOOM_INTERVAL = 0.1;
+
+function getWindowOrViewContents(focusedWindow: BrowserWindow): WebContents {
+  const view = focusedWindow.getBrowserView();
+  return view ? view.webContents : focusedWindow.webContents;
+}
 
 export function createMainWindow(
   mainUrl: string,
@@ -53,36 +58,37 @@ export function createMainWindow(
 
   mainWindowState.manage(mainWindow);
 
-  const withFocusedWindow = (block: (window: BrowserWindow) => void): void => {
+  const withFocusedView = (block: (contents: WebContents) => void): void => {
     const focusedWindow = BrowserWindow.getFocusedWindow();
     if (focusedWindow) {
-      return block(focusedWindow);
+      const contents = getWindowOrViewContents(focusedWindow);
+      return block(contents);
     }
     return undefined;
   };
 
-  const adjustWindowZoom = (
-    window: BrowserWindow,
+  const adjustZoom = (
+    contents: WebContents,
     adjustment: number,
   ): void => {
-    window.webContents.zoomFactor = window.webContents.zoomFactor + adjustment;
+    contents.zoomFactor = contents.zoomFactor + adjustment;
   };
 
   const onZoomIn = (): void => {
-    withFocusedWindow((focusedWindow: BrowserWindow) =>
-      adjustWindowZoom(focusedWindow, ZOOM_INTERVAL),
+    withFocusedView((contents: WebContents) =>
+      adjustZoom(contents, ZOOM_INTERVAL),
     );
   };
 
   const onZoomOut = (): void => {
-    withFocusedWindow((focusedWindow: BrowserWindow) =>
-      adjustWindowZoom(focusedWindow, -ZOOM_INTERVAL),
+    withFocusedView((contents: WebContents) =>
+      adjustZoom(contents, -ZOOM_INTERVAL),
     );
   };
 
   const onZoomReset = (): void => {
-    withFocusedWindow((focusedWindow: BrowserWindow) => {
-      focusedWindow.webContents.zoomFactor = 1;
+    withFocusedView((contents: WebContents) => {
+      contents.zoomFactor = 1;
     });
   };
 
@@ -103,19 +109,19 @@ export function createMainWindow(
   };
 
   const onGoBack = (): void => {
-    withFocusedWindow((focusedWindow) => {
-      focusedWindow.webContents.goBack();
+    withFocusedView((contents) => {
+      contents.goBack();
     });
   };
 
   const onGoForward = (): void => {
-    withFocusedWindow((focusedWindow) => {
-      focusedWindow.webContents.goForward();
+    withFocusedView((contents) => {
+      contents.goForward();
     });
   };
 
   const getCurrentUrl = (): void =>
-    withFocusedWindow((focusedWindow) => focusedWindow.webContents.getURL());
+    withFocusedView((contents) => contents.getURL());
 
   const onBlockedExternalUrl = (url: string) => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -143,15 +149,17 @@ export function createMainWindow(
   };
 
   const createNewTab = (url: string, foreground: boolean): BrowserWindow => {
-    withFocusedWindow((focusedWindow) => {
-      const newTab = createNewWindow(url);
-      focusedWindow.addTabbedWindow(newTab);
-      if (!foreground) {
-        focusedWindow.focus();
-      }
-      return newTab;
-    });
-    return undefined;
+    const focusedWindow = BrowserWindow.getFocusedWindow();
+    if (!focusedWindow) {
+      return undefined;
+    }
+
+    const newTab = createNewWindow(url);
+    focusedWindow.addTabbedWindow(newTab);
+    if (!foreground) {
+      focusedWindow.focus();
+    }
+    return newTab;    
   };
 
   const createAboutBlankWindow = (): BrowserWindow => {
@@ -198,7 +206,7 @@ export function createMainWindow(
     zoomIn: onZoomIn,
     zoomOut: onZoomOut,
     zoomReset: onZoomReset,
-    zoomBuildTimeValue: undefined,
+    zoomBuildTimeValue: 1.0,
     goBack: onGoBack,
     goForward: onGoForward,
     getCurrentUrl,
