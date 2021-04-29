@@ -13,7 +13,8 @@
     "make:linux": "electron-forge make --platform linux --arch ia32,x64",
     "make:win": "electron-forge make --platform win32 --arch ia32,x64",
     "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts ."
+    "lint": "eslint --ext .ts .",
+    "urbit": "./get-urbit.sh"
   },
   "keywords": [],
   "author": {
