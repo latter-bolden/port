@@ -57,7 +57,7 @@ const App = () => {
             <Route exact path={routeMap.moon.path} component={MoonDetails} />
             <Route exact path={routeMap.comet.path} component={CometDetails} />
             <Route exact path={routeMap.star.path} component={Star} />
-            <Route path="/boot/:slug" component={Boot} />
+            <Route path="/boot/new/:slug" component={Boot} />
             <Route exact path="/pier/:slug/launch" component={Launch} />
             <Route path="/pier/:slug" component={Ship} />
             <Route exact path="/" component={Welcome} />

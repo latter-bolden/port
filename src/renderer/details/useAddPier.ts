@@ -17,7 +17,7 @@ export function useAddPier<Action = AddPier>(mutator: MutationFunction<Pier, Act
                 return;
 
             queryClient.setQueryData(pierKey(pier.slug), pier);
-            history.push(boot ? `/boot/${pier.slug}` : `/pier/${pier.slug}/launch`)
+            history.push(boot ? `/boot/new/${pier.slug}` : `/pier/${pier.slug}/launch`)
         }
     })
 
