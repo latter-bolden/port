@@ -42,6 +42,7 @@ export interface PierHandlers {
     'stop-pier': PierService["stopPier"]
     'delete-pier': PierService["deletePier"]
     'eject-pier': PierService["ejectPier"]
+    'validate-key-file': PierService["validateKeyfile"]
 }
 
 export class PierService {
@@ -67,7 +68,8 @@ export class PierService {
             { name: 'check-pier', handler: this.checkPier.bind(this) },
             { name: 'stop-pier', handler: this.stopPier.bind(this) },
             { name: 'delete-pier', handler: this.deletePier.bind(this) },
-            { name: 'eject-pier', handler: this.ejectPier.bind(this) }
+            { name: 'eject-pier', handler: this.ejectPier.bind(this) },
+            { name: 'validate-key-file', handler: this.validateKeyfile.bind(this) }
         ]
     }
     
@@ -132,6 +134,13 @@ export class PierService {
             username,
             code
         }
+    }
+    
+    async validateKeyfile(path: string): Promise<boolean> {
+        const keyFile = (await asyncRead(path)).toString()
+        const keyPattern = /^[\w.~-]+$/m
+
+        return keyPattern.test(keyFile) && keyFile.length >= 128;
     }
 
     async dojo(url: string, command: string | Record<string, unknown>): Promise<string> {
