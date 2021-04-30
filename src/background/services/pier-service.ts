@@ -100,6 +100,7 @@ export class PierService {
             running: false,
             booted: false,
             default: false,
+            directoryAsPierPath: false,
             ...data,
         })
     }
@@ -198,7 +199,7 @@ export class PierService {
     }
 
     private async portRunningCheck(pier: Pier): Promise<{ loopbackPort: number, webPort: number } | null> {
-        const portPath = joinPath(pier.directory, pier.slug, '.http.ports');
+        const portPath = joinPath(this.getPierPath(pier), '.http.ports');
 
         try {
             await asyncAccess(portPath)
@@ -323,7 +324,7 @@ export class PierService {
     }
 
     async ejectPier(pier: Pier): Promise<void> {
-        const pierPath = joinPath(pier.directory, pier.slug);
+        const pierPath = this.getPierPath(pier);
         const zip = new ADMZip()
 
         zip.addLocalFolder(pierPath, pier.slug)
@@ -336,7 +337,7 @@ export class PierService {
     }
 
     async deletePier(pier: Pier): Promise<void> {
-        const pierPath = joinPath(pier.directory, pier.slug);
+        const pierPath = this.getPierPath(pier);
         let pierExists = true;
 
         try {
@@ -370,9 +371,17 @@ export class PierService {
         })
     }
 
+    private getPierPath(pier: Pier) {
+        if (pier.directoryAsPierPath) {
+            return pier.directory;
+        }
+
+        return joinPath(pier.directory, pier.slug);
+    }
+
     private getSpawnArgs(pier: Pier, interactive = false): string[] {
         let args = []
-        const pierPath = joinPath(pier.directory, pier.slug);
+        const pierPath = this.getPierPath(pier);
         const unbooted = !pier.booted;
 
         if (!interactive) {
@@ -523,12 +532,14 @@ export interface Pier {
     keyFile?: string;
     webPort?: number;
     loopbackPort?: number;
+    directoryAsPierPath?: boolean;
 }
 
 export type AddPier = Pick<Pier, 'name' | 'type' | 'shipName' | 'keyFile'> & {
     booted?: boolean;
     running?: boolean;
     directory?: string;
+    directoryAsPierPath?: boolean;
 }
 
 export interface NewMoon {

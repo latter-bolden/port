@@ -1,5 +1,6 @@
 import React from 'react'
 import { Controller } from 'react-hook-form'
+import { AddPier } from '../../../background/services/pier-service'
 import { send } from '../../client/ipc'
 import { DetailsContainer } from '../components/DetailsContainer'
 import { NameField } from '../components/NameField'
@@ -9,7 +10,12 @@ export const ExistingShipDetails = () => {
     const {
         form,
         mutate
-    } = useAddPier(data => send('collect-existing-pier', data));
+    } = useAddPier<AddPier & { shipStays?: boolean }>(data => {
+        const toSend = { ...data, booted: true };
+        return data.shipStays ? 
+            send('add-pier', { ...toSend, directoryAsPierPath: true }) : 
+            send('collect-existing-pier', toSend)
+    }, false);
     const { isValid } = form.formState;
 
     async function setDirectory() {
@@ -36,7 +42,7 @@ export const ExistingShipDetails = () => {
                     <option value="comet">Comet</option>
                 </select>
             </div>
-            <div>
+            <div className="mb-3">
                 <label htmlFor="directory">Upload Pier</label>
                 <div className="flex items-stretch mt-2">
                     <Controller
@@ -63,6 +69,10 @@ export const ExistingShipDetails = () => {
                         )}
                     />
                 </div>
+            </div>
+            <div className="flex items-center text-gray-400">
+                <input id="keep-in-place" type="checkbox" name="shipStays" ref={form.register} className="mr-2"/>
+                <label htmlFor="keep-in-place">Keep pier in current directory</label>
             </div>
         </DetailsContainer>
     )
