@@ -36,10 +36,17 @@ export const RemotePierDetails = () => {
                     id="directory" 
                     name="directory"
                     type="text"
-                    ref={form.register({ required: true })}
+                    ref={form.register({ 
+                        required: true, 
+                        pattern: /^(?:http(s)?:\/\/)[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/
+                    })}
                     className="flex w-full px-2 py-1 mt-2 bg-transparent border border-gray-700 focus:outline-none focus:border-gray-500 transition-colors rounded" 
                     placeholder="https://myurbit.com"
                 />
+                <span className={`inline-block h-8.5 mt-2 text-xs text-red-600 ${form.errors?.directory ? 'visible' : 'invisible'}`} role="alert">
+                    { form.errors.directory?.type === 'required' && 'Url is required'}
+                    { (!form.errors.directory || form.errors.directory.type === 'pattern') && 'Url must be valid and include protocol, e.g. https://myurbit.com' }
+                </span>
             </div>
         </DetailsContainer>
     )
