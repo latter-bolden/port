@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
 rpath=/nix/store/cx86fgsqp9dkx2h88rq7q73hhh0an9fy-swift-corefoundation/Library/Frameworks
-staticpath=/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
-
+staticpath=/System/Library/Frameworks
 cd resources/mac
 rm urbit*
 curl -JLO https://urbit.org/install/mac/latest
