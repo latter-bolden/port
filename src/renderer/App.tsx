@@ -19,7 +19,13 @@ import { pierKey } from './query-keys';
 import { send } from './client/ipc';
 import { Star } from './details/pages/Star';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            refetchOnWindowFocus: false
+        }
+    }
+});
 
 export const useStore = create(() => ({
     piers: []

@@ -65,7 +65,7 @@ export const Launch = () => {
 
     useEffect(() => {
         mutate()
-    }, [initialPier])
+    }, [JSON.stringify(initialPier)])
 
     return (
         <Layout 
