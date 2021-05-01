@@ -1,6 +1,7 @@
 import { join as joinPath } from 'path';
 import { spawn } from 'child_process';
 import { shell, remote } from 'electron';
+import isDev from 'electron-is-dev';
 import axios from 'axios'
 import { DB } from '../db'
 import { HandlerEntry, send } from '../server/ipc'; 
@@ -48,11 +49,13 @@ export interface PierHandlers {
 export class PierService {
     private readonly db: DB;
     private readonly urbitPath: string;
+    private readonly resumesInProgress: Map<string, Promise<Pier | null>>;
     private pierDirectory: string;
 
     constructor(db: DB) {
         this.db = db;
         this.urbitPath = joinPath(binariesPath, 'urbit');
+        this.resumesInProgress = new Map();
     }
 
     handlers(): HandlerEntry<PierHandlers>[] {
@@ -122,6 +125,10 @@ export class PierService {
     }
 
     async getPierAuth(pier: Pier): Promise<PierAuth> {
+        if (pier.type === 'remote') {
+            return null;
+        }
+
         const loopback = `http://localhost:${pier.loopbackPort}`
         const username = await this.dojo(loopback, 'our');
         const code = await this.dojo(loopback, '+code');
@@ -180,6 +187,7 @@ export class PierService {
     private async runningCheck(pier: Pier): Promise<{ loopbackPort: number, webPort: number } | null> {
         const ports = await this.portRunningCheck(pier);
         if (!ports || !ports.webPort || !ports.loopbackPort || !pier.shipName) {
+            console.log(`${pier.name} is not running or can't be contacted.`)
             return null;
         }
 
@@ -193,7 +201,8 @@ export class PierService {
 
             return null
         } catch (err) {
-            console.error(err)
+            isDev && console.error(err)
+            console.log(`${pier.name} is not running or can't be contacted at port ${ports.loopbackPort}`)
             return null;
         }
     }
@@ -222,20 +231,40 @@ export class PierService {
     }
 
     async resumePier(pier: Pier): Promise<Pier | null> {
-        const accuratePier = await this.checkPier(pier)
-        if (accuratePier.running)
-            return await this.updatePier({ ...accuratePier, lastUsed: (new Date()).toISOString() });
-
-        const ports = await this.spawnUrbit(this.getSpawnArgs(accuratePier), accuratePier.slug)
-        const updatedPier: Pier = {
-            ...accuratePier,
-            lastUsed: (new Date()).toISOString(),
-            webPort: ports.web,
-            loopbackPort: ports.loopback,
-            running: true
+        let resuming = this.resumesInProgress.get(pier.slug);
+        if (resuming) {
+            return resuming;
         }
 
-        return await this.updatePier(updatedPier);
+        resuming = this.internalResumePier(pier);
+        this.resumesInProgress.set(pier.slug, resuming);
+        return resuming;
+    }
+
+    private async internalResumePier(pier: Pier): Promise<Pier | null> {
+        try {
+            const accuratePier = await this.checkPier(pier)
+            if (accuratePier.running) {
+                this.resumesInProgress.delete(accuratePier.slug);
+                return await this.updatePier({ ...accuratePier, lastUsed: (new Date()).toISOString() });
+            }
+
+            const ports = await this.spawnUrbit(this.getSpawnArgs(accuratePier), accuratePier.slug)
+            const updatedPier: Pier = await this.updatePier({
+                ...accuratePier,
+                lastUsed: (new Date()).toISOString(),
+                webPort: ports.web,
+                loopbackPort: ports.loopback,
+                running: true
+            });
+
+            this.resumesInProgress.delete(updatedPier.slug);
+            return updatedPier;
+        } catch (err) {
+            console.error(err);
+            this.resumesInProgress.delete(pier.slug);
+            return null;
+        }
     }
 
     async collectExistingPier(data: AddPier): Promise<Pier> {

@@ -6,8 +6,8 @@ import { RightArrow } from '../../icons/RightArrow'
 
 type LaunchButtonProps = {
     ship: Pier;
+    loadData: () => void
     className?: string;
-    loadData?: () => void
 }
 
 export const LaunchButton: React.FC<LaunchButtonProps> = ({ ship, loadData, className = '' }) => {

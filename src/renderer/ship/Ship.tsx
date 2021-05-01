@@ -23,8 +23,6 @@ export const Ship: React.FC = () => {
     const { data: ship } = useQuery(pierKey(slug), async () => {
         const pier = await send('get-pier', slug)
         return send('check-pier', pier)
-    }, {
-        refetchOnWindowFocus: false
     })
     const { mutate: stopShip } = useMutation(() => send('stop-pier', ship), {
         onSuccess: (newShip: Pier) => {
@@ -41,6 +39,10 @@ export const Ship: React.FC = () => {
             history.push('/')
         }
     })
+    
+    function onHover(ship: Pier) {
+        return () => queryClient.setQueryData(pierKey(ship.slug), ship);
+    }
 
     if (!ship) {
         return <Layout title="Loading Ship...">
@@ -80,7 +82,7 @@ export const Ship: React.FC = () => {
                             </div>
                         </div>
                         <div className="ml-auto">
-                            <LaunchButton ship={ship} />
+                            <LaunchButton ship={ship} loadData={onHover(ship)}/>
                         </div>
                     </header>
                     <hr className="my-3 border-gray-700"/>

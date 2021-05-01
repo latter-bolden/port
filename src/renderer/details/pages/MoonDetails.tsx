@@ -23,7 +23,6 @@ export const MoonDetails: React.FC = () => {
     const { isValid } = form.formState;
 
     const { data: planets } = useQuery('planets', () => send('get-piers', { type: 'planet' }), {
-        refetchOnWindowFocus: false,
         onSuccess: (data) => {
             if (data?.length === 0 && tab !== 'manual') {
                 setTab('manual')

@@ -11,9 +11,7 @@ import { Spinner } from '../shared/Spinner'
 export const Boot: React.FC = () => {
     const queryClient = useQueryClient()
     const { slug } = useParams<{ slug: string }>();
-    const { data: ship } = useQuery(pierKey(slug), () => send('get-pier', slug), {
-        refetchOnWindowFocus: false
-    })
+    const { data: ship } = useQuery(pierKey(slug), () => send('get-pier', slug))
     const { mutate, isIdle, isLoading, isSuccess } = useMutation(() => send('boot-pier', slug), {
         onSuccess: () => {
             queryClient.invalidateQueries(pierKey())
