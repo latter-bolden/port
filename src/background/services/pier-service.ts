@@ -139,9 +139,9 @@ export class PierService {
     
     async validateKeyfile(path: string): Promise<boolean> {
         const keyFile = (await asyncRead(path)).toString()
-        const keyPattern = /^[\w.~-]+$/m
+        const keyPattern = /^\s*0w[1-9A-Za-z~-][\dA-Za-z~-]{0,4}(\.[\dA-Za-z~-]{5})*\s*$/m
 
-        return keyPattern.test(keyFile) && keyFile.length >= 128;
+        return keyPattern.test(keyFile);
     }
 
     async dojo(url: string, command: string | Record<string, unknown>): Promise<string> {
