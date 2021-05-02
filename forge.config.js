@@ -64,6 +64,19 @@ module.exports = {
       }
     }
   ],
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'arthyn',
+          name: 'taisho'
+        },
+        draft: true,
+        prerelease: true
+      }
+    }
+  ],
   plugins: [
     [
       "@electron-forge/plugin-webpack",
