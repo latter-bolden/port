@@ -45,22 +45,45 @@ module.exports = {
         icon: "icons/urbit-logo.icns"
       }
     },
+    // {
+    //   name: "@electron-forge/maker-zip",
+    //   platforms: [
+    //     "darwin",
+    //     "linux"
+    //   ]
+    // },
+    // {
+    //   name: "@electron-forge/maker-deb",
+    //   config: {
+    //     options: {
+    //       icon: "icons/urbit-logo.png",
+    //       depends: [
+    //         "libx11-xcb1"
+    //       ]
+    //     }        
+    //   }
+    // },
+    // {
+    //   name: "@electron-forge/maker-snap",
+    //   config: {
+    //     base: "core20",
+    //     description: "This app allows you to spin up, access, and manage your Urbit ships whether they are comets, planets or potentially stars. It gives people the ability to immediately download and run Urbit without any knowledge of the command line.",
+    //   }
+    // }
     {
-      name: "@electron-forge/maker-zip",
-      platforms: [
-        "darwin",
-        "linux"
-      ]
-    },
-    {
-      name: "@electron-forge/maker-deb",
+      name: "@davidwinter/electron-forge-maker-snap",
       config: {
-        options: {
-          icon: "icons/urbit-logo.png",
-          depends: [
-            "libx11-xcb1"
-          ]
-        }        
+        stagePackages: ['default', 'libx11-xcb1'],
+        categories: 'Utility',
+        description: "This app allows you to spin up, access, and manage your Urbit ships whether they are comets, planets or potentially stars. It gives people the ability to immediately download and run Urbit without any knowledge of the command line.",
+      }
+    }
+  ],
+  publishers: [
+    {
+      name: '@electron-forge/publisher-snapcraft',
+      config: {
+        
       }
     }
   ],
