@@ -1,7 +1,7 @@
 {
   "name": "taisho",
   "productName": "taisho",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "A ship runner and manager for Urbit OS",
   "main": ".webpack/main",
   "scripts": {
@@ -10,7 +10,7 @@
     "make": "electron-forge make",
     "make:all": "npm run make:mac && npm run make:linux",
     "make:mac": "electron-forge make --platform darwin --arch x64",
-    "make:linux": "DEBUG='electron-forge-maker-snap:*' electron-forge make --platform linux --arch x64",
+    "make:linux": "electron-forge make --platform linux --arch x64",
     "make:win": "electron-forge make --platform win32 --arch ia32,x64",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts .",
