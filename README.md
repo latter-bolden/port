@@ -17,7 +17,7 @@ This app allows you to spin up, access, and manage your ships whether they are c
 
 ## Installing
 
-Head over to [releases](https://github.com/arthyn/taisho/releases) and download the installer from the latest release. Currently only available for MacOS and Linux.
+Head over to [releases](https://github.com/arthyn/taisho/releases) and download the installer from the latest release. Currently only available for MacOS and Linux. 
 
 ## Architecture
 
