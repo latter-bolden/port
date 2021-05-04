@@ -21,7 +21,7 @@ jobs:
         run: yarn install
       - name: Build & Publish
         run: |
-          yarn make:linux
+          GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" 
           yarn run publish
           snapcraft upload --release=stable *.snap
         env:
