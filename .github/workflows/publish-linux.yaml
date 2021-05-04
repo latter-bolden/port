@@ -1,0 +1,28 @@
+name: Publish
+on:
+  push:
+    branches: [ master ]
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 14
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Setup Snapcraft
+        run: |
+          sudo snap install snapcraft --classic
+          echo "$SNAP_TOKEN" | snapcraft login --with -     
+        env:
+          SNAP_TOKEN: ${{secrets.SNAP_TOKEN}}
+      - name: Install Packages
+        run: yarn install
+      - name: Build & Publish
+        run: |
+          yarn make:linux
+          yarn publish
+          snapcraft upload --release=stable *.snap
+        env:
+          SNAPCRAFT_BUILD_ENVIRONMENT: host
