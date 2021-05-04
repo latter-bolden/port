@@ -13,6 +13,8 @@ jobs:
           node-version: 14
       - name: Install Packages
         run: yarn install
+      - name: Get Urbit Binaries
+        run: ./get-urbit.sh
       - name: Build & Publish
         run: |
           yarn run publish
