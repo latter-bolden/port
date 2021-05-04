@@ -1,28 +1,20 @@
-name: Publish Linux
+name: Publish MacOS
 on:
   push:
     branches: [ main ]
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js 14
         uses: actions/setup-node@v1
         with:
           node-version: 14
-      - name: Setup Snapcraft
-        run: |
-          sudo snap install snapcraft --classic
-          echo "$SNAP_TOKEN" | snapcraft login --with -     
-        env:
-          SNAP_TOKEN: ${{secrets.SNAP_TOKEN}}
       - name: Install Packages
         run: yarn install
       - name: Build & Publish
         run: |
           yarn run publish
-          snapcraft upload --release=stable out/make/*.snap
         env:
-          SNAPCRAFT_BUILD_ENVIRONMENT: host
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
