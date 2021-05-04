@@ -22,7 +22,7 @@ jobs:
       - name: Build & Publish
         run: |
           yarn make:linux
-          yarn publish
+          yarn run publish
           snapcraft upload --release=stable *.snap
         env:
           SNAPCRAFT_BUILD_ENVIRONMENT: host
