@@ -67,6 +67,20 @@ module.exports = {
       name: "@davidwinter/electron-forge-maker-snap",
       config: {
         stagePackages: ['default', 'libx11-xcb1'],
+        plugs: [
+          'alsa',
+          'browser-support',
+          'desktop',
+          'desktop-legacy',
+          'gsettings',
+          'home',
+          'network',
+          'opengl',
+          'pulseaudio',
+          'unity7',
+          'wayland',
+          'x11'
+        ],
         categories: 'Utility',
         description: "This app allows you to spin up, access, and manage your Urbit ships whether they are comets, planets or potentially stars. It gives people the ability to immediately download and run Urbit without any knowledge of the command line.",
       }
