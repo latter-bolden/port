@@ -1,0 +1,14 @@
+diff --git a/node_modules/@davidwinter/electron-forge-maker-snap/snap-packager.js b/node_modules/@davidwinter/electron-forge-maker-snap/snap-packager.js
+index 28a8775..a334327 100644
+--- a/node_modules/@davidwinter/electron-forge-maker-snap/snap-packager.js
++++ b/node_modules/@davidwinter/electron-forge-maker-snap/snap-packager.js
+@@ -52,6 +52,9 @@ module.exports = class SnapPackager {
+ 		delete doc.apps['SNAP-TEMPLATE'];
+ 		doc.apps[this.values.executableName].command = `${this.values.executableName}/${this.values.executableName} --no-sandbox`;
+ 		doc.apps[this.values.executableName].plugs = this.values.plugs;
++		doc.apps[this.values.executableName].environment = {
++			DISABLE_WAYLAND: "1"
++		}
+ 
+ 		doc.parts.app['override-build'] = `cp -rv . $SNAPCRAFT_PART_INSTALL/${this.values.executableName}`;
+ 		doc.parts.app['stage-packages'] = this.values.stagePackages;
