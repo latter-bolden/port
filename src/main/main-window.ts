@@ -58,11 +58,11 @@ export function createMainWindow(
 
   mainWindowState.manage(mainWindow);
 
-  const withFocusedView = (block: (contents: WebContents) => void): void => {
+  const withFocusedView = (block: (contents: WebContents) => void, onlyWindow = false): void => {
     const focusedWindow = BrowserWindow.getFocusedWindow();
     if (focusedWindow) {
       const contents = getWindowOrViewContents(focusedWindow);
-      return block(contents);
+      return onlyWindow ? block(focusedWindow.webContents) : block(contents);
     }
     return undefined;
   };
@@ -75,21 +75,17 @@ export function createMainWindow(
   };
 
   const onZoomIn = (): void => {
-    withFocusedView((contents: WebContents) =>
-      adjustZoom(contents, ZOOM_INTERVAL),
-    );
+    withFocusedView((contents: WebContents) => adjustZoom(contents, ZOOM_INTERVAL), true);
   };
 
   const onZoomOut = (): void => {
-    withFocusedView((contents: WebContents) =>
-      adjustZoom(contents, -ZOOM_INTERVAL),
-    );
+    withFocusedView((contents: WebContents) => adjustZoom(contents, -ZOOM_INTERVAL), true);
   };
 
   const onZoomReset = (): void => {
     withFocusedView((contents: WebContents) => {
       contents.zoomFactor = 1;
-    });
+    }, true);
   };
 
   const clearAppData = async (): Promise<void> => {
