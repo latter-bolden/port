@@ -19,4 +19,6 @@ jobs:
         run: |
           yarn run publish
         env:
+          APPLE_ID: ${{secrets.APPLE_ID}}
+          APPLE_ID_PASSWORD: ${{secrets.APPLE_ID_PASSWORD}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
