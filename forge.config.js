@@ -7,6 +7,7 @@ require('dotenv').config()
 module.exports = {
   packagerConfig: {
     appBundleId: 'dev.hmiller.taisho',
+    darwinDarkModeSupport: 'true',
     icon: "icons/urbit-logo",
     osxSign: {
       identity: 'Developer ID Application: Hunter Miller (8YA38DLJ3T)',
