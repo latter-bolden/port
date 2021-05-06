@@ -10,6 +10,7 @@ export interface OSHandlers {
     'create-view': OSService['createView'];
     'update-view-bounds': OSService['updateViewBounds'];
     'remove-view': OSService['removeView'];
+    'install-updates': OSService['installUpdates'];
 }
 
 export class OSService {
@@ -80,6 +81,10 @@ export class OSService {
 
     async removeView(url: string): Promise<void> {
         await ipc.invoke('remove-view', url);
+    }
+
+    async installUpdates(): Promise<void> {
+        await ipc.invoke('install-updates');
     }
 }
 

@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom'
 import { send } from '../client/ipc';
 import { Bug } from '../icons/Bug';
 import { isOSX } from '../../main/helpers';
+import { UpdateNotifier } from './UpdateNotifier';
 
 interface LayoutProps {
     title: string;
@@ -63,7 +64,8 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, center
                             }
                         }}
                     />
-                    <button className="p-2 ml-4 text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white focus:text-black dark:focus:text-white focus:outline-none" onClick={toggleDevTools}>
+                    <UpdateNotifier />
+                    <button className="p-2 ml-2 text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white focus:text-black dark:focus:text-white focus:outline-none" onClick={toggleDevTools}>
                         <Bug className="h-4 w-4" primary="fill-current" secondary="fill-current opacity-40" />
                     </button>
                 </div>
