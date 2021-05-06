@@ -30,12 +30,12 @@ export const ExistingShipDetails = () => {
         >
             <h1 className="font-semibold text-base mb-6">Enter Ship Details</h1>
             <div>
-                <label htmlFor="name">Name <span className="text-gray-700">(local only)</span></label>
+                <label htmlFor="name">Name <span className="text-gray-300 dark:text-gray-700">(local only)</span></label>
                 <NameField form={form} />
             </div>
             <div className="mb-8">
                 <label htmlFor="type">Ship Type</label>
-                <select name="type" ref={form.register({ required: true })} className="px-2 py-1 ml-3 bg-black border border-gray-700 focus:outline-none focus:border-gray-500 transition-colors rounded">
+                <select name="type" ref={form.register({ required: true })} className="input ml-3 bg-white dark:bg-black">
                     <option value="planet">Planet</option>
                     <option value="star">Star</option>
                     <option value="moon">Moon</option>
@@ -57,12 +57,12 @@ export const ExistingShipDetails = () => {
                                     name={name} 
                                     type="text"
                                     value={value}
-                                    className="flex-1 px-2 py-1 bg-transparent border border-r-0 border-gray-700 focus:outline-none focus:border-gray-500 transition-colors rounded rounded-r-none" 
+                                    className="input flex-1 border border-r-0 rounded-r-none" 
                                     placeholder="/Users/my-user/sampel-palnet"
                                     readOnly={true}
                                     onClick={async () => onChange(await setDirectory())} 
                                 />
-                                <button type="button" className="flex-none flex justify-center items-center px-2 py-1 bg-transparent border border-gray-700 hover:border-white focus:outline-none focus:border-white focus:ring focus:ring-gray-600 focus:ring-opacity-50 transition-colors rounded rounded-l-none" onClick={async () => onChange(await setDirectory())}>
+                                <button type="button" className="input flex-none flex justify-center items-center hover:border-black focus:border-black dark:hover:border-white dark:focus:border-white default-ring rounded-l-none" onClick={async () => onChange(await setDirectory())}>
                                     Choose Directory
                                 </button>
                             </>
@@ -70,7 +70,7 @@ export const ExistingShipDetails = () => {
                     />
                 </div>
             </div>
-            <div className="flex items-center text-gray-400">
+            <div className="flex items-center text-gray-500 dark:text-gray-400">
                 <input id="keep-in-place" type="checkbox" name="shipStays" ref={form.register} className="mr-2"/>
                 <label htmlFor="keep-in-place">Keep pier in current directory</label>
             </div>

@@ -321,8 +321,24 @@ export class PierService {
             return null;
 
         const ports = await this.spawnUrbit(this.getSpawnArgs(pier), pier.slug)
-        //make sure OTAs start
-        //this.dojo(`http://localhost:${ports.loopback}`, '|ota (sein:title our now our) %kids')
+        if (pier.type === 'comet') {
+            setTimeout(() => {
+                try {
+                    //make sure OTAs start |ota (sein:title our now our) %kids
+                    this.dojo(`http://localhost:${ports.loopback}`, {
+                        sink: {
+                            app: 'hood'
+                        },
+                        source: {
+                            dojo: '+hood/ota (sein:title our now our) %kids'
+                        }
+                    })
+                } catch (err) {
+                    console.error('attempting ota', err)
+                }
+            }, 5000)
+        }
+        
         const shipName = await this.dojo(`http://localhost:${ports.loopback}`, 'our')
         const updatedPier = await this.updatePier({
             ...pier,

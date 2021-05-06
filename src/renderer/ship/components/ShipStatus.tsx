@@ -18,11 +18,11 @@ export const ShipStatus = ({ ship }: { ship: Pier }) => {
         <Tooltip.Root>
             <Tooltip.Trigger className="default-ring cursor-default" disabled={isRemote}>
                 <span className="inline-flex items-center">
-                    <span className={`inline-flex w-2 h-2 mr-1 rounded-full ${ship.running ? 'bg-green-400' : 'bg-gray-700'}`}></span>
-                    <span className="text-gray-500">{shipStatus}</span>          
+                    <span className={`inline-flex w-2 h-2 mr-1 rounded-full ${ship.running ? 'bg-green-400' : 'bg-gray-300 dark:bg-gray-700'}`}></span>
+                    <span className="text-gray-400 dark:text-gray-500">{shipStatus}</span>          
                 </span>
             </Tooltip.Trigger>
-            <Tooltip.Content side="top" className="px-3 py-2 text-sm bg-gray-800 rounded">
+            <Tooltip.Content side="top" className="px-3 py-2 text-sm bg-gray-100 dark:bg-gray-800 rounded">
                 <strong className="inline-block mb-1 font-bold">Ports</strong>
                 <div className="flex">
                     <span className="mr-3">Interface:</span> 
@@ -32,7 +32,7 @@ export const ShipStatus = ({ ship }: { ship: Pier }) => {
                     <span className="mr-3">Loopback:</span>
                     <span className="font-mono ml-auto">{ ship.loopbackPort }</span>
                 </div>
-                <Tooltip.Arrow className="fill-current text-gray-800"/>
+                <Tooltip.Arrow className="fill-current text-gray-100 dark:text-gray-800"/>
             </Tooltip.Content>
         </Tooltip.Root>
     )

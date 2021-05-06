@@ -17,7 +17,7 @@ const CenteredLayout = () => (
     <Layout title="Welcome" className="px-8">
         <section className="max-w-4xl">
             <div className="flex flex-col items-center">
-                <Logo className="h-40 w-40 text-white" />
+                <Logo className="h-40 w-40 text-black dark:text-white" />
                 <h1 className="text-2xl mt-8 mb-20 text-center">Welcome to Urbit</h1>
             </div>
             <nav>
@@ -54,12 +54,12 @@ export const Welcome = () => {
                                 Boot Menu
                                 <ChevronDown className="ml-3 w-5 h-5" primary="fill-current" />
                             </DropdownMenu.Trigger>
-                            <DropdownMenu.Content as="ul" align="end" sideOffset={-30} className="min-w-52 text-sm text-gray-400 bg-gray-900 rounded shadow-lg">
+                            <DropdownMenu.Content as="ul" align="end" sideOffset={-30} className="min-w-52 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-900 rounded shadow-lg">
                                 { routes.map(route => (
-                                    <li key={route.path} className="border-gray-700">
-                                        <Link to={route.path} className="group flex items-center px-5 py-2 hover:text-white focus:text-white focus:outline-none focus:ring-0 transition-colors no-underline">
+                                    <li key={route.path} className="border-gray-300 dark:border-gray-700">
+                                        <Link to={route.path} className="group flex items-center px-5 py-2 hover:text-black dark:hover:text-white focus:text-black dark:focus:text-white focus:outline-none focus:ring-0 transition-colors no-underline">
                                             { route.title }
-                                            <RightArrow className="ml-auto w-5 h-5" secondary="fill-current text-gray-500 group-focus:text-white group-hover:text-white transition-colors" primary="fill-current text-transparent" />
+                                            <RightArrow className="ml-auto w-5 h-5" secondary="fill-current text-gray-400 dark:text-gray-500 group-focus:text-black dark:group-focus:text-white group-hover:text-black  dark:group-hover:text-white transition-colors" primary="fill-current text-transparent" />
                                         </Link>
                                     </li>
                                 ))}

@@ -20,7 +20,7 @@ export const CometDetails: React.FC = () => {
         >
             <h1 className="font-semibold text-base mb-4">Enter Comet Details</h1>
             <div>
-                <label htmlFor="name">Name <span className="text-gray-700">(local only)</span></label>
+                <label htmlFor="name">Name <span className="text-gray-300 dark:text-gray-700">(local only)</span></label>
                 <NameField form={form} />
             </div>
         </DetailsContainer>

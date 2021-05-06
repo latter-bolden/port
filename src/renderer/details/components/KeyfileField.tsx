@@ -1,15 +1,16 @@
 import React from 'react'
 import { Controller } from 'react-hook-form'
-import { UseFormMethods, Validate, ValidateResult } from 'react-hook-form/dist/types'
+import { UseControllerOptions, UseFormMethods, Validate, ValidateResult } from 'react-hook-form/dist/types'
 import { send } from '../../client/ipc'
 import { AddPier } from '../../../background/services/pier-service'
 
 interface KeyfileFieldProps {
     form: UseFormMethods<AddPier>
-    validator?: Record<string, Validate>;
+    //validator?: Record<string, Validate>;
+    rules?: UseControllerOptions["rules"];
 }
 
-export const KeyfileField: React.FC<KeyfileFieldProps> = ({ form, validator, children }) => {
+export const KeyfileField: React.FC<KeyfileFieldProps> = ({ form, rules, children }) => {
 
     async function setFile(onChange) {
         const file = await send('get-file')
@@ -27,10 +28,13 @@ export const KeyfileField: React.FC<KeyfileFieldProps> = ({ form, validator, chi
                     name="keyFile"
                     control={form.control}
                     defaultValue=""
-                    rules={{ validate: {
-                        ...validator,
-                        keyFile: validate
-                    }}}
+                    rules={{
+                        ...rules, 
+                        validate: {
+                            ...rules.validate,
+                            keyFile: validate
+                        }
+                    }}
                     render={({ value, onChange, name, ref }) => (
                         <>
                             <input 
@@ -39,13 +43,13 @@ export const KeyfileField: React.FC<KeyfileFieldProps> = ({ form, validator, chi
                                 ref={ref}
                                 type="text"
                                 value={value}
-                                className="flex-1 px-2 py-1 bg-transparent border border-r-0 border-gray-700 focus:outline-none focus:border-gray-500 transition-colors rounded rounded-r-none" 
+                                className="input flex-1 border border-r-0 rounded-r-none" 
                                 placeholder="/Users/my-user/sampel-palnet.key"
                                 readOnly={true}
                                 onClick={async () => await setFile(onChange)}
                                 aria-invalid={!!form.errors?.keyFile} 
                             />
-                            <button type="button" className="flex-none flex justify-center items-center px-2 py-1 bg-transparent border border-gray-700 hover:border-white focus:outline-none focus:border-white focus:ring focus:ring-gray-600 focus:ring-opacity-50 transition-colors rounded rounded-l-none" onClick={async () => await setFile(onChange)}>
+                            <button type="button" className="input flex-none flex justify-center items-center hover:border-black focus:border-black dark:hover:border-white dark:focus:border-white default-ring rounded-l-none" onClick={async () => await setFile(onChange)}>
                                 Choose Key File
                             </button>
                         </>
