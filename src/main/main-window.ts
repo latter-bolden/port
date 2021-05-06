@@ -1,4 +1,4 @@
-import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents } from 'electron';
+import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents, nativeTheme } from 'electron';
 import windowStateKeeper from 'electron-window-state';
 
 import {
@@ -48,7 +48,7 @@ export function createMainWindow(
     width: mainWindowState.width,
     height: mainWindowState.height,
     titleBarStyle: 'hidden',
-    backgroundColor: '#000000',
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#000000' : '#FFFFFF',
     //icon: getAppIcon(),
     webPreferences: {
       nodeIntegration: true,

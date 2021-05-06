@@ -60,36 +60,36 @@ export const Ship: React.FC = () => {
     return (
         <Layout 
             title={ship.name} 
-            className="pt-8 text-gray-500 text-sm"
+            className="pt-8 text-gray-400 dark:text-gray-500 text-sm"
             footer={
-                <Link to="/" className="inline-flex items-center ml-2 mr-8 text-xs text-gray-500 hover:text-white focus:text-white transition-colors">
-                    <LeftArrow className="w-5 h-5 mr-2" secondary="fill-current" />
+                <Link to="/" className="inline-flex items-center ml-2 mr-8 text-xs text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white focus:text-black dark:focus:text-white transition-colors">
+                    <LeftArrow className="w-5 h-5 mr-2" primary="fill-current text-transparent" secondary="fill-current" />
                     Home
                 </Link>
             }
         >
             <section className="w-full max-w-md mr-6">
-                <div className="px-4 py-5 bg-gray-900 rounded mb-8">
+                <div className="px-4 py-5 bg-gray-100 dark:bg-gray-900 rounded mb-8">
                     <header className="flex items-center">
                         <div className="mr-6">
                             <h1 className="font-semibold mb-1">
-                                <span className="text-xl text-white">{ ship.name }</span>
+                                <span className="text-xl text-black dark:text-white">{ ship.name }</span>
                                 <span className="ml-2">{ ship.shipName && getCometShortName(ship.shipName) }</span>
                             </h1>
                             <div className="flex items-center">
                                 <ShipStatus ship={ship} />
-                                {ship.running && ship.type !== 'remote' && <button className="px-1 ml-3 font-semibold text-gray-700 hover:text-red-800 focus:text-red-800 hover:border-red-900 focus:border-red-900 rounded default-ring border border-gray-700 transition-colors" onClick={() => stopShip()}>Stop</button>}
+                                {ship.running && ship.type !== 'remote' && <button className="px-1 ml-3 font-semibold text-gray-300 dark:text-gray-700 hover:text-red-800 focus:text-red-800 hover:border-red-900 focus:border-red-900 rounded default-ring border border-gray-300 dark:border-gray-700 transition-colors" onClick={() => stopShip()}>Stop</button>}
                             </div>
                         </div>
                         <div className="ml-auto">
                             <LaunchButton ship={ship} loadData={onHover(ship)}/>
                         </div>
                     </header>
-                    <hr className="my-3 border-gray-700"/>
+                    <hr className="my-3 border-gray-300 dark:border-gray-700"/>
                     <p className="flex items-center">{ ship.directory }<span className="ml-auto">{ formattedDate }</span></p>
                 </div>
-                <div className="px-4 py-5 bg-gray-900 rounded">               
-                    <h2 className="text-base font-semibold text-white mb-4">Ship Removal</h2>
+                <div className="px-4 py-5 bg-gray-100 dark:bg-gray-900 rounded">               
+                    <h2 className="text-base font-semibold text-black dark:text-white mb-4">Ship Removal</h2>
                     <div className="flex items-center font-semibold">
                         { ship.type === 'remote' && 
                             <button className="button text-red-600 hover:text-red-600 focus:text-red-600 border border-red-900 hover:border-red-700 focus:border-red-700 focus:outline-none transition-colors default-ring" onClick={async () => await deleteShip()}>Remove</button>
@@ -100,15 +100,15 @@ export const Ship: React.FC = () => {
                                     <Dialog.Trigger className="mr-3 hover:text-red-800 focus:text-red-800 transition-colors default-ring">
                                         Delete
                                     </Dialog.Trigger>
-                                    <Dialog.Overlay className="fixed z-10 top-0 left-0 right-0 bottom-0 bg-black opacity-30" />
-                                    <Dialog.Content className="fixed z-40 top-1/2 left-1/2 min-w-80 bg-gray-900 rounded default-ring transform -translate-y-1/2 -translate-x-1/2">
+                                    <Dialog.Overlay className="fixed z-10 top-0 left-0 right-0 bottom-0 bg-white dark:bg-black opacity-30" />
+                                    <Dialog.Content className="fixed z-40 top-1/2 left-1/2 min-w-80 bg-gray-100 dark:bg-gray-900 rounded default-ring transform -translate-y-1/2 -translate-x-1/2">
                                         <div className="relative p-4">
                                             <div className="my-6 pr-6">Are you sure you want to delete your ship? This action is irreversible.</div>
                                             <div className="flex justify-end items-center">
-                                                <Dialog.Close className="text-gray-500 hover:text-white focus:text-white transition-colors mr-4 default-ring">Cancel</Dialog.Close>
+                                                <Dialog.Close className="text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white focus:text-black dark:focus:text-white transition-colors mr-4 default-ring">Cancel</Dialog.Close>
                                                 <Dialog.Close className="button text-red-600 hover:text-red-600 focus:text-red-600 border border-red-900 hover:border-red-700 focus:border-red-700 focus:outline-none transition-colors default-ring" onClick={async () => await deleteShip()}>Delete</Dialog.Close>
                                             </div>
-                                            <Dialog.Close className="absolute top-2 right-2 text-gray-700 hover:text-gray-500 focus:text-gray-500 default-ring rounded">
+                                            <Dialog.Close className="absolute top-2 right-2 text-gray-300 dark:text-gray-700 hover:text-gray-400 dark:hover:text-gray-500 focus:text-gray-400 dark:focus:text-gray-500 default-ring rounded">
                                                 <Close className="w-7 h-7" primary="fill-current" />
                                             </Dialog.Close>
                                         </div>

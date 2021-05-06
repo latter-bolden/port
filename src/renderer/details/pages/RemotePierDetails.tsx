@@ -27,7 +27,7 @@ export const RemotePierDetails = () => {
         >
             <h1 className="font-semibold text-base mb-6">Enter Ship Details</h1>
             <div>
-                <label htmlFor="name">Name <span className="text-gray-700">(local only)</span></label>
+                <label htmlFor="name">Name <span className="text-gray-300 dark:text-gray-700">(local only)</span></label>
                 <NameField form={form} />
             </div>
             <div>
@@ -40,7 +40,7 @@ export const RemotePierDetails = () => {
                         required: true, 
                         pattern: /^(?:http(s)?:\/\/)[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/
                     })}
-                    className="flex w-full px-2 py-1 mt-2 bg-transparent border border-gray-700 focus:outline-none focus:border-gray-500 transition-colors rounded" 
+                    className="input flex w-full mt-2" 
                     placeholder="https://myurbit.com"
                 />
                 <span className={`inline-block h-8.5 mt-2 text-xs text-red-600 ${form.errors?.directory ? 'visible' : 'invisible'}`} role="alert">

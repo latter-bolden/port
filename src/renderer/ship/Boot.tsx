@@ -41,8 +41,8 @@ export const Boot: React.FC = () => {
                             <Spinner className="h-24 w-24 mr-6" />
                             <div className="flex-1">
                                 <h1 className="font-semibold">{title}...</h1>
-                                {ship?.type === 'comet' && <div className="text-gray-600">This could take an hour, but more likely 5-10 minutes.</div>}
-                                {ship?.type !== 'comet' && <div className="text-gray-600">This could take up to a few minutes.</div>}
+                                {ship?.type === 'comet' && <div className="text-gray-300 dark:text-gray-600">This could take an hour, but more likely 5-10 minutes.</div>}
+                                {ship?.type !== 'comet' && <div className="text-gray-300 dark:text-gray-600">This could take up to a few minutes.</div>}
                             </div>
                         </div>
                         <MessageLogger slug={ship?.slug} />
@@ -52,11 +52,11 @@ export const Boot: React.FC = () => {
                     <div className="flex flex-col justify-center items-center space-y-6">
                         <div>
                             <h1 className="font-semibold">Your Ship is Ready</h1>
-                            <div className="text-gray-600">Enjoy the Landscape</div>
+                            <div className="text-gray-300 dark:text-gray-600">Enjoy the Landscape</div>
                         </div>
-                        <Link to={`/pier/${slug}/launch`} className="inline-flex justify-center items-center px-2 py-1 bg-transparent border border-gray-700 hover:border-white focus:outline-none focus:border-white focus:ring focus:ring-gray-600 focus:ring-opacity-50 transition-colors rounded no-underline">
+                        <Link to={`/pier/${slug}/launch`} className="button">
                             Launch Ship into Urbit
-                            <RightArrow className="ml-1 w-7 h-7" secondary="fill-current" />
+                            <RightArrow className="ml-1 w-7 h-7" primary="fill-current text-transparent" secondary="fill-current" />
                         </Link>                            
                     </div>
                 }

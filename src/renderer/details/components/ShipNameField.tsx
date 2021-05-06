@@ -23,7 +23,7 @@ export const ShipNameField: React.FC<ShipNameFieldProps> = ({ form, validator, p
                     pattern: shipnamePattern,
                     validate: validator
                 })}
-                className="flex w-full px-2 py-1 mt-2 bg-transparent border border-gray-700 focus:outline-none focus:border-gray-500 transition-colors rounded" 
+                className="input flex w-full mt-2" 
                 placeholder={placeholder}
                 aria-invalid={!!form.errors.shipName}
             />

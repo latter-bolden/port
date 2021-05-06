@@ -41,30 +41,30 @@ export const MoonDetails: React.FC = () => {
         >
             <h1 className="font-semibold text-base mb-6">Enter Moon Details</h1>                    
             <div>
-                <label htmlFor="name">Name <span className="text-gray-700">(local only)</span></label>
+                <label htmlFor="name">Name <span className="text-gray-300 dark:text-gray-700">(local only)</span></label>
                 <NameField form={form} />
             </div>
             <Tabs.Root value={tab} onValueChange={setTab}>
-                <Tabs.List className="flex mb-4 border-b border-gray-700">
+                <Tabs.List className="flex mb-4 border-b border-gray-300 dark:border-gray-700">
                     <Tooltip.Root>
                         <Tooltip.Trigger className="default-ring">
-                            <Tabs.Tab value="from-planet" className={`flex justify-center px-3 py-2 border-b-2 default-ring  transition-colors text-gray-700 ${tab === 'from-planet' ? 'border-white font-semibold' : 'border-transparent'}`} disabled={true}>From Planet</Tabs.Tab>
+                            <Tabs.Tab value="from-planet" className={`flex justify-center px-3 py-2 border-b-2 default-ring  transition-colors text-gray-300 dark:text-gray-700 ${tab === 'from-planet' ? 'border-white font-semibold' : 'border-transparent'}`} disabled={true}>From Planet</Tabs.Tab>
                         </Tooltip.Trigger>
-                        <Tooltip.Content side="top" className="px-3 py-2 text-sm bg-gray-800 rounded">
+                        <Tooltip.Content side="top" className="px-3 py-2 text-sm bg-gray-100 dark:bg-gray-800 rounded">
                             Currently waiting for changes to Urbit for this to be supported
-                            <Tooltip.Arrow className="fill-current text-gray-800"/>
+                            <Tooltip.Arrow className="fill-current text-gray-100 dark:text-gray-800"/>
                         </Tooltip.Content>
                     </Tooltip.Root>
-                    <Tabs.Tab value="manual" className={`flex justify-center px-3 py-2 border-b-2 default-ring transition-colors ${tab === 'manual' ? 'border-white font-semibold' : 'border-transparent'}`}>Existing Key File</Tabs.Tab>
+                    <Tabs.Tab value="manual" className={`flex justify-center px-3 py-2 border-b-2 default-ring transition-colors ${tab === 'manual' ? 'border-black dark:border-white font-semibold' : 'border-transparent'}`}>Existing Key File</Tabs.Tab>
                 </Tabs.List>
                 <Tabs.Panel value="from-planet" className="default-ring">
                     <div>
-                        <label htmlFor="shipname">Shipname <span className="text-gray-700">(optional)</span></label>
+                        <label htmlFor="shipname">Shipname <span className="text-gray-300 dark:text-gray-700">(optional)</span></label>
                         {tab === 'from-planet' && <ShipNameField form={form} placeholder="~sampel-palnet-migtyl-wallys" />}
                     </div>
                     <div>
                         <label htmlFor="planet">Planet:</label>
-                        <select name="planet" ref={form.register({ validate: fromPlanetValidate })} className="w-full px-2 py-1 mt-2 bg-transparent border border-gray-700 focus:outline-none focus:border-gray-500 transition-colors rounded">
+                        <select name="planet" ref={form.register({ validate: fromPlanetValidate })} className="input w-full mt-2 bg-white dark:bg-black">
                             <option value="">Select a planet</option>
                             { planets && planets.map(planet => (
                                 <option key={planet.slug} value={planet.slug}>
@@ -81,7 +81,7 @@ export const MoonDetails: React.FC = () => {
                     </div>                          
                     <div>
                         <label htmlFor="directory">Key File</label>
-                        <KeyfileField form={form} validator={{ tabOff: manualValidate }} />
+                        <KeyfileField form={form} rules={{ validate: { tabOff: manualValidate }}} />
                     </div>
                 </Tabs.Panel>
             </Tabs.Root>

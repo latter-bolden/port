@@ -21,16 +21,16 @@ export const PlanetDetails: React.FC = () => {
         >
             <h1 className="font-semibold text-base mb-6">Enter Ship Details</h1>
             <div>
-                <label htmlFor="name">Name <span className="text-gray-700">(local only)</span></label>
+                <label htmlFor="name">Name <span className="text-gray-300 dark:text-gray-700">(local only)</span></label>
                 <NameField form={form} />
             </div>
             <div>
-                <label htmlFor="shipname">Shipname <span className="text-gray-700">(Urbit ID)</span></label>
+                <label htmlFor="shipname">Shipname <span className="text-gray-300 dark:text-gray-700">(Urbit ID)</span></label>
                 <ShipNameField form={form} />
             </div>
             <div>
                 <label htmlFor="directory">Key File</label>
-                <KeyfileField form={form} />
+                <KeyfileField form={form} rules={{ required: true }} />
             </div>
         </DetailsContainer>
     )

@@ -36,8 +36,8 @@ const LaunchFooter: React.FC<{ pier: Pier }> = ({ pier }) => {
 
     return (
         <>
-            <Link to="/" className="inline-flex items-center ml-2 mr-8 text-xs text-gray-500 hover:text-white focus:text-white transition-colors" onMouseOver={() => queryClient.prefetchQuery(pierKey())}>
-                <LeftArrow className="w-5 h-5 mr-2" secondary="fill-current" />
+            <Link to="/" className="inline-flex items-center ml-2 mr-8 text-xs text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white focus:text-black dark:focus:text-white transition-colors" onMouseOver={() => queryClient.prefetchQuery(pierKey())}>
+                <LeftArrow className="w-5 h-5 mr-2" primary="fill-current text-transparent" secondary="fill-current" />
                 Home
             </Link>
             {isPostSuccess && 

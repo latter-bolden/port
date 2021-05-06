@@ -10,7 +10,7 @@ export const ErrorPage: FunctionComponent<FallbackProps> = ({ error, resetErrorB
                     <span className="font-semibold text-red-500">{ error.name }:</span>
                     <span className="text-base ml-2">{ error.message }</span>
                 </h1>
-                <p className="text-xs max-w-full overflow-x-auto text-gray-400">
+                <p className="text-xs max-w-full overflow-x-auto text-gray-500 dark:text-gray-400">
                     <pre>
                         { error.stack }
                     </pre>

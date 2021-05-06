@@ -1,5 +1,5 @@
 a {
-  @apply inline-block focus:outline-none focus:ring focus:ring-gray-600 focus:ring-opacity-50;
+  @apply inline-block focus:outline-none focus:ring focus:ring-gray-300 dark:focus:ring-gray-600 focus:ring-opacity-50;
 }
 
 * {
@@ -15,7 +15,7 @@ a {
 }
  
 *::-webkit-scrollbar-thumb {
-    @apply bg-gray-700 rounded-full;
+    @apply bg-gray-300 dark:bg-gray-700 rounded-full;
 }
 
 *::-webkit-scrollbar-corner,
