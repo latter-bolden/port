@@ -1,8 +1,9 @@
-import { app, BrowserWindow } from 'electron';
+import { app, autoUpdater, BrowserWindow } from 'electron';
 import findOpenSocket from '../renderer/client/find-open-socket'
 import isDev from 'electron-is-dev'
 import { isOSX } from './helpers';
 import { createMainWindow } from './main-window';
+import { send } from '../background/server/ipc';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const BACKGROUND_WINDOW_WEBPACK_ENTRY: string;
 
@@ -12,6 +13,28 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 }
 
 let mainWindow: BrowserWindow;
+
+if (!isDev) {
+  const server = 'https://update.electronjs.org'
+  const feed = `${server}/arthyn/taisho/${process.platform}-${process.arch}/${app.getVersion()}`
+
+  autoUpdater.setFeedURL({
+    url: feed
+  })
+
+  autoUpdater.on('update-available', () => {
+    send('update-available');
+  });
+
+  autoUpdater.on('update-downloaded', () => {
+    send('update-downloaded');
+  })
+
+  autoUpdater.on('error', message => {
+    console.error('There was a problem updating the application')
+    console.error(message)
+  })
+}
 
 function createBackgroundWindow(socketName: string) {
   const win = new BrowserWindow({
@@ -56,6 +79,12 @@ async function start(bootBg: boolean) {
   }
 
   mainWindow = createMainWindow(MAIN_WINDOW_WEBPACK_ENTRY, serverSocket, app.quit.bind(this), bgWindow)
+
+  if (!isDev) {
+    setInterval(() => {
+      autoUpdater.checkForUpdates()
+    }, 10 * 60 * 1000) //check every 10 mins for updates
+  }
 }
 
 // This method will be called when Electron has finished

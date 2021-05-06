@@ -1,4 +1,4 @@
-import { BrowserView, BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent } from 'electron'
+import { autoUpdater, BrowserView, BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent } from 'electron'
 import isDev from 'electron-is-dev'
 import { ViewData } from '../background/services/os-service';
 import { initContextMenu } from './context-menu';
@@ -90,6 +90,10 @@ async function removeView(mainWindow: BrowserWindow, url: string) {
     }
 }
 
+function installUpdates() {
+    autoUpdater.quitAndInstall();
+}
+
 export function start(mainWindow: BrowserWindow, createNewWindow, bgWindow?: BrowserWindow): void {
     ipcMain.handle('open-dialog', openDialog)
     ipcMain.handle('set-title', (event, args) => setTitle(mainWindow, event, args))
@@ -98,4 +102,5 @@ export function start(mainWindow: BrowserWindow, createNewWindow, bgWindow?: Bro
     ipcMain.handle('create-view', (event, args) => createView(mainWindow, createNewWindow, args))
     ipcMain.handle('update-view-bounds', (event, args) => updateViewBounds(args))
     ipcMain.handle('remove-view', (event, args) => removeView(mainWindow, args))
+    ipcMain.handle('install-updates', installUpdates)
 }

@@ -28,7 +28,8 @@ const queryClient = new QueryClient({
 });
 
 export const useStore = create(() => ({
-    piers: []
+    piers: [],
+    updateStatus: 'initial'
 }))
 
 const AppWrapped = () => (
