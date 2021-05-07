@@ -1,7 +1,7 @@
 {
   "name": "taisho",
   "productName": "taisho",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "description": "A ship runner and manager for Urbit OS",
   "repository": {
     "type": "git",

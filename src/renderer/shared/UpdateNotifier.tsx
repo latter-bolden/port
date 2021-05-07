@@ -6,14 +6,23 @@ import * as Popover from '@radix-ui/react-popover';
 import { Close } from '../icons/Close';
 import { Button } from './Button';
 import { ipcRenderer } from 'electron';
+import { useHistory, useRouteMatch } from 'react-router';
 
 const PopoverContent: any = Popover.Content;
 
 export const UpdateNotifier = () => {
+    const history = useHistory();
+    const match = useRouteMatch('/pier/:slug/launch')
     const status = useStore(state => state.updateStatus);
 
     function install() {
         send('install-updates');
+    }
+
+    function onClick() {
+        if (match) {
+            history.push('/')
+        }
     }
 
     useEffect(() => {
@@ -49,7 +58,7 @@ export const UpdateNotifier = () => {
             {status === 'downloaded' &&
                 <>
                     <Popover.Root defaultOpen={true}>
-                        <Popover.Trigger className="hover:text-black dark:hover:text-white default-ring">
+                        <Popover.Trigger className="hover:text-black dark:hover:text-white default-ring" onClick={onClick}>
                             Updates Ready
                         </Popover.Trigger>
                         <PopoverContent
