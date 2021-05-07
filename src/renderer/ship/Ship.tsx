@@ -31,8 +31,15 @@ export const Ship: React.FC = () => {
         }
     })
     const { mutate: ejectShip, isLoading } = useMutation(async () => {
-        await send('stop-pier', ship)
-        return send('eject-pier', ship)
+        const pier = await send('stop-pier', ship)
+
+        //we wait here in case .vere.lock hasn't cleared yet (race condition)
+        return new Promise<void>((resolve) => {
+            setTimeout(async () => {
+                await send('eject-pier', pier)
+                resolve();
+            }, 2000)
+        })
     }, {
         onSuccess: () => {
             queryClient.prefetchQuery(pierKey())
