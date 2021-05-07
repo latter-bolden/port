@@ -3,7 +3,6 @@ import findOpenSocket from '../renderer/client/find-open-socket'
 import isDev from 'electron-is-dev'
 import { isOSX } from './helpers';
 import { createMainWindow } from './main-window';
-import { send } from '../background/server/ipc';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const BACKGROUND_WINDOW_WEBPACK_ENTRY: string;
 
@@ -23,17 +22,27 @@ if (!isDev) {
   })
 
   autoUpdater.on('update-available', () => {
-    send('update-available');
+    mainWindow.webContents.send('update-available');
   });
 
   autoUpdater.on('update-downloaded', () => {
-    send('update-downloaded');
+    mainWindow.webContents.send('update-downloaded');
   })
 
   autoUpdater.on('error', message => {
     console.error('There was a problem updating the application')
     console.error(message)
   })
+} else {
+  setTimeout(() => {
+    console.log('sending update available')
+    mainWindow.webContents.send('update-available');
+
+    setTimeout(() => {
+      console.log('sending update downloaded')
+      mainWindow.webContents.send('update-downloaded');
+    }, 10 * 1000);
+  }, 45 * 1000)
 }
 
 function createBackgroundWindow(socketName: string) {
@@ -81,6 +90,8 @@ async function start(bootBg: boolean) {
   mainWindow = createMainWindow(MAIN_WINDOW_WEBPACK_ENTRY, serverSocket, app.quit.bind(this), bgWindow)
 
   if (!isDev) {
+    autoUpdater.checkForUpdates()
+
     setInterval(() => {
       autoUpdater.checkForUpdates()
     }, 10 * 60 * 1000) //check every 10 mins for updates

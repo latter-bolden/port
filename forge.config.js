@@ -95,8 +95,7 @@ module.exports = {
           owner: 'arthyn',
           name: 'taisho'
         },
-        draft: true,
-        prerelease: true
+        draft: true
       }
     }
   ],

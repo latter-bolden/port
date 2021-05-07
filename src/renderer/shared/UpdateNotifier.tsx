@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react'
 import { useStore } from '../App';
-import { listen, send } from '../client/ipc';
+import { send } from '../client/ipc';
 import { Spinner } from './Spinner';
 import * as Popover from '@radix-ui/react-popover';
 import { Close } from '../icons/Close';
 import { Button } from './Button';
+import { ipcRenderer } from 'electron';
 
 const PopoverContent: any = Popover.Content;
 
@@ -16,17 +17,20 @@ export const UpdateNotifier = () => {
     }
 
     useEffect(() => {
-        const unlistenAvailable = listen('update-available', () => {
+        const listenAvailable = () => {
             useStore.setState({ updateStatus: 'available' });
-        });
+        };
 
-        const unlistenDownloaded = listen('update-downloaded', () => {
+        const listenDownloaded = () => {
             useStore.setState({ updateStatus: 'downloaded' });
-        })
+        };
+
+        ipcRenderer.on('update-available', listenAvailable);
+        ipcRenderer.on('update-downloaded', listenDownloaded);
 
         return () => {
-            unlistenAvailable();
-            unlistenDownloaded();
+            ipcRenderer.removeListener('update-available', listenAvailable);
+            ipcRenderer.removeListener('update-downloaded', listenDownloaded);
         }
     }, []);
 

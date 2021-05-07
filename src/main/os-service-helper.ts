@@ -1,4 +1,4 @@
-import { autoUpdater, BrowserView, BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent } from 'electron'
+import { app, autoUpdater, BrowserView, BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent } from 'electron'
 import isDev from 'electron-is-dev'
 import { ViewData } from '../background/services/os-service';
 import { initContextMenu } from './context-menu';
@@ -91,7 +91,12 @@ async function removeView(mainWindow: BrowserWindow, url: string) {
 }
 
 function installUpdates() {
-    autoUpdater.quitAndInstall();
+    if (!isDev) {
+        autoUpdater.quitAndInstall();
+    } else {
+        console.log('quitting')
+        app.quit();
+    }
 }
 
 export function start(mainWindow: BrowserWindow, createNewWindow, bgWindow?: BrowserWindow): void {

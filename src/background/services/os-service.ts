@@ -23,7 +23,8 @@ export class OSService {
             { name: 'toggle-dev-tools', handler: this.toggleDevTools.bind(this) },
             { name: 'create-view', handler: this.createView.bind(this) },
             { name: 'update-view-bounds', handler: this.updateViewBounds.bind(this) },
-            { name: 'remove-view', handler: this.removeView.bind(this) }
+            { name: 'remove-view', handler: this.removeView.bind(this) },
+            { name: 'install-updates', handler: this.installUpdates.bind(this) }
         ]
     }
 
