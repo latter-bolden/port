@@ -78,7 +78,7 @@ export class PierService {
     
     async setPierDirectory(): Promise<void> {
         const pierDirectory = await this.db.settings.asyncFindOne({ name: 'pier-directory' })
-        this.pierDirectory = pierDirectory?.value || joinPath(remote.app.getPath('userData'), 'piers')
+        this.pierDirectory = pierDirectory?.value || this.getPierDirectory();
 
         try {
             await asyncAccess(this.pierDirectory)
@@ -558,6 +558,14 @@ export class PierService {
 
     private formatBootLog(data: any) {
         return `${format(new Date(), 'HH:mm:ss')} ${data.toString()}`
+    }
+
+    private getPierDirectory() {
+        if (process.platform === 'linux' && process.env.SNAP) {
+            return joinPath(process.env.SNAP_USER_COMMON, '.config', remote.app.getName());
+        }
+
+        return joinPath(remote.app.getPath('userData'), 'piers')
     }
 }
 
