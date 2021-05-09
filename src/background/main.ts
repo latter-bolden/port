@@ -3,6 +3,7 @@ import { HandlerEntry, HandlerMap, init } from './server/ipc';
 import { OSHandlers, OSService } from './services/os-service';
 import { PierHandlers, PierService } from './services/pier-service';
 import { ipcRenderer } from 'electron';
+import { migrate } from './db/status-migration';
 
 export type Handlers = OSHandlers & PierHandlers//& { init: () => Promise<PierData> };
 
@@ -30,6 +31,8 @@ async function start() {
     pierService.setPierDirectory();
 
     console.log('initializing background process')
+    console.log('Attempting status migration...')
+    await migrate(db)
 }
 
 start();

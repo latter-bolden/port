@@ -49,7 +49,7 @@ export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading 
 
     return (
         <div ref={landscapeRef} id="landscape" className="grid h-full w-full justify-center items-center">
-            { (loading || !pier?.running) &&
+            { (loading || pier?.status !== 'running') &&
                 <Spinner className="h-24 w-24" />
             }
         </div>

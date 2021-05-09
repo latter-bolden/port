@@ -64,8 +64,8 @@ export const UpdateNotifier = () => {
                         <PopoverContent
                             align="end"
                             sideOffset={20}
+                            trapFocus={false}
                             onOpenAutoFocus={event => event.preventDefault()}
-                            onPointerDownOutside={event => event.preventDefault()}
                             className="relative -right-8 flex items-center p-2 text-sm text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-900 default-ring rounded"
                         >
                             <Popover.Close className="mr-2 text-gray-300 dark:text-gray-700 hover:text-gray-400 dark:hover:text-gray-500 focus:text-gray-400 dark:focus:text-gray-500 default-ring rounded">

@@ -14,7 +14,7 @@ const LaunchFooter: React.FC<{ pier: Pier }> = ({ pier }) => {
     const [showCopied, setShowCopied] = useState(false);
     const { data, isSuccess: isPostSuccess } = useQuery(['auth', pier?.slug], 
     () => send('get-pier-auth', pier), {
-        enabled: !!pier && pier.running && pier.type !== 'remote'
+        enabled: !!pier && pier.status === 'running' && pier.type !== 'remote'
     })
 
     useEffect(() => {

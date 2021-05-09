@@ -1,24 +1,27 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
 import React from 'react'
+import Case from 'case';
 import { Pier } from '../../../background/services/pier-service'
+
+const statusColors: Record<'running' | 'booting' | 'default', string> = {
+    running: 'bg-green-400',
+    booting: 'bg-yellow-500',
+    default: 'bg-gray-300 dark:bg-gray-700'
+}
 
 export const ShipStatus = ({ ship }: { ship: Pier }) => {
     const isRemote = ship.type === 'remote';
-    let shipStatus = 'Unbooted';
+    let shipStatus = Case.capital(ship.status);
 
     if (isRemote) {
         shipStatus = 'Connected'
-    } else if (ship.booted && ship.running) {
-        shipStatus = 'Running'
-    } else if (ship.booted && !ship.running) {
-        shipStatus = 'Stopped'
     }
 
     return (
         <Tooltip.Root>
             <Tooltip.Trigger className="default-ring cursor-default" disabled={isRemote}>
                 <span className="inline-flex items-center">
-                    <span className={`inline-flex w-2 h-2 mr-1 rounded-full ${ship.running ? 'bg-green-400' : 'bg-gray-300 dark:bg-gray-700'}`}></span>
+                    <span className={`inline-flex w-2 h-2 mr-1 rounded-full ${statusColors[ship.status] || statusColors.default}`}></span>
                     <span className="text-gray-400 dark:text-gray-500">{shipStatus}</span>          
                 </span>
             </Tooltip.Trigger>
