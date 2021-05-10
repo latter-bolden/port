@@ -88,6 +88,6 @@ typings/
 # Electron-Forge
 out/
 
-db/
+/db/
 
 build/
