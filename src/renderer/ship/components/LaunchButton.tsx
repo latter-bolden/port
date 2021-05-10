@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { send } from '../../client/ipc'
-import { Pier } from '../../../background/services/pier-service'
+import { Pier, ShipStatus } from '../../../background/services/pier-service'
 import { RightArrow } from '../../icons/RightArrow'
 
 type LaunchButtonProps = {
@@ -10,18 +10,18 @@ type LaunchButtonProps = {
     className?: string;
 }
 
+const buttonLabels: Record<ShipStatus, string> = {
+    running: 'Open',
+    stopped: 'Launch',
+    booted: 'Launch',
+    booting: 'Check Progress',
+    unbooted: 'Boot',
+    errored: 'Check Error'
+}
+
 export const LaunchButton: React.FC<LaunchButtonProps> = ({ ship, loadData, className = '' }) => {
     const buttonClass = `button min-w-22 py-1 pr-1 font-semibold text-sm ${className}`
-    const path = ship.booted ? `/pier/${ship.slug}/launch` : `/boot/new/${ship.slug}`;
-    let buttonText = 'Boot';
-
-    if (ship.booted && ship.running) {
-        buttonText = 'Open'
-    }
-    
-    if (ship.booted && !ship.running) {
-        buttonText = 'Launch'
-    }
+    const path = ship.status === 'running' || ship.status === 'stopped' ? `/pier/${ship.slug}/launch` : `/boot/new/${ship.slug}`;
 
     return (
         <Link 
@@ -30,7 +30,7 @@ export const LaunchButton: React.FC<LaunchButtonProps> = ({ ship, loadData, clas
             onMouseEnter={loadData} 
             onClick={async () => await send('clear-data')}
         >
-            { buttonText }
+            { buttonLabels[ship.status] }
             <RightArrow className="ml-auto w-5 h-5" primary="fill-current text-transparent" secondary="fill-current"/>
         </Link>
     )

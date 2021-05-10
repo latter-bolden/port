@@ -85,7 +85,7 @@ export const Ship: React.FC = () => {
                             </h1>
                             <div className="flex items-center">
                                 <ShipStatus ship={ship} />
-                                {ship.running && ship.type !== 'remote' && <button className="px-1 ml-3 font-semibold text-gray-300 dark:text-gray-700 hover:text-red-800 focus:text-red-800 hover:border-red-900 focus:border-red-900 rounded default-ring border border-gray-300 dark:border-gray-700 transition-colors" onClick={() => stopShip()}>Stop</button>}
+                                {ship.status === 'running' && ship.type !== 'remote' && <button className="px-1 ml-3 font-semibold text-gray-300 dark:text-gray-700 hover:text-red-800 focus:text-red-800 hover:border-red-900 focus:border-red-900 rounded default-ring border border-gray-300 dark:border-gray-700 transition-colors" onClick={() => stopShip()}>Stop</button>}
                             </div>
                         </div>
                         <div className="ml-auto">
