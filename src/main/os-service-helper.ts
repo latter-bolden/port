@@ -90,11 +90,13 @@ async function removeView(mainWindow: BrowserWindow, url: string) {
     }
 }
 
-function installUpdates() {
+function installUpdates(bgWindow: BrowserWindow) {
     if (!isDev) {
+        bgWindow.close();
         autoUpdater.quitAndInstall();
     } else {
         console.log('quitting')
+        bgWindow.close();
         app.quit();
     }
 }
@@ -107,5 +109,5 @@ export function start(mainWindow: BrowserWindow, createNewWindow, bgWindow?: Bro
     ipcMain.handle('create-view', (event, args) => createView(mainWindow, createNewWindow, args))
     ipcMain.handle('update-view-bounds', (event, args) => updateViewBounds(args))
     ipcMain.handle('remove-view', (event, args) => removeView(mainWindow, args))
-    ipcMain.handle('install-updates', installUpdates)
+    ipcMain.handle('install-updates', () => installUpdates(bgWindow))
 }
