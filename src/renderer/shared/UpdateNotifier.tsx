@@ -28,6 +28,12 @@ export const UpdateNotifier = () => {
     useEffect(() => {
         const listenAvailable = () => {
             useStore.setState({ updateStatus: 'available' });
+
+            //just in case downloaded event fails to trigger,
+            //trigger after thirty minutes
+            setTimeout(() => {
+                useStore.setState({ updateStatus: 'downloaded' });
+            }, 30 * 60 * 1000)
         };
 
         const listenDownloaded = () => {
