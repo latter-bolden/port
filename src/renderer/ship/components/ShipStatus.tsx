@@ -3,9 +3,10 @@ import React from 'react'
 import Case from 'case';
 import { Pier } from '../../../background/services/pier-service'
 
-const statusColors: Record<'running' | 'booting' | 'default', string> = {
+const statusColors: Record<'running' | 'booting' | 'errored' | 'default', string> = {
     running: 'bg-green-400',
     booting: 'bg-yellow-500',
+    errored: 'bg-red-600',
     default: 'bg-gray-300 dark:bg-gray-700'
 }
 
