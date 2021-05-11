@@ -29,7 +29,8 @@ export const NameField: React.FC<NameFieldProps> = ({ form }) => {
                 ref={form.register({ 
                     required: true,
                     pattern: namePattern,
-                    validate: nameValidator 
+                    validate: nameValidator,
+                    maxLength: 64 
                 })}
                 className="input flex w-full mt-2" 
                 placeholder="My Ship" 
@@ -37,6 +38,7 @@ export const NameField: React.FC<NameFieldProps> = ({ form }) => {
             />
             <span className={`inline-block h-8.5 mt-2 text-xs text-red-600 ${form.errors?.name ? 'visible' : 'invisible'}`} role="alert">
                 { form.errors.name?.type === 'required' && 'Name is required'}
+                { form.errors.name?.type === 'maxLength' && 'Name must be 64 characters or less'}
                 { nameNotUnique && 'Name must be unique' }
                 { /* need this for height? */ }
                 { (!form.errors.name || nameContainsInvalidCharacters) && 'Name must only contain alphanumeric, dash, underscore, or space characters' }

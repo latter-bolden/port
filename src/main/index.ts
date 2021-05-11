@@ -112,17 +112,14 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.on('before-quit', () => {
-  // not fired when the close button on the window is clicked
+function exitBeforeQuit() {
   if (isOSX()) {
-    // need to force a quit as a workaround here to simulate the osx app hiding behaviour
-    // Somehow sokution at https://github.com/atom/electron/issues/444#issuecomment-76492576 does not work,
-    // e.prevent default appears to persist
-
-    // might cause issues in the future as before-quit and will-quit events are not called
     app.exit(0);
   }
-})
+}
+
+app.on('before-quit', exitBeforeQuit);
+autoUpdater.on('before-quit-for-update', exitBeforeQuit);
 
 app.on('activate', (event, hasVisibleWindows) => {
   if (isOSX()) {
