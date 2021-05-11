@@ -8,7 +8,7 @@ function formatMsg(msg: BootMessage) {
     return `${format(new Date(msg.time), 'HH:mm:ss')} ${msg.text}`
 }
 
-export const MessageLogger: React.FC<{ ship: Pier }> = ({ ship }) => {
+export const MessageLogger: React.FC<{ ship: Pier, showErrors?: boolean }> = ({ ship, showErrors = false }) => {
     const slug = ship?.slug;
     const { data } = useQuery(['messages', slug], () => send('get-messages', { slug }), {
         refetchInterval: 500
@@ -19,9 +19,9 @@ export const MessageLogger: React.FC<{ ship: Pier }> = ({ ship }) => {
     return (
         <div className="relative min-w-xl pl-10 font-mono text-xs text-gray-400 dark:text-gray-500">
             <div className="absolute top-0 left-0 right-0 bottom-0 z-20 bg-gradient-to-b from-white dark:from-black to-transparent pointer-events-none" />
-            <pre className="flex flex-col-reverse h-56 space-y-0 pt-10 overflow-y-auto overflow-x-hidden">
+            <pre className={`flex flex-col-reverse h-56 space-y-0 pt-10 overflow-y-auto ${showErrors ? 'overflow-x-auto' : 'overflow-x-hidden'}`}>
                 {messages.map((msg, index) => (
-                    <div key={index + msg.text}>{formatMsg(msg)}</div>
+                    <div key={index + msg.text} className={showErrors && msg.type === 'error' ? 'text-red-600' : ''}>{formatMsg(msg)}</div>
                 ))}
             </pre>
             {disconnected && 

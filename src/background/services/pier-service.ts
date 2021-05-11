@@ -177,7 +177,8 @@ export class PierService {
     }
 
     async checkPier(pier: Pier): Promise<Pier> {
-        if (pier.type === 'remote' || pier.status === 'booting' || pier.status === 'unbooted')
+        const dontUpdate: ShipStatus[] = ['unbooted', 'booting', 'errored'];
+        if (pier.type === 'remote' || dontUpdate.includes(pier.status))
             return pier
 
         const dojoCheck = await this.runningCheck(pier);
@@ -386,7 +387,7 @@ export class PierService {
         shell.openPath(pier.directory)
     }
 
-    async deletePier(pier: Pier): Promise<void> {
+    async deletePier(pier: Pier, keepFolder = false): Promise<void> {
         const pierPath = this.getPierPath(pier);
         let pierExists = true;
 
@@ -396,7 +397,7 @@ export class PierService {
             pierExists = false
         }
 
-        if (pier.type !== 'remote' && pierExists) {
+        if (pier.type !== 'remote' && pierExists && !keepFolder) {
             asyncRmdir(pierPath, { recursive: true })
         }
 

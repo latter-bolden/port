@@ -1,10 +1,13 @@
 import React, { useEffect, useRef } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useHistory, useParams } from 'react-router-dom'
 import { send } from '../client/ipc'
+import { Archive } from '../icons/Archive'
 import { LeftArrow } from '../icons/LeftArrow'
+import { Refresh } from '../icons/Refresh'
 import { RightArrow } from '../icons/RightArrow'
 import { pierKey } from '../query-keys'
+import { Button } from '../shared/Button'
 import { Layout } from '../shared/Layout'
 import { MessageLogger } from '../shared/MessageLogger'
 import { Spinner } from '../shared/Spinner'
@@ -17,6 +20,7 @@ const BootFooter = ({ queryClient }) => (
 )
 
 export const Boot: React.FC = () => {
+    const history = useHistory();
     const shipSettled = useRef(false);
     const queryClient = useQueryClient()
     const { slug } = useParams<{ slug: string }>();
@@ -34,6 +38,27 @@ export const Boot: React.FC = () => {
     const { mutate } = useMutation(() => send('boot-pier', ship), {
         onSuccess: () => {
             queryClient.invalidateQueries(pierKey())
+        }
+    })
+    const { mutate: retry, isLoading: isRetrying } = useMutation(async () => {
+        await send('delete-pier', ship, ship.directoryAsPierPath);
+        const  { status, ...addPier } = ship;
+        const newPier = await send('add-pier', addPier);
+
+        return send('boot-pier', newPier);
+    }, {
+        onSuccess: () => {
+            queryClient.setQueryData(pierKey(slug), {
+                ...ship,
+                status: 'booting'
+            })
+            queryClient.invalidateQueries(pierKey(slug))
+        }
+    })
+    const { mutate: deleteShip, isLoading: isDeleting } = useMutation(() => send('delete-pier', ship, ship.directoryAsPierPath), {
+        onSuccess: () => {
+            queryClient.invalidateQueries(pierKey())
+            history.push('/')
         }
     })
     shipSettled.current = ship && (ship.status === 'running' || ship.status === 'errored');
@@ -78,6 +103,31 @@ export const Boot: React.FC = () => {
                             Launch Ship into Urbit
                             <RightArrow className="ml-1 w-7 h-7" primary="fill-current text-transparent" secondary="fill-current" />
                         </Link>                            
+                    </div>
+                }
+                {shipSettled.current && ship.status === 'errored' &&
+                    <div>
+                        <h1 className="font-semibold mb-2">{title} Failed</h1>
+                        <p className="mb-6 text-gray-300 dark:text-gray-600">Last seen messages:</p>                            
+                        <MessageLogger ship={ship} showErrors />
+                        <div className="flex items-center justify-end mt-6 text-sm space-x-4">
+                            <Button className="hover:text-red-600 focus:text-red-600 hover:border-red-700 focus:border-red-700" onClick={() => deleteShip()}>
+                                {!isDeleting && <>
+                                    <Archive className="w-5 h-5 mr-1" primary="fill-current opacity-50" secondary="fill-current opacity-25" /> Delete
+                                </>}
+                                {isDeleting && <>
+                                    <Spinner className="w-4 h-4 mr-2" /> Deleting
+                                </>}
+                            </Button>
+                            <Button onClick={() => retry()}>
+                                {!isRetrying && <>
+                                    <Refresh className="w-5 h-5 mr-1" primary="fill-current opacity-50" secondary="fill-current opacity-25" /> Retry
+                                </>}
+                                {isRetrying && <>
+                                    <Spinner className="w-4 h-4 mr-2" /> Retrying
+                                </>}
+                            </Button>
+                        </div>
                     </div>
                 }
             </section>
