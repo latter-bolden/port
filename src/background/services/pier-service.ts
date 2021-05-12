@@ -587,8 +587,7 @@ export interface Pier {
 }
 
 export type AddPier = Pick<Pier, 'name' | 'type' | 'shipName' | 'keyFile'> & {
-    booted?: boolean;
-    running?: boolean;
+    status?: ShipStatus;
     directory?: string;
     directoryAsPierPath?: boolean;
 }
