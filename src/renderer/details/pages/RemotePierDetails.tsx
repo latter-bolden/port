@@ -11,8 +11,7 @@ export const RemotePierDetails = () => {
     } = useAddPier((data) => {
         return send('add-pier', { 
             ...data,
-            booted: true,
-            running: true, 
+            status: 'running',
             type: 'remote' 
         })
     }, false)

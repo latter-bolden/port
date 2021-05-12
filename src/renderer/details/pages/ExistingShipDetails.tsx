@@ -11,7 +11,7 @@ export const ExistingShipDetails = () => {
         form,
         mutate
     } = useAddPier<AddPier & { shipStays?: boolean }>(data => {
-        const toSend = { ...data, booted: true };
+        const toSend: AddPier = { ...data, status: 'booted' };
         return data.shipStays ? 
             send('add-pier', { ...toSend, directoryAsPierPath: true }) : 
             send('collect-existing-pier', toSend)
