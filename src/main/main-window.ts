@@ -1,5 +1,6 @@
 import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents, nativeTheme } from 'electron';
 import windowStateKeeper from 'electron-window-state';
+import isDev from 'electron-is-dev';
 
 import {
   isOSX,
@@ -8,7 +9,7 @@ import {
   onNewWindowHelper
 } from './helpers';
 import { initContextMenu } from './context-menu';
-import { start as osHelperStart } from './os-service-helper'
+import { start as osHelperStart, views } from './os-service-helper'
 import { createMenu } from './menu';
 
 const ZOOM_INTERVAL = 0.1;
@@ -16,6 +17,33 @@ const ZOOM_INTERVAL = 0.1;
 function getWindowOrViewContents(focusedWindow: BrowserWindow): WebContents {
   const view = focusedWindow.getBrowserView();
   return view ? view.webContents : focusedWindow.webContents;
+}
+
+export function updateZoomLevels(mainWindow: BrowserWindow) {
+  if (!isDev) {
+    return;
+  }
+
+  const main = Math.trunc(mainWindow.webContents.zoomFactor * 10) / 10;
+  const viewLevels = [];
+  views.forEach(view => {
+    viewLevels.push(Math.trunc(view.webContents.zoomFactor * 10) / 10)
+  })
+  mainWindow.webContents.send('zoom-levels', {
+    main,
+    views: viewLevels.join()
+  })
+}
+
+function adjustZoom(mainWindow: BrowserWindow, adjuster: (contents: WebContents) => void): void {
+    const focusedWindow = BrowserWindow.getFocusedWindow();
+    const view = focusedWindow.getBrowserView();
+    
+    if (focusedWindow === mainWindow && view) {
+      adjuster(view.webContents);
+    }
+
+    adjuster(focusedWindow.webContents);
 }
 
 export function createMainWindow(
@@ -58,34 +86,41 @@ export function createMainWindow(
 
   mainWindowState.manage(mainWindow);
 
-  const withFocusedView = (block: (contents: WebContents) => void, onlyWindow = false): void => {
+  const withFocusedView = (block: (contents: WebContents) => void, target: 'window' | 'view' | 'both' = 'view'): void => {
     const focusedWindow = BrowserWindow.getFocusedWindow();
     if (focusedWindow) {
       const contents = getWindowOrViewContents(focusedWindow);
-      return onlyWindow ? block(focusedWindow.webContents) : block(contents);
+
+      if (target === 'both' || target === 'view') {
+        block(contents);
+      }
+
+      if (target === 'both' || target === 'window') {
+        block(focusedWindow.webContents)
+      }
     }
     return undefined;
   };
 
-  const adjustZoom = (
-    contents: WebContents,
-    adjustment: number,
-  ): void => {
-    contents.zoomFactor = contents.zoomFactor + adjustment;
-  };
-
   const onZoomIn = (): void => {
-    withFocusedView((contents: WebContents) => adjustZoom(contents, ZOOM_INTERVAL), true);
+    adjustZoom(mainWindow, (contents) => {
+      contents.zoomFactor += ZOOM_INTERVAL;
+    })
+    updateZoomLevels(mainWindow);
   };
 
   const onZoomOut = (): void => {
-    withFocusedView((contents: WebContents) => adjustZoom(contents, -ZOOM_INTERVAL), true);
+    adjustZoom(mainWindow, (contents) => {
+      contents.zoomFactor += -ZOOM_INTERVAL;
+    })
+    updateZoomLevels(mainWindow);
   };
 
   const onZoomReset = (): void => {
-    withFocusedView((contents: WebContents) => {
+    adjustZoom(mainWindow, (contents) => {
       contents.zoomFactor = 1;
-    }, true);
+    })
+    updateZoomLevels(mainWindow);
   };
 
   const clearAppData = async (): Promise<void> => {
