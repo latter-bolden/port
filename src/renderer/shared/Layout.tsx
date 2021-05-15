@@ -5,6 +5,7 @@ import { send } from '../client/ipc';
 import { Bug } from '../icons/Bug';
 import { isOSX } from '../../main/helpers';
 import { UpdateNotifier } from './UpdateNotifier';
+import { useStore } from '../App';
 
 interface LayoutProps {
     title: string;
@@ -16,6 +17,7 @@ interface LayoutProps {
 export const Layout: FunctionComponent<LayoutProps> = ({ children, title, center = true, className = '', footer }) => {
     const history = useHistory();
     const url = stringifyHistory();
+    const zoomLevels = useStore(state => state.zoomLevels);
     const [showDevTools, setShowDevTools] = useState(false);
 
     useEffect(() => {
@@ -54,6 +56,12 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, center
             <footer className="flex items-center h-8 py-2 z-20">
                 { footer }
                 <div className="flex justify-end items-center ml-auto leading-none">
+                    {isDev &&
+                        <span className="text-xs space-x-4 mr-6">
+                            <span>Main Zoom: { zoomLevels.main }</span>
+                            <span>Views Zoom: { zoomLevels.views }</span>
+                        </span>
+                    }
                     <input 
                         type="text" 
                         className={`min-w-64 text-black dark:text-white text-xs bg-transparent border border-gray-300 dark:border-gray-700 hover:border-black dark:hover:border-white focus:border-black dark:focus:border-white ${isDev || showDevTools ? '' : 'hidden'}`}

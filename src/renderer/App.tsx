@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { HashRouter, Route, Switch } from 'react-router-dom'
 import { hot } from 'react-hot-loader';
 import { Welcome } from './pages/Welcome'
@@ -18,6 +18,7 @@ import create from 'zustand';
 import { pierKey } from './query-keys';
 import { send } from './client/ipc';
 import { Star } from './details/pages/Star';
+import { ipcRenderer } from 'electron';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -29,7 +30,11 @@ const queryClient = new QueryClient({
 
 export const useStore = create(() => ({
     piers: [],
-    updateStatus: 'initial'
+    updateStatus: 'initial',
+    zoomLevels: {
+        main: 1,
+        views: '1'
+    }
 }))
 
 const AppWrapped = () => (
@@ -55,6 +60,18 @@ const App = () => {
         refetchInterval: 60 * 1000,
         refetchIntervalInBackground: true
     });
+
+    useEffect(() => {
+        const listener = (event, args) => {
+            useStore.setState({ zoomLevels: args })
+        } 
+
+        ipcRenderer.on('zoom-levels', listener);
+
+        return () => {
+            ipcRenderer.removeListener('zoom-levels', listener)
+        }
+    }, [])
 
     return (
         <Switch>                        

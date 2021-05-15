@@ -2,8 +2,9 @@ import { app, autoUpdater, BrowserView, BrowserWindow, dialog, ipcMain, IpcMainI
 import isDev from 'electron-is-dev'
 import { ViewData } from '../background/services/os-service';
 import { initContextMenu } from './context-menu';
+import { updateZoomLevels } from './main-window';
 
-const views = new Map<string, BrowserView>();
+export const views = new Map<string, BrowserView>();
 const viewQueue: string[] = [];
 
 async function openDialog(event: IpcMainInvokeEvent, options: Electron.OpenDialogOptions) {
@@ -46,19 +47,36 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, data: View
     if (newView) {
         view = new BrowserView();
         initContextMenu(createNewWindow, undefined, mainWindow.webContents.getURL(), view)
-        view.webContents.loadURL(url);
+        await view.webContents.loadURL(url);
         views.set(url, view);
         viewQueue.push(url);
     }
 
     mainWindow.addBrowserView(view);
-    setViewBounds(view, data, mainWindow.webContents.getZoomFactor());
+
+    //this is all hacks just to get zoomfactor to update correctly 🙄
+    mainWindow.webContents.zoomFactor = mainWindow.webContents.zoomFactor + 0;
+    view.webContents.zoomFactor = mainWindow.webContents.zoomFactor;
+    const mainBounds = mainWindow.getBounds();
+    mainWindow.setBounds({
+        ...mainBounds,
+        width: mainBounds.width + 1,
+        height: mainBounds.height + 1
+    });
+    mainWindow.setBounds(mainBounds);
+
+    setTimeout(() => {
+        setViewBounds(view, mainWindow, data);
+        updateZoomLevels(mainWindow);
+    }, 10);
 }
 
-function setViewBounds(view: BrowserView, { bounds }: ViewData, zoomFactor?: number) {
+function setViewBounds(view: BrowserView, mainWindow: BrowserWindow, { bounds }: ViewData) {
     const { x, y, width, height } = bounds;
-    const zoom = zoomFactor || view.webContents.getZoomFactor() || 1;
+    const mainZoom = mainWindow.webContents.zoomFactor;
+    const zoom = mainZoom;
     
+    isDev && console.log({ zoom, bounds })
     view.setBounds({
         x: Math.round(x * zoom),
         y: Math.round(y * zoom),
@@ -67,10 +85,11 @@ function setViewBounds(view: BrowserView, { bounds }: ViewData, zoomFactor?: num
     })
 }
 
-async function updateViewBounds(data: ViewData) {
+async function updateViewBounds(data: ViewData, mainWindow: BrowserWindow) {
     const view = views.get(data.url)
     if (view) {
-        setViewBounds(view, data);
+        setViewBounds(view, mainWindow, data);
+        updateZoomLevels(mainWindow)
     }
 }
 
@@ -107,7 +126,7 @@ export function start(mainWindow: BrowserWindow, createNewWindow, bgWindow?: Bro
     ipcMain.handle('clear-data', () => clearData(mainWindow))
     ipcMain.handle('toggle-dev-tools', () => toggleDevTools(mainWindow, bgWindow))
     ipcMain.handle('create-view', (event, args) => createView(mainWindow, createNewWindow, args))
-    ipcMain.handle('update-view-bounds', (event, args) => updateViewBounds(args))
+    ipcMain.handle('update-view-bounds', (event, args) => updateViewBounds(args, mainWindow))
     ipcMain.handle('remove-view', (event, args) => removeView(mainWindow, args))
     ipcMain.handle('install-updates', () => installUpdates(bgWindow))
 }
