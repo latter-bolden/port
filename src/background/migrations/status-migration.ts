@@ -1,4 +1,4 @@
-import { DB } from ".";
+import { DB } from "../db";
 import { Pier } from "../services/pier-service";
 import { each } from 'async'
 
@@ -8,6 +8,8 @@ type OldPier = {
 } & Omit<Pier, 'status'>
 
 export async function migrate(db: DB): Promise<void> {
+    console.log('Attempting status migration...')
+    
     const piers: (OldPier | Pier)[] = await db.piers.asyncFind({});
     const piersToMigrate = piers.filter(pier => {
         const keys = Object.keys(pier);

@@ -219,15 +219,15 @@ export function createMenu({
     role: 'help',
     submenu: [
       {
-        label: `Taisho v${pjson.version}`,
+        label: `Port v${pjson.version}`,
         click: () => {
-          shell.openExternal('https://github.com/arthyn/taisho');
+          shell.openExternal('https://github.com/arthyn/port');
         },
       },
       {
         label: 'Report an Issue',
         click: () => {
-          shell.openExternal('https://github.com/arthyn/taisho/issues');
+          shell.openExternal('https://github.com/arthyn/port/issues');
         },
       },
     ],

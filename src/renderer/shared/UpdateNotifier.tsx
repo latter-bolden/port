@@ -30,7 +30,12 @@ export const UpdateNotifier = () => {
             useStore.setState({ updateStatus: 'available' });
 
             //just in case downloaded event fails to trigger,
-            //trigger after thirty minutes
+            //hide after two minutes
+            setTimeout(() => {
+                useStore.setState({ updateStatus: 'initial' });
+            }, 2 * 60 * 1000)
+            
+            //trigger update alert after thirty minutes
             setTimeout(() => {
                 useStore.setState({ updateStatus: 'downloaded' });
             }, 30 * 60 * 1000)

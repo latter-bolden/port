@@ -6,7 +6,7 @@ require('dotenv').config()
 
 module.exports = {
   packagerConfig: {
-    appBundleId: 'dev.hmiller.taisho',
+    appBundleId: 'dev.hmiller.port',
     darwinDarkModeSupport: 'true',
     icon: "icons/urbit-logo",
     osxSign: {
@@ -36,13 +36,13 @@ module.exports = {
     {
       name: "@electron-forge/maker-squirrel",
       config: {
-        name: "taisho"
+        name: "Port"
       }
     },
     {
       name: '@electron-forge/maker-dmg',
       config: {
-        name: "taisho",
+        name: "Port",
         icon: "icons/urbit-logo.icns"
       }
     },
@@ -67,21 +67,7 @@ module.exports = {
     {
       name: "@davidwinter/electron-forge-maker-snap",
       config: {
-        stagePackages: ['default', 'libx11-xcb1'],
-        plugs: [
-          'alsa',
-          'browser-support',
-          'desktop',
-          'desktop-legacy',
-          'gsettings',
-          'home',
-          'network',
-          'opengl',
-          'pulseaudio',
-          'unity7',
-          'wayland',
-          'x11'
-        ],
+        stagePackages: ['default', 'libx11-xcb1', 'fonts-noto', 'fonts-noto-emoji'],
         categories: 'Utility',
         description: "This app allows you to spin up, access, and manage your Urbit ships whether they are comets, planets or potentially stars. It gives people the ability to immediately download and run Urbit without any knowledge of the command line.",
       }
@@ -93,7 +79,7 @@ module.exports = {
       config: {
         repository: {
           owner: 'arthyn',
-          name: 'taisho'
+          name: 'port'
         },
         draft: true
       }

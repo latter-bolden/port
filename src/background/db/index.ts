@@ -17,10 +17,8 @@ export interface DB {
     messageLog: AsyncNedb<BootMessage>;
 }
 
-const db: DB = {
+export default {
     settings: new AsyncNedb<SettingsDocument>({ filename: path.join(userData, 'db', 'settings.db'), autoload: true }),
     piers: new AsyncNedb<Pier>({ filename: path.join(userData, 'db', 'piers.db'), autoload: true }),
     messageLog: new AsyncNedb<BootMessage>({ filename: path.join(userData, 'db', 'message-log.db'), autoload: true })
 }
-
-export default db;
