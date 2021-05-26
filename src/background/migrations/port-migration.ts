@@ -1,20 +1,11 @@
 import { app, remote } from "electron";
 import path from "path";
-import os from "os";
 import { Pier, PierService } from "../services/pier-service";
 import fs from 'fs-extra';
 import { each, whilst } from 'async';
 import { send } from "../server/ipc";
 
 const electronApp = app || remote.app;
-
-function getLinuxPath(app: string) {
-    const segments = process.env.SNAP_USER_COMMON.split(path.sep);
-    const common = segments.pop();
-    segments.pop();
-
-    return path.join(path.sep, ...segments, app, common, '.config', electronApp.getName());
-}
 
 function getMacPath(app: string) {
     const segments = electronApp.getPath('userData').split(path.sep);
@@ -24,22 +15,9 @@ function getMacPath(app: string) {
     return path.join(path.sep, ...segments);
 }
 
-async function getMigrationPath(suffix = '', old = true, common = false): Promise<string> {
+async function getMigrationPath(suffix = '', old = true): Promise<string> {
     const app = old ? 'taisho' : electronApp.getName();
     let pierPath = getMacPath(app);
-    console.log('std path', pierPath)
-    
-    if (common && process.platform === 'linux' && process.env.SNAP) {
-        console.log('common path', getLinuxPath(app))
-        return getLinuxPath(app);
-    }
-
-    if (old && process.platform === 'linux' && process.env.SNAP) {
-        const oldPath = path.join(os.userInfo().homedir, 'snap', 'taisho', 'current', '.config', 'taisho');
-        console.log('old path', oldPath)
-        pierPath = await fs.realpath(oldPath);
-        console.log('old path expanded', pierPath)
-    }
 
     if (suffix) {
         pierPath = path.join(pierPath, suffix)
@@ -51,10 +29,15 @@ async function getMigrationPath(suffix = '', old = true, common = false): Promis
 export async function portDBMigration(): Promise<void> {
     console.log('Attempting Port DB migration...')
 
+    if (process.env.SNAP) {
+        console.log('Snaps can\'t migrate the DB because of folder permissions')
+        console.log('Manually migrate from ~/snap/taisho/current/.config/taisho/db')
+        console.log('To ~/snap/port/current/.config/Port/db')
+        return;
+    }
+
     const oldDbPath = await getMigrationPath('db');
     const dbPath = await getMigrationPath('db', false)
-
-    console.log({ oldDbPath, dbPath })
 
     if (!(await fs.pathExists(oldDbPath))) {
         console.log('Taisho DB not found, migration unnecessary')
@@ -74,8 +57,15 @@ export async function portDBMigration(): Promise<void> {
 export async function portPierMigration(ps: PierService): Promise<void> {
     console.log('Attempting Port Pier migration...')
 
-    const oldPierPath = await getMigrationPath('piers', true, true);
-    const pierPath = await getMigrationPath('piers', false, true);
+    if (process.env.SNAP) {
+        console.log('Snaps can\'t migrate piers because of folder permissions')
+        console.log('Manually migrate from ~/snap/taisho/common/.config/taisho')
+        console.log('To ~/snap/port/common/.config/Port')
+        return;
+    }
+
+    const oldPierPath = await getMigrationPath('piers');
+    const pierPath = await getMigrationPath('piers', false);
     const piers: Pier[] = await ps.getPiers()
     const piersToMigrate = piers.filter(pier => pier.directory.startsWith(oldPierPath));
 
