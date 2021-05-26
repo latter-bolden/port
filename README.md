@@ -1,4 +1,4 @@
-# Taisho aka Urbit Client (ALPHA)
+# Port, formerly Taisho (beta)
 
 ![Mothership](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/BALEEN%20CLASS_PATREON_190519.jpg)
 
@@ -17,7 +17,7 @@ This app allows you to spin up, access, and manage your ships whether they are c
 
 ## Installing
 
-Head over to [releases](https://github.com/arthyn/taisho/releases) and download the installer from the latest release. Currently only available for MacOS and Linux. 
+Head over to [releases](https://github.com/arthyn/port/releases) and download the installer from the latest release. Currently only available for MacOS and Linux. 
 
 ## Architecture
 
@@ -37,8 +37,8 @@ The renderer is a React + Typescript + TailwindCSS application. We use IPC to co
 
 ### Urbit
 
-The urbit binaries for each respective OS should live in the `resources` folder under the respective OS' folder. They aren't included because of size.
+The urbit binaries for each respective OS should live in the `resources` folder under the respective OS' folder. They aren't included because of size, but you can get them by running the `get-urbit.sh` script.
 
 **Windows**
 
-The current plan for Windows is to initiate an install of WSL for the user and standup the AlpineWSL distro for speed. No work has been done here yet though.
+The current plan for Windows is to wait for the port currently being reviewed by the core Urbit team. Once official we'll add support ASAP.

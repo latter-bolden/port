@@ -3,6 +3,7 @@ import findOpenSocket from '../renderer/client/find-open-socket'
 import isDev from 'electron-is-dev'
 import { isOSX } from './helpers';
 import { createMainWindow } from './main-window';
+import { portDBMigration } from '../background/migrations/port-migration';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const BACKGROUND_WINDOW_WEBPACK_ENTRY: string;
 
@@ -15,7 +16,7 @@ let mainWindow: BrowserWindow;
 
 if (!isDev) {
   const server = 'https://update.electronjs.org'
-  const feed = `${server}/arthyn/taisho/${process.platform}-${process.arch}/${app.getVersion()}`
+  const feed = `${server}/arthyn/port/${process.platform}-${process.arch}/${app.getVersion()}`
 
   autoUpdater.setFeedURL({
     url: feed
@@ -61,9 +62,7 @@ function createBackgroundWindow(socketName: string) {
     }
   })
 
-  //make sure isVisible is false for devtools toggle
-  win.hide()
-  isDev && win.webContents.openDevTools();
+  isDev && win.webContents.openDevTools()
   win.webContents.on('did-finish-load', () => {
     isDev && console.log('background finished loading')
     win.webContents.send('set-socket', { name: socketName })
@@ -81,6 +80,8 @@ function createBackgroundWindow(socketName: string) {
 async function start(bootBg: boolean) {
   const serverSocket = await findOpenSocket()
   let bgWindow;
+
+  await portDBMigration();
 
   isDev && console.log('server socket', serverSocket)
   if (bootBg) {

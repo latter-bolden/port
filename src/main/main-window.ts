@@ -59,8 +59,8 @@ export function createMainWindow(
 
   const DEFAULT_WINDOW_OPTIONS: BrowserWindowConstructorOptions = {
     // Convert dashes to spaces because on linux the app name is joined with dashes
-    title: 'taisho',
-    //tabbingIdentifier: nativeTabsSupported() ? 'taisho' : undefined,
+    title: 'Port',
+    //tabbingIdentifier: nativeTabsSupported() ? 'port' : undefined,
     webPreferences: {
       javascript: true,
       plugins: true,

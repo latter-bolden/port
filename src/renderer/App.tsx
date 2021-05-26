@@ -16,7 +16,7 @@ import { PlanetDetails } from './details/pages/PlanetDetails';
 import { routeMap } from './routes';
 import create from 'zustand';
 import { pierKey } from './query-keys';
-import { send } from './client/ipc';
+import { listen, send } from './client/ipc';
 import { Star } from './details/pages/Star';
 import { ipcRenderer } from 'electron';
 
@@ -31,6 +31,7 @@ const queryClient = new QueryClient({
 export const useStore = create(() => ({
     piers: [],
     updateStatus: 'initial',
+    migrationStatus: 'initial',
     zoomLevels: {
         main: 1,
         views: '1'
@@ -48,6 +49,9 @@ const AppWrapped = () => (
 )
 
 const App = () => {
+    useQuery('migration-status', () => send('get-migration-status'), {
+        onSuccess: migrationStatus => useStore.setState({ migrationStatus })
+    })
     useQuery(pierKey(), async () => {
         const piers = await send('get-piers')
         
@@ -70,6 +74,20 @@ const App = () => {
 
         return () => {
             ipcRenderer.removeListener('zoom-levels', listener)
+        }
+    }, [])
+
+    useEffect(() => {
+        const unlistenMigrating = listen('piers-migrating', () => {
+            useStore.setState({ migrationStatus: 'migrating' })
+        })
+        const unlistenMigrated = listen('piers-migrated', () => {
+            useStore.setState({ migrationStatus: 'migrated' })
+        })
+
+        return () => {
+            unlistenMigrating();
+            unlistenMigrated();
         }
     }, [])
 
