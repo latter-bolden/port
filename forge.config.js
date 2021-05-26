@@ -7,7 +7,8 @@ require('dotenv').config()
 module.exports = {
   packagerConfig: {
     appBundleId: 'dev.hmiller.port',
-    executableName: 'Port',
+    name: 'port',
+    executableName: 'port',
     darwinDarkModeSupport: 'true',
     icon: "icons/urbit-logo",
     osxSign: {
@@ -36,14 +37,11 @@ module.exports = {
   makers: [
     {
       name: "@electron-forge/maker-squirrel",
-      config: {
-        name: "Port"
-      }
+      config: {}
     },
     {
       name: '@electron-forge/maker-dmg',
       config: {
-        name: "Port",
         icon: "icons/urbit-logo.icns"
       }
     },
@@ -58,8 +56,6 @@ module.exports = {
       name: "@electron-forge/maker-deb",
       config: {
         options: {
-          name: "port",
-          productName: "Port",
           icon: "icons/urbit-logo.png",
           depends: [
             "libx11-xcb1"
