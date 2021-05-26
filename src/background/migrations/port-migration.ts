@@ -35,7 +35,7 @@ async function getMigrationPath(suffix = '', old = true, common = false): Promis
     }
 
     if (old && process.platform === 'linux' && process.env.SNAP) {
-        pierPath = await fs.realpath(path.join(os.homedir(), 'snap', 'taisho', 'current', '.config', 'taisho'));
+        pierPath = await fs.realpath(path.join(electronApp.getPath('home'), 'snap', 'taisho', 'current', '.config', 'taisho'));
         console.log('old path', pierPath)
     }
 
