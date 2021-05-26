@@ -58,6 +58,8 @@ export async function portPierMigration(ps: PierService): Promise<void> {
     console.log('Attempting Port Pier migration...')
 
     if (process.env.SNAP) {
+        send('piers-migrated');
+        ps.migrationStatus = 'migrated';
         console.log('Snaps can\'t migrate piers because of folder permissions')
         console.log('Manually migrate from ~/snap/taisho/common/.config/taisho')
         console.log('To ~/snap/port/common/.config/Port')
