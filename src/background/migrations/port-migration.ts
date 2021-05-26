@@ -89,15 +89,21 @@ export async function portPierMigration(ps: PierService): Promise<void> {
         console.error(err);
     }
 
-    let count = piersToMigrate.length;
-    await whilst(cb => cb(null, count > 0), async (iterate: any) => {
-        await each(piersToMigrate, async pier => {
-            if (await fs.pathExists(path.join(pierPath, pier.slug))) {
-                count--;
-                iterate(null, count);
-            }
+    try {
+        let count = piersToMigrate.length;
+        await whilst(cb => cb(null, count > 0), async (iterate: any) => {
+            await each(piersToMigrate, async pier => {
+                if (await fs.pathExists(path.join(pierPath, pier.slug))) {
+                    count--;
+                    iterate(null, count);
+                }
+            })
+        });
+    } catch (err) {
+        await new Promise((resolve) => {
+            setTimeout(resolve, 60 * 1000);
         })
-    });
+    }
 
     send('piers-migrated');
     ps.migrationStatus = 'migrated';

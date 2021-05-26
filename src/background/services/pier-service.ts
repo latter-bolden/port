@@ -14,7 +14,6 @@ import ADMZip from 'adm-zip'
 import mv from 'mv'
 import { each } from 'async';
 import find from 'find-process';
-import { portPierMigration } from '../migrations/port-migration';
 
 const IS_PROD = process.env.NODE_ENV === 'production';
 const platform = getPlatform();
@@ -63,7 +62,6 @@ export class PierService {
         this.urbitPath = joinPath(binariesPath, 'urbit');
         this.resumesInProgress = new Map();
         this.recoverBootingShips();
-        portPierMigration(this);
     }
 
     handlers(): HandlerEntry<PierHandlers>[] {
