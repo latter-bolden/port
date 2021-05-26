@@ -42,6 +42,7 @@ module.exports = {
     {
       name: '@electron-forge/maker-dmg',
       config: {
+        name: "Port",
         icon: "icons/urbit-logo.icns"
       }
     },

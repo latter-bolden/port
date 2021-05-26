@@ -27,14 +27,14 @@ async function start() {
     ipcRenderer.on('set-socket', (event, { name }) => {
       console.log('received socket set', name)
       init(name, handlerMap)
+
+      statusMigration(db)
+      portPierMigration(pierService);
     })
 
     pierService.setPierDirectory();
 
     console.log('initializing background process')
-
-    statusMigration(db)
-    portPierMigration(pierService);
 }
 
 start();
