@@ -12,15 +12,16 @@ interface LandscapeWindowProps {
 
 export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading }) => {
     const history = useHistory();
-
     const landscapeRef = useRef<HTMLDivElement>(null);
+    const url = getUrl(pier);
+
     useResizeObserver<HTMLDivElement>({ 
         ref: landscapeRef,
         onResize: ({ width, height }) => {
-            if (landscapeRef.current && pier) {
+            if (landscapeRef.current && url) {
                 requestAnimationFrame(() => {
                     send('update-view-bounds', {
-                        url: getUrl(pier),
+                        url,
                         bounds: getBounds(landscapeRef.current, width, height)
                     })
                 })
@@ -29,23 +30,22 @@ export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading 
     });
 
     useEffect(() => {
-        if (landscapeRef.current && pier) {
+        if (landscapeRef.current && url) {
             send('create-view', {
-                url: getUrl(pier),
+                url,
                 bounds: getBounds(landscapeRef.current)
             })
         }
-    }, [landscapeRef.current, pier])
+    }, [landscapeRef.current, url])
 
     useEffect(() => {
         const unlisten = history.listen(() => {
-            const pierUrl = getUrl(pier);
-            send('remove-view', pierUrl)
-            console.log('removing', pierUrl)
+            send('remove-view', url)
+            console.log('removing', url)
         });
 
         return () => unlisten && unlisten();
-    }, [pier])
+    }, [url])
 
     return (
         <div ref={landscapeRef} id="landscape" className="grid h-full w-full justify-center items-center">

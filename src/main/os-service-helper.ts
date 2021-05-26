@@ -52,6 +52,13 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, data: View
         viewQueue.push(url);
     }
 
+    const browserViews = mainWindow.getBrowserViews();
+    if (browserViews.length > 0) {
+        browserViews.forEach(browserView => {
+            mainWindow.removeBrowserView(browserView)
+        })
+    }
+
     mainWindow.addBrowserView(view);
 
     //this is all hacks just to get zoomfactor to update correctly 🙄
