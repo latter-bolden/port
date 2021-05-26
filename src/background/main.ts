@@ -4,6 +4,7 @@ import { OSHandlers, OSService } from './services/os-service';
 import { PierHandlers, PierService } from './services/pier-service';
 import { ipcRenderer } from 'electron';
 import { migrate as statusMigration } from './migrations/status-migration';
+import { portPierMigration } from './migrations/port-migration';
 
 export type Handlers = OSHandlers & PierHandlers//& { init: () => Promise<PierData> };
 
@@ -32,7 +33,8 @@ async function start() {
 
     console.log('initializing background process')
 
-    await statusMigration(db)
+    statusMigration(db)
+    portPierMigration(pierService);
 }
 
 start();
