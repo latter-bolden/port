@@ -7,6 +7,7 @@ require('dotenv').config()
 module.exports = {
   packagerConfig: {
     appBundleId: 'dev.hmiller.port',
+    executableName: 'Port',
     darwinDarkModeSupport: 'true',
     icon: "icons/urbit-logo",
     osxSign: {
