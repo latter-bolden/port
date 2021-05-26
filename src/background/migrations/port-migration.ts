@@ -31,7 +31,11 @@ function getMigrationPath(suffix = '', old = true, common = false): string {
     let pierPath = getMacPath(app);
     
     if (common && process.platform === 'linux' && process.env.SNAP) {
-        return getLinuxPath(app)
+        return getLinuxPath(app);
+    }
+
+    if (old && process.platform === 'linux' && process.env.SNAP) {
+        pierPath = path.join('~', 'snap', 'current', 'taisho', '.config', 'taisho');
     }
 
     if (suffix) {
@@ -47,6 +51,13 @@ export async function portDBMigration(): Promise<void> {
     const oldDbPath = getMigrationPath('db');
     const dbPath = getMigrationPath('db', false)
     
+    try {
+        await asyncAccess(oldDbPath);
+    } catch (err) {
+        console.log('Taisho DB not found, migration unnecessary')
+        return;
+    }
+
     try {
         await asyncAccess(dbPath)
         console.log('Port DB migration unnecessary')
