@@ -27,13 +27,16 @@ function getMacPath(app: string) {
 async function getMigrationPath(suffix = '', old = true, common = false): Promise<string> {
     const app = old ? 'taisho' : electronApp.getName();
     let pierPath = getMacPath(app);
+    console.log('std path', pierPath)
     
     if (common && process.platform === 'linux' && process.env.SNAP) {
+        console.log('common path', getLinuxPath(app))
         return getLinuxPath(app);
     }
 
     if (old && process.platform === 'linux' && process.env.SNAP) {
         pierPath = await fs.realpath(path.join(os.homedir(), 'snap', 'taisho', 'current', '.config', 'taisho'));
+        console.log('old path', pierPath)
     }
 
     if (suffix) {
@@ -48,6 +51,8 @@ export async function portDBMigration(): Promise<void> {
 
     const oldDbPath = await getMigrationPath('db');
     const dbPath = await getMigrationPath('db', false)
+
+    console.log({ oldDbPath, dbPath })
 
     if (!(await fs.pathExists(oldDbPath))) {
         console.log('Taisho DB not found, migration unnecessary')
