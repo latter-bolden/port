@@ -1,12 +1,12 @@
-# Port, formerly Taisho (beta)
-
-![Mothership](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/BALEEN%20CLASS_PATREON_190519.jpg)
+# Port (beta)
 
 [![awesome urbit badge](https://img.shields.io/badge/~-awesome%20urbit-lightgrey)](https://github.com/urbit/awesome-urbit)
 
-## Intro
+Formerly called Taisho, Port allows you to spin up, access, and manage your ships whether they are comets, planets or potentially stars. It gives people the ability to immediately download and run Urbit without any knowledge of the command line.
 
-This app allows you to spin up, access, and manage your ships whether they are comets, planets or potentially stars. It gives people the ability to immediately download and run Urbit without any knowledge of the command line.
+## Installing
+
+Head over to [releases](https://github.com/arthyn/port/releases) and download the installer from the latest release. Currently only available for MacOS and Linux. 
 
 ## Screenshots
 ![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/taisho-welcome.jpg)  
@@ -14,10 +14,6 @@ This app allows you to spin up, access, and manage your ships whether they are c
 ![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/taisho-boot.jpg)
 ![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/taisho-launch.jpg)
 ![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/taisho-home.jpg)
-
-## Installing
-
-Head over to [releases](https://github.com/arthyn/port/releases) and download the installer from the latest release. Currently only available for MacOS and Linux. 
 
 ## Architecture
 
@@ -42,3 +38,5 @@ The urbit binaries for each respective OS should live in the `resources` folder 
 **Windows**
 
 The current plan for Windows is to wait for the port currently being reviewed by the core Urbit team. Once official we'll add support ASAP.
+
+![Mothership](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/BALEEN%20CLASS_PATREON_190519.jpg)
