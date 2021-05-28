@@ -40,7 +40,7 @@ export const BootOptions = ({ className = '' }: { className: string }) => {
                     <li className="flex justify-center items-center w-full h-full">
                         <Button className="group" onClick={onClick}>
                             <LeftArrow className="w-7 h-7" primary="fill-current text-transparent" secondary="fill-current text-gray-300 dark:text-gray-700 group-hover:text-gray-400 dark:group-hover:text-gray-600 group-focus:text-gray-400 dark:group-focus:text-gray-600 transition-colors" />
-                            See Less Options
+                            See Fewer Options
                         </Button>
                     </li>
                 </>
