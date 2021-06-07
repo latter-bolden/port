@@ -86,18 +86,12 @@ export function createMainWindow(
 
   mainWindowState.manage(mainWindow);
 
-  const withFocusedView = (block: (contents: WebContents) => void, target: 'window' | 'view' | 'both' = 'view'): void => {
+  const withFocusedView = <T>(block: (contents: WebContents) => T | undefined, target: 'window' | 'view' = 'view'): T | undefined => {
     const focusedWindow = BrowserWindow.getFocusedWindow();
     if (focusedWindow) {
-      const contents = getWindowOrViewContents(focusedWindow);
-
-      if (target === 'both' || target === 'view') {
-        block(contents);
-      }
-
-      if (target === 'both' || target === 'window') {
-        block(focusedWindow.webContents)
-      }
+      const windowContents = focusedWindow.webContents;
+      const windowOrViewContents = getWindowOrViewContents(focusedWindow);
+      return target === 'window' ? block(windowContents) : block(windowOrViewContents);
     }
     return undefined;
   };
@@ -151,7 +145,7 @@ export function createMainWindow(
     });
   };
 
-  const getCurrentUrl = (): void =>
+  const getCurrentUrl = (): string =>
     withFocusedView((contents) => contents.getURL());
 
   const onBlockedExternalUrl = (url: string) => {
