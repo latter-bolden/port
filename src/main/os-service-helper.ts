@@ -47,7 +47,14 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, data: View
     if (newView) {
         view = new BrowserView();
         initContextMenu(createNewWindow, undefined, mainWindow.webContents.getURL(), view)
-        await view.webContents.loadURL(url);
+        
+        try {
+            await view.webContents.loadURL(url);
+        } catch (err) {
+            console.log(err);
+            return { error: err.message }
+        }
+
         views.set(url, view);
         viewQueue.push(url);
     }
@@ -76,6 +83,8 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, data: View
         setViewBounds(view, mainWindow, data);
         updateZoomLevels(mainWindow);
     }, 10);
+
+    return { success: true }
 }
 
 function setViewBounds(view: BrowserView, mainWindow: BrowserWindow, { bounds }: ViewData) {
