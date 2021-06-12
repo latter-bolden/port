@@ -26,6 +26,7 @@ module.exports = {
     rules,
   },
   plugins,
+  target: 'electron-renderer',
   output: {
     globalObject: 'this'
   },

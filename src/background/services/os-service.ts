@@ -73,7 +73,11 @@ export class OSService {
     }
 
     async createView(data: ViewData): Promise<void> {
-        await ipc.invoke('create-view', data);
+        const result = await ipc.invoke('create-view', data);
+
+        if (result.error) {
+            throw new Error(result.error)
+        }
     }
 
     async updateViewBounds(data: ViewData): Promise<void> {
