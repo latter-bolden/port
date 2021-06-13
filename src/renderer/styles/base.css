@@ -2,6 +2,10 @@ a {
   @apply inline-block focus:outline-none focus:ring focus:ring-gray-300 dark:focus:ring-gray-600 focus:ring-opacity-50;
 }
 
+a:not([class]) {
+    @apply underline;
+}
+
 * {
     scrollbar-width: thin;
 }

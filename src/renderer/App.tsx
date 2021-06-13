@@ -30,6 +30,7 @@ const queryClient = new QueryClient({
 
 export const useStore = create(() => ({
     piers: [],
+    architectureUnsupported: null,
     updateStatus: 'initial',
     migrationStatus: 'initial',
     zoomLevels: {
@@ -78,16 +79,14 @@ const App = () => {
     }, [])
 
     useEffect(() => {
-        const unlistenMigrating = listen('piers-migrating', () => {
-            useStore.setState({ migrationStatus: 'migrating' })
-        })
-        const unlistenMigrated = listen('piers-migrated', () => {
-            useStore.setState({ migrationStatus: 'migrated' })
-        })
+        const listeners = [
+            listen('piers-migrating', () => useStore.setState({ migrationStatus: 'migrating' })),
+            listen('piers-migrated', () => useStore.setState({ migrationStatus: 'migrated' })),
+            listen('arch-unsupported', ({ architectureUnsupported }) => useStore.setState({ architectureUnsupported }))
+        ]
 
         return () => {
-            unlistenMigrating();
-            unlistenMigrated();
+            listeners.forEach(unlisten => unlisten());
         }
     }, [])
 

@@ -137,6 +137,7 @@ function installUpdates(bgWindow: BrowserWindow) {
 }
 
 export function start(mainWindow: BrowserWindow, createNewWindow, bgWindow?: BrowserWindow): void {
+    ipcMain.handle('quit', () => app.quit())
     ipcMain.handle('open-dialog', openDialog)
     ipcMain.handle('set-title', (event, args) => setTitle(mainWindow, event, args))
     ipcMain.handle('clear-data', () => clearData(mainWindow))

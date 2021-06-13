@@ -2,6 +2,7 @@ import { HandlerEntry } from '../server/ipc';
 import { ipcRenderer as ipc} from 'electron'
 
 export interface OSHandlers {
+    'quit': OSService['quit'];
     'get-directory': OSService['getDirectory'];
     'get-file': OSService['getFile'];
     'set-title': OSService['setTitle'];
@@ -16,6 +17,7 @@ export interface OSHandlers {
 export class OSService {
     handlers(): HandlerEntry<OSHandlers>[] {
         return [
+            { name: 'quit', handler: this.quit.bind(this) },
             { name: 'get-directory', handler: this.getDirectory.bind(this) },
             { name: 'get-file', handler: this.getFile.bind(this) },
             { name: 'set-title', handler: this.setTitle.bind(this) },
@@ -26,6 +28,10 @@ export class OSService {
             { name: 'remove-view', handler: this.removeView.bind(this) },
             { name: 'install-updates', handler: this.installUpdates.bind(this) }
         ]
+    }
+
+    async quit(): Promise<void> {
+        await ipc.invoke('quit')
     }
 
     async getDirectory(options: Electron.OpenDialogOptions): Promise<string | undefined> {

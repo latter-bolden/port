@@ -6,9 +6,10 @@ import { Bug } from '../icons/Bug';
 import { isOSX } from '../../main/helpers';
 import { UpdateNotifier } from './UpdateNotifier';
 import { useStore } from '../App';
-import * as Dialog from '@radix-ui/react-dialog';
 import { Spinner } from './Spinner';
 import { Close } from '../icons/Close';
+import { Dialog, DialogContent } from './Dialog';
+import { Button } from './Button';
 
 interface LayoutProps {
     title: string;
@@ -55,26 +56,37 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, center
                 </header>
             }
             <main className={`grid ${center ? 'justify-center content-center' : ''} ${isOSX() ? 'mt-7' : ''} ${className}`}>
+                <Dialog defaultOpen={true}>
+                    <DialogContent 
+                        showCloseIcon={false}
+                        onOpenAutoFocus={e => e.preventDefault()}
+                        onEscapeKeyDown={e => e.preventDefault()}
+                        onPointerDownOutside={e => e.preventDefault()} 
+                        className="p-6 space-y-3"
+                    >
+                        <h2 className="font-semibold">Apple M1 Unsupported</h2>
+                        <p>While Port itself can run on Apple M1 architecture, Urbit itself cannot yet. This <a href="https://github.com/urbit/urbit/issues/4257">issue</a> may give more insight.</p>
+                        <p className="flex flex-end">
+                            <Button onClick={() => send('quit')}>
+                                <Close className="w-7 h-7" primary="fill-current" /> Quit
+                            </Button>
+                        </p>
+                    </DialogContent>
+                </Dialog>
                 { children }
             </main>
             <footer className="flex items-center h-8 py-2 z-20">
-                <Dialog.Root open={migrationStatus === 'migrating'}>
-                    <Dialog.Overlay className="fixed z-10 top-0 left-0 right-0 bottom-0 bg-white dark:bg-black opacity-30" />
-                    <Dialog.Content className="fixed z-40 top-1/2 left-1/2 min-w-80 bg-gray-100 dark:bg-gray-900 rounded default-ring transform -translate-y-1/2 -translate-x-1/2">
-                        <div className="relative p-6">
-                            <div className="flex items-center space-x-6 my-6 pr-6">
-                                <Spinner className="w-16 h-16" />
-                                <div className="space-y-2">
-                                    <h2 className="font-semibold">Migrating ship piers from Taisho</h2>
-                                    <p>Please wait while your piers are moved.<br />This should only take a minute.</p>
-                                </div>                                
-                            </div>
-                            <Dialog.Close className="absolute top-2 right-2 text-gray-300 dark:text-gray-700 hover:text-gray-400 dark:hover:text-gray-500 focus:text-gray-400 dark:focus:text-gray-500 default-ring rounded" onClick={() => useStore.setState({ migrationStatus: 'initial' })}>
-                                <Close className="w-7 h-7" primary="fill-current" />
-                            </Dialog.Close>
+                <Dialog open={migrationStatus === 'migrating'} onOpenChange={(open) => !open && useStore.setState({ migrationStatus: 'initial' })}>
+                    <DialogContent>
+                        <div className="flex items-center space-x-6 my-6 pr-6">
+                            <Spinner className="w-16 h-16" />
+                            <div className="space-y-2">
+                                <h2 className="font-semibold">Migrating ship piers from Taisho</h2>
+                                <p>Please wait while your piers are moved.<br />This should only take a minute.</p>
+                            </div>                                
                         </div>
-                    </Dialog.Content>
-                </Dialog.Root>
+                    </DialogContent>
+                </Dialog>
                 { footer }
                 <div className="flex justify-end items-center ml-auto leading-none">
                     {isDev &&

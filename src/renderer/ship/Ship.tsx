@@ -8,12 +8,11 @@ import { Upload } from '../icons/Upload'
 import { Layout } from '../shared/Layout'
 import { Spinner } from '../shared/Spinner'
 import { getCometShortName } from '../shared/urbit-utils'
-import { Close } from '../icons/Close'
-import * as Dialog from '@radix-ui/react-dialog'
 import { ShipStatus } from './components/ShipStatus'
 import { LaunchButton } from './components/LaunchButton'
 import { pierKey } from '../query-keys'
 import { Pier } from '../../background/services/pier-service'
+import { Dialog, DialogClose, DialogContent, DialogTrigger } from '../shared/Dialog'
 
 
 export const Ship: React.FC = () => {
@@ -104,25 +103,18 @@ export const Ship: React.FC = () => {
                         }
                         { ship.type !== 'remote' &&
                             <>
-                                <Dialog.Root>
-                                    <Dialog.Trigger className="mr-3 hover:text-red-800 focus:text-red-800 transition-colors default-ring">
+                                <Dialog>
+                                    <DialogTrigger className="mr-3 hover:text-red-800 focus:text-red-800 transition-colors default-ring">
                                         Delete Permanently
-                                    </Dialog.Trigger>
-                                    <Dialog.Overlay className="fixed z-10 top-0 left-0 right-0 bottom-0 bg-white dark:bg-black opacity-30" />
-                                    <Dialog.Content className="fixed z-40 top-1/2 left-1/2 min-w-80 bg-gray-100 dark:bg-gray-900 rounded default-ring transform -translate-y-1/2 -translate-x-1/2">
-                                        <div className="relative p-4">
-                                            <div className="my-6 pr-6">Are you sure you want to delete your ship's pier and data? This action is irreversible.</div>
-                                            <div className="flex justify-end items-center">
-                                                <Dialog.Close className="text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white focus:text-black dark:focus:text-white transition-colors mr-4 default-ring">Cancel</Dialog.Close>
-                                                <Dialog.Close className="button text-red-600 hover:text-red-600 focus:text-red-600 border border-red-900 hover:border-red-700 focus:border-red-700 focus:outline-none transition-colors default-ring" onClick={async () => await deleteShip()}>Delete Permanently</Dialog.Close>
-                                            </div>
-                                            <Dialog.Close className="absolute top-2 right-2 text-gray-300 dark:text-gray-700 hover:text-gray-400 dark:hover:text-gray-500 focus:text-gray-400 dark:focus:text-gray-500 default-ring rounded">
-                                                <Close className="w-7 h-7" primary="fill-current" />
-                                            </Dialog.Close>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <div className="my-6 pr-6">Are you sure you want to delete your ship's pier and data? This action is irreversible.</div>
+                                        <div className="flex justify-end items-center">
+                                            <DialogClose className="text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white focus:text-black dark:focus:text-white transition-colors mr-4 default-ring">Cancel</DialogClose>
+                                            <DialogClose className="button text-red-600 hover:text-red-600 focus:text-red-600 border border-red-900 hover:border-red-700 focus:border-red-700 focus:outline-none transition-colors default-ring" onClick={async () => await deleteShip()}>Delete Permanently</DialogClose>
                                         </div>
-                                        
-                                    </Dialog.Content>
-                                </Dialog.Root>
+                                    </DialogContent>
+                                </Dialog>
                                 <button className="button" onClick={async () => await ejectShip()}>
                                     {!isLoading && <>
                                         <Upload className="w-5 h-5 mr-2" primary="fill-current opacity-50" secondary="fill-current" /> Eject
