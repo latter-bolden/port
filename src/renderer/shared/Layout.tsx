@@ -23,6 +23,7 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, center
     const url = stringifyHistory();
     const zoomLevels = useStore(state => state.zoomLevels);
     const migrationStatus = useStore(state => state.migrationStatus);
+    const archUnsupported = useStore(state => state.architectureUnsupported);
     const [showDevTools, setShowDevTools] = useState(false);
 
     useEffect(() => {
@@ -56,7 +57,7 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, center
                 </header>
             }
             <main className={`grid ${center ? 'justify-center content-center' : ''} ${isOSX() ? 'mt-7' : ''} ${className}`}>
-                <Dialog defaultOpen={true}>
+                <Dialog defaultOpen={archUnsupported}>
                     <DialogContent 
                         showCloseIcon={false}
                         onOpenAutoFocus={e => e.preventDefault()}
