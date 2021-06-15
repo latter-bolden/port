@@ -43,6 +43,7 @@ export interface PierHandlers {
     'resume-pier': PierService["resumePier"]
     'check-pier': PierService["checkPier"]
     'check-boot': PierService["checkBoot"]
+    'check-url': PierService["checkUrlAccessible"]
     'stop-pier': PierService["stopPier"]
     'delete-pier': PierService["deletePier"]
     'eject-pier': PierService["ejectPier"]
@@ -76,6 +77,7 @@ export class PierService {
             { name: 'boot-pier', handler: this.bootPier.bind(this) },
             { name: 'resume-pier', handler: this.resumePier.bind(this) },
             { name: 'check-pier', handler: this.checkPier.bind(this) },
+            { name: 'check-url', handler: this.checkUrlAccessible.bind(this) },
             { name: 'check-boot', handler: this.checkBoot.bind(this) },
             { name: 'stop-pier', handler: this.stopPier.bind(this) },
             { name: 'delete-pier', handler: this.deletePier.bind(this) },
@@ -238,6 +240,19 @@ export class PierService {
             loopback: parseInt(loopback[1]),
             web: parseInt(web[1])
         }
+    }
+
+    async checkUrlAccessible(url: string): Promise<boolean> {
+        try {
+            const res = await axios.get(url);
+            if (res.status >= 200 && res.status < 400) {
+                return true;
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    
+        return false;
     }
 
     async resumePier(pier: Pier): Promise<Pier | null> {
