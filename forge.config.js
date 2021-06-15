@@ -105,6 +105,19 @@ module.exports = {
               html: "./src/background/server/server.html",
               js: "./src/background/main.ts",
               name: "background_window"
+            },
+            {
+              html: "./src/renderer/prompt/index.html",
+              js: "./src/renderer/prompt/index.ts",
+              name: "prompt"
+            },
+            {
+              html: "./src/background/server/server.html", //just using for blank
+              js: "./src/renderer/landscape-preload.ts",
+              name: "landscape",
+              preload: {
+                js: "./src/renderer/landscape-preload.ts"
+              }
             }
           ]
         }

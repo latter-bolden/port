@@ -34,8 +34,8 @@ module.exports = {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css'],
     plugins: [new FixNedb()]
   },
-  stats: 'verbose',
-  devServer: {
-    stats: 'verbose'
-  }
+  // stats: 'verbose',
+  // devServer: {
+  //   stats: 'verbose'
+  // }
 };
