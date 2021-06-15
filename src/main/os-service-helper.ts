@@ -1,8 +1,11 @@
-import { app, autoUpdater, BrowserView, BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent } from 'electron'
+import { app, autoUpdater, BrowserView, BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent, nativeTheme } from 'electron'
 import isDev from 'electron-is-dev'
 import { ViewData } from '../background/services/os-service';
 import { initContextMenu } from './context-menu';
 import { updateZoomLevels } from './main-window';
+
+declare const LANDSCAPE_PRELOAD_WEBPACK_ENTRY: string;
+declare const PROMPT_WEBPACK_ENTRY: string;
 
 export const views = new Map<string, BrowserView>();
 const viewQueue: string[] = [];
@@ -27,6 +30,11 @@ async function clearData(window: BrowserWindow) {
 
 export async function toggleDevTools(mainWindow: BrowserWindow, bgWindow?: BrowserWindow) {
     mainWindow.webContents.toggleDevTools()
+    const views = mainWindow.getBrowserViews()
+
+    if (views) {
+        views.forEach(view => view.webContents.openDevTools())
+    }
 
     if (bgWindow) {
         if (bgWindow.isVisible()) {
@@ -45,7 +53,12 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, data: View
     const newView = !view;
 
     if (newView) {
-        view = new BrowserView();
+        view = new BrowserView({
+            webPreferences: {
+                devTools: true,
+                preload: LANDSCAPE_PRELOAD_WEBPACK_ENTRY
+            }
+        });
         initContextMenu(createNewWindow, undefined, mainWindow.webContents.getURL(), view)
         
         try {
@@ -136,6 +149,47 @@ function installUpdates(bgWindow: BrowserWindow) {
     }
 }
 
+function prompt(event: IpcMainInvokeEvent, args: any) {
+    promptResponse = null;
+
+    let promptWindow = new BrowserWindow({
+        width: 400,
+        height: 144,
+        show: false,
+        resizable: false,
+        movable: false,
+        alwaysOnTop: true,
+        frame: false,
+        backgroundColor: nativeTheme.shouldUseDarkColors ? '#000000' : '#FFFFFF',
+        webPreferences: {
+            devTools: true,
+            nodeIntegration: true
+        }
+    })
+
+    promptWindow.loadURL(PROMPT_WEBPACK_ENTRY)
+    promptWindow.moveTop()
+    promptWindow.show()
+    promptWindow.focus()
+    promptWindow.on('closed', function() {
+        event.returnValue = promptResponse
+        promptWindow = null
+    })
+
+    // promptWindow.webContents.openDevTools();
+    ipcMain.once('prompt-initialize', (event) => {
+        event.returnValue = args;
+    })
+}
+
+function respondToPrompt(event, arg) {
+    if (arg === '') { 
+        arg = null 
+    }
+    promptResponse = arg
+}
+
+let promptResponse;
 export function start(mainWindow: BrowserWindow, createNewWindow, bgWindow?: BrowserWindow): void {
     ipcMain.handle('quit', () => app.quit())
     ipcMain.handle('open-dialog', openDialog)
@@ -146,4 +200,7 @@ export function start(mainWindow: BrowserWindow, createNewWindow, bgWindow?: Bro
     ipcMain.handle('update-view-bounds', (event, args) => updateViewBounds(args, mainWindow))
     ipcMain.handle('remove-view', (event, args) => removeView(mainWindow, args))
     ipcMain.handle('install-updates', () => installUpdates(bgWindow))
+
+    ipcMain.on('prompt', prompt)
+    ipcMain.on('prompt-response', respondToPrompt)
 }
