@@ -1,3 +1,5 @@
+import { URL } from 'url'
+import { BrowserWindow, WebContents } from "electron";
 import { getPlatform } from "../get-platform";
 
 //Taken from https://github.com/nativefier/nativefier/blob/master/app/src/helpers/helpers.ts
@@ -78,4 +80,43 @@ export function onNewWindowHelper(
       preventDefault(newTab);
     }
   }
+}
+
+function getAppFromPath(path: string) {
+  const parts = path.split('/').filter(el => !!el);
+  return parts[0] || '';
+}
+
+interface onNavigationParameters {
+  event: Event;
+  webContents: WebContents; 
+  urlTarget: string; 
+  mainWindow: BrowserWindow;
+  createNewWindow: (url: string) => BrowserWindow;
+}
+
+export function onNavigation({ event, urlTarget, ...params }: onNavigationParameters) {
+  const currentUrl = new URL(params.webContents.getURL());
+  const targetUrl = new URL(urlTarget);
+  const sameHost = targetUrl.hostname === currentUrl.hostname;
+  
+  const currentApp = getAppFromPath(currentUrl.pathname);
+  const targetApp = getAppFromPath(targetUrl.pathname);
+  const sameApp = sameHost && currentApp === targetApp;
+  const targetIsLandscape = targetApp === '' || targetApp === '~landscape';
+
+  console.log({ urlTarget, targetApp, currentUrl });
+  
+  if (!sameHost || sameApp) {
+      return;
+  }
+
+  if (!sameApp && targetIsLandscape) {
+      event.preventDefault();
+      params.mainWindow.focus();
+      return;
+  }
+
+  event.preventDefault();
+  params.createNewWindow(urlTarget)
 }

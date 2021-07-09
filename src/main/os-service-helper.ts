@@ -2,6 +2,7 @@ import { app, autoUpdater, BrowserView, BrowserWindow, dialog, ipcMain, IpcMainI
 import isDev from 'electron-is-dev'
 import { ViewData } from '../background/services/os-service';
 import { initContextMenu } from './context-menu';
+import { onNavigation } from './helpers';
 import { updateZoomLevels } from './main-window';
 
 declare const LANDSCAPE_PRELOAD_WEBPACK_ENTRY: string;
@@ -48,7 +49,7 @@ export async function toggleDevTools(mainWindow: BrowserWindow, bgWindow?: Brows
 }
 
 async function createView(mainWindow: BrowserWindow, createNewWindow, data: ViewData) {
-    const { url, bounds } = data;
+    const { url } = data;
     let view = views.get(url);
     const newView = !view;
 
@@ -67,6 +68,16 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, data: View
             console.log(err);
             return { error: err.message }
         }
+
+        view.webContents.on('will-navigate', (event, urlTarget) => {
+            onNavigation({
+                event,
+                webContents: view.webContents,
+                urlTarget,
+                mainWindow,
+                createNewWindow
+            })
+        });
 
         views.set(url, view);
         viewQueue.push(url);

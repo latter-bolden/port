@@ -6,6 +6,7 @@ import {
   isOSX,
   linkIsInternal,
   nativeTabsSupported,
+  onNavigation,
   onNewWindowHelper
 } from './helpers';
 import { initContextMenu } from './context-menu';
@@ -157,18 +158,21 @@ export function createMainWindow(
     });
   };
 
-  const onWillNavigate = (event: Event, urlToGo: string): void => {
-    if (!linkIsInternal(mainUrl, urlToGo)) {
-      event.preventDefault();
-      shell.openExternal(urlToGo);
-    }
+  const onWillNavigate = (event: Event, webContents: WebContents, urlTarget: string): void => {
+    onNavigation({
+      event,
+      webContents,
+      urlTarget,
+      mainWindow,
+      createNewWindow
+    })
   };
 
   const createNewWindow: (url: string) => BrowserWindow = (url: string) => {
     const window = new BrowserWindow(DEFAULT_WINDOW_OPTIONS);
 
     window.webContents.on('new-window', onNewWindow);
-    window.webContents.on('will-navigate', onWillNavigate);
+    window.webContents.on('will-navigate', (e, url) => onWillNavigate(e, window.webContents, url));
     window.loadURL(url);
     return window;
   };
@@ -247,7 +251,7 @@ export function createMainWindow(
   );
 
   mainWindow.webContents.on('new-window', onNewWindow);
-  mainWindow.webContents.on('will-navigate', onWillNavigate);
+  mainWindow.webContents.on('will-navigate', (e, url) => onWillNavigate(e, mainWindow.webContents, url));
   mainWindow.webContents.on('did-start-loading', () => {
     const loadingUrl = mainWindow.webContents.getURL().split('#')[0]
     if (mainUrl === loadingUrl) {
