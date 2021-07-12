@@ -275,8 +275,8 @@ export function createMainWindow(
   });
   mainWindow.webContents.session.clearCache();
   osHelperStart(mainWindow, createNewWindow, bgWindow)
+  isDev && mainWindow.webContents.openDevTools();
   mainWindow.loadURL(mainUrl);
-
   //mainWindow.on('new-tab' as any, () => createNewTab(mainUrl, true));
 
   mainWindow.on('close', (event) => {

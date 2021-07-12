@@ -57,23 +57,25 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, center
                 </header>
             }
             <main className={`grid ${center ? 'justify-center content-center' : ''} ${isOSX() ? 'mt-7' : ''} ${className}`}>
-                <Dialog defaultOpen={archUnsupported}>
-                    <DialogContent 
-                        showCloseIcon={false}
-                        onOpenAutoFocus={e => e.preventDefault()}
-                        onEscapeKeyDown={e => e.preventDefault()}
-                        onPointerDownOutside={e => e.preventDefault()} 
-                        className="p-6 space-y-3"
-                    >
-                        <h2 className="font-semibold">Apple M1 Unsupported</h2>
-                        <p>While Port itself can run on Apple M1 architecture, Urbit itself cannot yet. This <a href="https://github.com/urbit/urbit/issues/4257">issue</a> may give more insight.</p>
-                        <p className="flex flex-end">
-                            <Button onClick={() => send('quit')}>
-                                <Close className="w-7 h-7" primary="fill-current" /> Quit
-                            </Button>
-                        </p>
-                    </DialogContent>
-                </Dialog>
+                {archUnsupported &&
+                    <Dialog defaultOpen={true}>
+                        <DialogContent 
+                            showCloseIcon={false}
+                            onOpenAutoFocus={e => e.preventDefault()}
+                            onEscapeKeyDown={e => e.preventDefault()}
+                            onPointerDownOutside={e => e.preventDefault()} 
+                            className="p-6 space-y-3"
+                        >
+                            <h2 className="font-semibold">Apple M1 Unsupported</h2>
+                            <p>While Port itself can run on Apple M1 architecture, Urbit itself cannot yet. This <a href="https://github.com/urbit/urbit/issues/4257">issue</a> may give more insight.</p>
+                            <p className="flex flex-end">
+                                <Button onClick={() => send('quit')}>
+                                    <Close className="w-7 h-7" primary="fill-current" /> Quit
+                                </Button>
+                            </p>
+                        </DialogContent>
+                    </Dialog>
+                }
                 { children }
             </main>
             <footer className="flex items-center h-8 py-2 z-20">

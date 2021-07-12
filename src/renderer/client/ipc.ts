@@ -20,6 +20,7 @@ export async function init(): Promise<void> {
 // State
 const replyHandlers = new Map<string, ReplyHandler>()
 const listeners = new Map<string, Listener[]>()
+let serverConnected = false;
 let messageQueue: Stringified<ServerMessage<Handlers>>[] = []
 let socketClient: Client = null
 
@@ -70,12 +71,25 @@ function handleResponse(msg: Reply | Error): void {
 
 function onConnect(client: Client, onOpen: () => void): void {
     socketClient = client
+    socketClient.emit('message', JSON.stringify({
+        id: v4(),
+        name: 'connected',
+        args: []
+    }));
 
-    // Send any messages that were queued while closed
-    if (messageQueue.length > 0) {
-        messageQueue.forEach(msg => client.emit('message', msg))
-        messageQueue = []
-    }
+    listen('connected', () => {
+        if (serverConnected) {
+            return;
+        }
+        
+        serverConnected = true;
+        send('connected');
+        // Send any messages that were queued while closed
+        if (messageQueue.length > 0) {
+            messageQueue.forEach(msg => client.emit('message', msg))
+            messageQueue = []
+        }
+    })
 
     onOpen();
 }
@@ -89,12 +103,12 @@ export function send<T extends keyof Handlers>(name: T, ...args: Parameters<Hand
         const msg: ServerMessage<Handlers> = { id, name, args };
         const stringMsg = JSON.stringify(msg);
 
-        console.log(Date.now(), 'client sending:', msg);
         
         replyHandlers.set(id, { resolve, reject })
-
-        if (socketClient) {
+        
+        if (socketClient && serverConnected) {
             socketClient.emit('message', stringMsg)
+            console.log(Date.now(), 'client sending:', msg);
         } else {
             messageQueue.push(stringMsg)
         }

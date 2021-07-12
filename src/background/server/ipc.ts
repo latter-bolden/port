@@ -3,6 +3,9 @@ import ipc from 'node-ipc'
 
 const isDev = process.env.NODE_ENV === 'development'
 
+let sendQueue: Push[] = [];
+let clientConnected = false;
+
 export interface ServerMessage<T extends HandlerMap<T>> {
     id: string;
     name: keyof T;
@@ -78,16 +81,48 @@ function serve<T extends HandlerMap<T>>(handlers: HandlerMap<T>) {
 
 export function send(name: string, ...args: unknown[]): void {
     const msg: Push = { type: 'push', name, args };
+
+    if (!clientConnected) {
+        sendQueue.push(msg);
+        return;
+    }
+    
     ipc.server.broadcast('message', JSON.stringify(msg))
     isDev && console.log(Date.now(), 'server sending:', msg);
+}
+
+async function flushSendQueue() {
+    sendQueue.forEach(item => {
+        send(item.name, ...item.args)
+    })
+    sendQueue = [];
+}
+
+async function handleConnection(): Promise<void> {
+    if (clientConnected) {
+        return;
+    }
+
+    clientConnected = true;
+    send('connected');
+    flushSendQueue();
 }
 
 export function init<T>(socketName: string, handlers: HandlerMap<T>): void {
     ipc.config.id = socketName
     ipc.config.silent = true
 
-    ipc.serve(() => serve(handlers))
+    ipc.serve(() => serve({
+        ...handlers,
+        connected: handleConnection 
+    }))
     ipc.server.start()
+
+    ipc.server.broadcast('message', JSON.stringify({
+        type: 'push',
+        name: 'connected',
+        args: []
+    }))
 
     isDev && console.log(Date.now(), 'server starting', 'socket:', socketName)
 }
