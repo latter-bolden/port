@@ -31,6 +31,7 @@ const queryClient = new QueryClient({
 export const useStore = create(() => ({
     piers: [],
     architectureUnsupported: null,
+    archCheckOpen: true,
     updateStatus: 'initial',
     migrationStatus: 'initial',
     zoomLevels: {
