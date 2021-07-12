@@ -67,7 +67,7 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, center
                             className="p-6 space-y-3"
                         >
                             <h2 className="font-semibold">Apple M1 Unsupported</h2>
-                            <p>While Port itself can run on Apple M1 architecture, Urbit itself cannot yet. This <a href="https://github.com/urbit/urbit/issues/4257">issue</a> may give more insight.</p>
+                            <p>While Port itself can run on Apple M1 architecture, Urbit itself cannot yet. We're actively working on a solution, which is being tracked in this <a href="https://github.com/urbit/urbit/issues/4257">issue</a>.</p>
                             <p className="flex flex-end">
                                 <Button onClick={() => send('quit')}>
                                     <Close className="w-7 h-7" primary="fill-current" /> Quit
