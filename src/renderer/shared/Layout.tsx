@@ -8,7 +8,7 @@ import { UpdateNotifier } from './UpdateNotifier';
 import { useStore } from '../App';
 import { Spinner } from './Spinner';
 import { Close } from '../icons/Close';
-import { Dialog, DialogContent } from './Dialog';
+import { Dialog, DialogClose, DialogContent } from './Dialog';
 import { Button } from './Button';
 
 interface LayoutProps {
@@ -22,8 +22,15 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, center
     const history = useHistory();
     const url = stringifyHistory();
     const zoomLevels = useStore(state => state.zoomLevels);
-    const migrationStatus = useStore(state => state.migrationStatus);
-    const archUnsupported = useStore(state => state.architectureUnsupported);
+    const { 
+        migrationStatus,
+        archCheckOpen,
+        architectureUnsupported 
+    } = useStore(state => ({ 
+        migrationStatus: state.migrationStatus,
+        archCheckOpen: state.archCheckOpen,
+        architectureUnsupported: state.architectureUnsupported
+    }));
     const [showDevTools, setShowDevTools] = useState(false);
 
     useEffect(() => {
@@ -57,23 +64,27 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, center
                 </header>
             }
             <main className={`grid ${center ? 'justify-center content-center' : ''} ${isOSX() ? 'mt-7' : ''} ${className}`}>
-                <Dialog defaultOpen={archUnsupported}>
-                    <DialogContent 
-                        showCloseIcon={false}
-                        onOpenAutoFocus={e => e.preventDefault()}
-                        onEscapeKeyDown={e => e.preventDefault()}
-                        onPointerDownOutside={e => e.preventDefault()} 
-                        className="p-6 space-y-3"
-                    >
-                        <h2 className="font-semibold">Apple M1 Unsupported</h2>
-                        <p>While Port itself can run on Apple M1 architecture, Urbit itself cannot yet. This <a href="https://github.com/urbit/urbit/issues/4257">issue</a> may give more insight.</p>
-                        <p className="flex flex-end">
-                            <Button onClick={() => send('quit')}>
-                                <Close className="w-7 h-7" primary="fill-current" /> Quit
-                            </Button>
-                        </p>
-                    </DialogContent>
-                </Dialog>
+                {architectureUnsupported &&
+                    <Dialog open={archCheckOpen} onOpenChange={open => useStore.setState({ archCheckOpen: open })}>
+                        <DialogContent 
+                            showCloseIcon={false}
+                            onOpenAutoFocus={e => e.preventDefault()}
+                            onEscapeKeyDown={e => e.preventDefault()}
+                            onPointerDownOutside={e => e.preventDefault()} 
+                        >
+                            <h2 className="font-semibold">Apple M1 Unsupported</h2>
+                            <p className="mt-3">While Port itself can run on Apple M1 architecture, Urbit itself cannot yet. We're actively working on a solution, which is being tracked in this <a href="https://github.com/urbit/urbit/issues/4257">issue</a>. However, you can still use Port to connect to a remote, hosted ship.</p>
+                            <p className="flex justify-end space-x-4 mt-6">
+                                <Button onClick={() => send('quit')}>
+                                    <Close className="w-6 h-6 -ml-1" primary="fill-current" /> Quit Port
+                                </Button>
+                                <DialogClose as={Button}>
+                                    I understand, Proceed anyway
+                                </DialogClose>
+                            </p>
+                        </DialogContent>
+                    </Dialog>
+                }
                 { children }
             </main>
             <footer className="flex items-center h-8 py-2 z-20">

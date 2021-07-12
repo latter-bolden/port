@@ -31,6 +31,7 @@ const queryClient = new QueryClient({
 export const useStore = create(() => ({
     piers: [],
     architectureUnsupported: null,
+    archCheckOpen: true,
     updateStatus: 'initial',
     migrationStatus: 'initial',
     zoomLevels: {
@@ -82,7 +83,10 @@ const App = () => {
         const listeners = [
             listen('piers-migrating', () => useStore.setState({ migrationStatus: 'migrating' })),
             listen('piers-migrated', () => useStore.setState({ migrationStatus: 'migrated' })),
-            listen('arch-unsupported', ({ architectureUnsupported }) => useStore.setState({ architectureUnsupported }))
+            listen('arch-unsupported', (architectureUnsupported) => {
+                console.log({ architectureUnsupported })
+                useStore.setState({ architectureUnsupported })
+            })
         ]
 
         return () => {
