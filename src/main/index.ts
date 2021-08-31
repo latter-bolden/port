@@ -1,9 +1,10 @@
-import { app, autoUpdater, BrowserWindow } from 'electron';
+import { app, autoUpdater, BrowserWindow, globalShortcut, WebContents } from 'electron';
 import findOpenSocket from '../renderer/client/find-open-socket'
 import isDev from 'electron-is-dev'
 import { isOSX } from './helpers';
 import { createMainWindow } from './main-window';
 import { portDBMigration } from '../background/migrations/port-migration';
+import { InputEvent } from 'electron/main';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const BACKGROUND_WINDOW_WEBPACK_ENTRY: string;
 
@@ -90,6 +91,8 @@ async function start(bootBg: boolean) {
 
   mainWindow = createMainWindow(MAIN_WINDOW_WEBPACK_ENTRY, serverSocket, app.quit.bind(this), bgWindow)
 
+  registerShorcuts(mainWindow);
+
   if (!isDev) {
     autoUpdater.checkForUpdates()
 
@@ -136,3 +139,24 @@ app.on('activate', (event, hasVisibleWindows) => {
     }
   }
 });
+
+function registerShorcuts(mainWindow: BrowserWindow) {
+  globalShortcut.register('CommandOrControl+/', () => {
+    const contents = mainWindow.getBrowserViews()[0].webContents;
+    mainWindow.focus();
+
+    setTimeout(() => {
+      contents.focus();
+    }, 0);
+
+    setTimeout(() => {
+      sendKeybinding(contents, '/', ['ctrl']);
+    }, 0)
+  })
+}
+
+function sendKeybinding (contents: WebContents, keyCode: string, modifiers?: InputEvent["modifiers"]) {
+  contents.sendInputEvent({ type: 'keyDown', modifiers, keyCode })
+  contents.sendInputEvent({ type: 'char', modifiers, keyCode })
+  contents.sendInputEvent({ type: 'keyUp', modifiers, keyCode })
+}
