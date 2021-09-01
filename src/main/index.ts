@@ -3,7 +3,6 @@ import findOpenSocket from '../renderer/client/find-open-socket'
 import isDev from 'electron-is-dev'
 import { isOSX } from './helpers';
 import { createMainWindow } from './main-window';
-import { portDBMigration } from '../background/migrations/port-migration';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const BACKGROUND_WINDOW_WEBPACK_ENTRY: string;
 
@@ -80,8 +79,6 @@ function createBackgroundWindow(socketName: string) {
 async function start(bootBg: boolean) {
   const serverSocket = await findOpenSocket()
   let bgWindow;
-
-  await portDBMigration();
 
   isDev && console.log('server socket', serverSocket)
   if (bootBg) {
