@@ -5,12 +5,13 @@ import { Handler, HandlerEntry, HandlerMap, init, send } from './server/ipc';
 import { OSHandlers, OSService } from './services/os-service';
 import { PierHandlers, PierService } from './services/pier-service';
 import { ipcRenderer } from 'electron';
-import { migrate as statusMigration } from './migrations/status-migration';
-import { portPierMigration } from './migrations/port-migration';
 
 start();
 
-export type Handlers = OSHandlers & PierHandlers & { connected: Handler }//& { init: () => Promise<PierData> };
+export type Handlers = OSHandlers & PierHandlers & { 
+    connected: Handler,
+    disconnected: Handler
+}
 
 async function start() {
     const handlerMap: HandlerMap<Handlers> = {} as HandlerMap<Handlers>;
@@ -24,8 +25,6 @@ async function start() {
       console.log('received socket set', name)
       init(name, handlerMap)
 
-      statusMigration(db)
-      portPierMigration(pierService);
       architectureSupportCheck();
     })
 

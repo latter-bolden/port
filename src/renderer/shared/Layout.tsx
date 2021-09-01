@@ -22,12 +22,10 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, center
     const history = useHistory();
     const url = stringifyHistory();
     const zoomLevels = useStore(state => state.zoomLevels);
-    const { 
-        migrationStatus,
+    const {
         archCheckOpen,
         architectureUnsupported 
-    } = useStore(state => ({ 
-        migrationStatus: state.migrationStatus,
+    } = useStore(state => ({
         archCheckOpen: state.archCheckOpen,
         architectureUnsupported: state.architectureUnsupported
     }));
@@ -88,17 +86,6 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, center
                 { children }
             </main>
             <footer className="flex items-center h-8 py-2 z-20">
-                <Dialog open={migrationStatus === 'migrating'} onOpenChange={(open) => !open && useStore.setState({ migrationStatus: 'initial' })}>
-                    <DialogContent>
-                        <div className="flex items-center space-x-6 my-6 pr-6">
-                            <Spinner className="w-16 h-16" />
-                            <div className="space-y-2">
-                                <h2 className="font-semibold">Migrating ship piers from Taisho</h2>
-                                <p>Please wait while your piers are moved.<br />This should only take a minute.</p>
-                            </div>                                
-                        </div>
-                    </DialogContent>
-                </Dialog>
                 { footer }
                 <div className="flex justify-end items-center ml-auto leading-none">
                     {isDev &&
