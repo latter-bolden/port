@@ -15,6 +15,10 @@ export async function init(): Promise<void> {
     const socketName = await window.getServerSocket()
     await connectSocket(socketName)
     console.log(Date.now(), 'client connected', 'socket:', socketName)
+
+    window.onbeforeunload = () => {
+        send('disconnected')
+    }
 }
 
 // State

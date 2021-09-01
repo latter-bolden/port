@@ -8,7 +8,10 @@ import { ipcRenderer } from 'electron';
 
 start();
 
-export type Handlers = OSHandlers & PierHandlers & { connected: Handler }
+export type Handlers = OSHandlers & PierHandlers & { 
+    connected: Handler,
+    disconnected: Handler
+}
 
 async function start() {
     const handlerMap: HandlerMap<Handlers> = {} as HandlerMap<Handlers>;

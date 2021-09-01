@@ -108,13 +108,18 @@ async function handleConnection(): Promise<void> {
     flushSendQueue();
 }
 
+async function handleDisconnect(): Promise<void> {
+    clientConnected = false;
+}
+
 export function init<T>(socketName: string, handlers: HandlerMap<T>): void {
     ipc.config.id = socketName
     ipc.config.silent = true
 
     ipc.serve(() => serve({
         ...handlers,
-        connected: handleConnection 
+        connected: handleConnection,
+        disconnected: handleDisconnect
     }))
     ipc.server.start()
 
