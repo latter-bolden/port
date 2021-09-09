@@ -10,6 +10,7 @@ import { Spinner } from '../shared/Spinner'
 import { getCometShortName } from '../shared/urbit-utils'
 import { ShipStatus } from './components/ShipStatus'
 import { LaunchButton } from './components/LaunchButton'
+import { EditableShipName } from './components/EditableShipName'
 import { pierKey } from '../query-keys'
 import { Pier } from '../../background/services/pier-service'
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from '../shared/Dialog'
@@ -79,8 +80,8 @@ export const Ship: React.FC = () => {
                     <header className="flex items-center">
                         <div className="mr-6">
                             <h1 className="font-semibold mb-1">
-                                <span className="inline-block mr-2 text-xl text-black dark:text-white">{ ship.name }</span>
-                                <span className="inline-block whitespace-nowrap">{ ship.type === 'comet' ? getCometShortName(ship.shipName || '') : ship.shipName }</span>
+                                <EditableShipName ship={ship} />
+                                <div className="mb-4 mt-2 whitespace-nowrap">{ ship.type === 'comet' ? getCometShortName(ship.shipName || '') : ship.shipName }</div>
                             </h1>
                             <div className="flex items-center">
                                 <ShipStatus ship={ship} />
