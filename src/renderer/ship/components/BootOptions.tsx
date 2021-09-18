@@ -17,7 +17,7 @@ const BootLink = ({ route }: { route: RouteInfo }) => (
 export const BootOptions = ({ className = '' }: { className: string }) => {
     const [showMore, setShowMore] = useState(false);
     const mainMenu = [routeMap.planet, routeMap.comet];
-    const secondaryMenu = [routeMap.moon, routeMap.existing, routeMap.remote];
+    const secondaryMenu = [routeMap.devship, routeMap.moon, routeMap.existing, routeMap.remote];
 
     function onClick() {
         setShowMore(!showMore)

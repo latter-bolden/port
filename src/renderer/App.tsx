@@ -11,6 +11,7 @@ import { RemotePierDetails } from './details/pages/RemotePierDetails';
 import { ExistingShipDetails } from './details/pages/ExistingShipDetails';
 import { MoonDetails } from './details/pages/MoonDetails';
 import { CometDetails } from './details/pages/CometDetails';
+import { DevshipDetails } from './details/pages/DevshipDetails';
 import { Boot } from './ship/Boot';
 import { PlanetDetails } from './details/pages/PlanetDetails';
 import { routeMap } from './routes';
@@ -95,6 +96,7 @@ const App = () => {
             <Route exact path={routeMap.planet.path} component={PlanetDetails} />
             <Route exact path={routeMap.moon.path} component={MoonDetails} />
             <Route exact path={routeMap.comet.path} component={CometDetails} />
+            <Route exact path={routeMap.devship.path} component={DevshipDetails} />
             <Route exact path={routeMap.star.path} component={Star} />
             <Route path="/boot/new/:slug" component={Boot} />
             <Route exact path="/pier/:slug/launch" component={Launch} />

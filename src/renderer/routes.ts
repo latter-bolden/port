@@ -14,6 +14,14 @@ const comet: RouteInfo = {
     description: 'Generate a disposable identity and boot as a comet'
 }
 
+const devship: RouteInfo = {
+    key: 'devship',
+    path: '/boot/devship',
+    title: 'Development ship',
+    heading: 'Boot a development ship',
+    description: 'Start a development ship (aka fakezod) with local networking'
+}
+
 const planet: RouteInfo = {
     key: 'planet',
     path: '/boot/planet',
@@ -58,6 +66,7 @@ const remote: RouteInfo = {
 export const routeMap = {
     star,
     comet,
+    devship,
     planet,
     moon,
     existing,
@@ -69,6 +78,7 @@ export const routes: RouteInfo[] = [
     planet,
     moon,
     comet,
+    devship,
     existing,
     remote
 ]

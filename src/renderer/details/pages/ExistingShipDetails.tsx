@@ -40,6 +40,7 @@ export const ExistingShipDetails = () => {
                     <option value="star">Star</option>
                     <option value="moon">Moon</option>
                     <option value="comet">Comet</option>
+                    <option value="devship">Development ship</option>
                 </select>
             </div>
             <div className="mb-3">

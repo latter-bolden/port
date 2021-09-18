@@ -456,6 +456,12 @@ export class PierService {
 
         if (pier.type === 'comet' && unbooted) {
             args.push('-c')
+        } else if (pier.type === 'devship' && unbooted) {
+            args = args.concat([
+                '-F',
+                pier.shipName,
+                '-c'
+            ])
         } else if (['star', 'planet', 'moon'].includes(pier.type) && unbooted) {
             args = args.concat([
                 '-w',
@@ -582,7 +588,7 @@ export class PierService {
     }
 }
 
-type PierType = 'comet' | 'moon' | 'planet' | 'star' |  'remote';
+type PierType = 'comet' | 'devship' | 'moon' | 'planet' | 'star' |  'remote';
 
 export interface Pier {
     _id?: string;
