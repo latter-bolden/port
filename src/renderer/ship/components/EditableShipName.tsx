@@ -31,8 +31,8 @@ export const EditableShipName = (props: { ship: Pier }) => {
   const ShipNameDisplay = (
     <div className="w-2/3 flex flex-row items-baseline">
       <div className="mr-3 text-xl text-black dark:text-white whitespace-nowrap">{ props.ship.name }</div>
-      <button className="button" onClick={setEditMode.bind(this, true)}>
-        <Pencil className="w-4 h-4" primary="gray"/>
+      <button className="button opacity-70" onClick={setEditMode.bind(this, true)}>
+        <Pencil className="w-4 h-4 opacity-70" primary="gray"/>
       </button>
     </div>
   )
@@ -48,7 +48,7 @@ export const EditableShipName = (props: { ship: Pier }) => {
             Save
           </button>
           <button className="button absolute top-2 p-1.5 left-14" onClick={setEditMode.bind(this, false)}>
-            <Close className="w-4 h-4" primary="gray" />
+            <Close className="w-4 h-4" primary="fill-current opacity-40" />
           </button>
         </div>
       </div>
