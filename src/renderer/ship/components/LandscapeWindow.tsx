@@ -34,8 +34,10 @@ export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading 
     useEffect(() => {
         async function createView() {
             try {
+                let session = await send('get-session', pier.slug)
                 await send('create-view', {
                     url,
+                    session: session?.data,
                     bounds: getBounds(landscapeRef.current)
                 })
                 setStatus('loaded')
@@ -51,9 +53,9 @@ export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading 
     }, [landscapeRef.current, url])
 
     useEffect(() => {
-        const unlisten = history.listen(() => {
-            send('remove-view', url)
-            console.log('removing', url)
+        const unlisten = history.listen(async () => {
+            let session = await send('remove-view', url)
+            send('upsert-session', {slug: pier.slug, data: session})
         });
 
         return () => unlisten && unlisten();
