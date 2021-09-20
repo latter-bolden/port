@@ -19,7 +19,7 @@ const devship: RouteInfo = {
     path: '/boot/devship',
     title: 'Development ship',
     heading: 'Boot a development ship',
-    description: 'Start a development ship (aka fakezod) with local networking'
+    description: 'Start a development ship with local networking'
 }
 
 const planet: RouteInfo = {
