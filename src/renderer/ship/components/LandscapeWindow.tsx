@@ -56,6 +56,7 @@ export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading 
         const unlisten = history.listen(async () => {
             let session = await send('remove-view', url)
             send('upsert-session', {slug: pier.slug, data: session})
+            console.log('removing', url)
         });
 
         return () => unlisten && unlisten();
