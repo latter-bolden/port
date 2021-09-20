@@ -1,5 +1,6 @@
 import { HandlerEntry } from '../server/ipc';
 import { ipcRenderer as ipc} from 'electron'
+import { SessionData } from './pier-service';
 
 export interface OSHandlers {
     'quit': OSService['quit'];
@@ -90,8 +91,8 @@ export class OSService {
         await ipc.invoke('update-view-bounds', data);
     }
 
-    async removeView(url: string): Promise<void> {
-        await ipc.invoke('remove-view', url);
+    async removeView(url: string): Promise<SessionData> {
+        return await ipc.invoke('remove-view', url);
     }
 
     async installUpdates(): Promise<void> {
@@ -101,11 +102,12 @@ export class OSService {
 
 export interface ViewData {
     url: string;
+    session?: SessionData;
     bounds: {
         x: number;
         y: number;
         width: number;
         height: number;
-    }
+    };
 }
 

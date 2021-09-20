@@ -48,7 +48,7 @@ export async function toggleDevTools(mainWindow: BrowserWindow, bgWindow?: Brows
 }
 
 async function createView(mainWindow: BrowserWindow, createNewWindow, data: ViewData) {
-    const { url, bounds } = data;
+    const { url, session, bounds } = data;
     let view = views.get(url);
     const newView = !view;
 
@@ -63,6 +63,12 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, data: View
         
         try {
             await view.webContents.loadURL(url);
+            if (session) {
+                // electron Sessions don't provide an api for localstorage, so must set manually
+                let reserializedSession = `JSON.parse(decodeURIComponent(\`${encodeURIComponent(JSON.stringify(session))}\`))`
+                let setStorage = `Object.entries(${reserializedSession}).forEach(([key, value]) => { window.localStorage.setItem(key, value)})`
+                await view.webContents.executeJavaScript(setStorage)
+            }
         } catch (err) {
             console.log(err);
             return { error: err.message }
@@ -128,6 +134,8 @@ async function removeView(mainWindow: BrowserWindow, url: string) {
     if (view) {
         isDev && console.log('removing', url)
         mainWindow.removeBrowserView(view)
+        let sessionString = await view.webContents.executeJavaScript('JSON.stringify(window.localStorage)')
+        let session = JSON.parse(sessionString)
 
         if (viewQueue.length >= 5) {
             const oldUrl = viewQueue.shift()
@@ -135,6 +143,8 @@ async function removeView(mainWindow: BrowserWindow, url: string) {
             (oldView.webContents as any).destroy();
             views.delete(oldUrl)
         }
+
+        return session
     }
 }
 
