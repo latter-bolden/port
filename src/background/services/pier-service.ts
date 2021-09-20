@@ -48,6 +48,8 @@ export interface PierHandlers {
     'delete-pier': PierService["deletePier"]
     'eject-pier': PierService["ejectPier"]
     'validate-key-file': PierService["validateKeyfile"]
+    'upsert-session': PierService['upsertSession']
+    'get-session': PierService['getSession']
 }
 
 export class PierService {
@@ -82,7 +84,9 @@ export class PierService {
             { name: 'stop-pier', handler: this.stopPier.bind(this) },
             { name: 'delete-pier', handler: this.deletePier.bind(this) },
             { name: 'eject-pier', handler: this.ejectPier.bind(this) },
-            { name: 'validate-key-file', handler: this.validateKeyfile.bind(this) }
+            { name: 'validate-key-file', handler: this.validateKeyfile.bind(this) },
+            { name: 'upsert-session', handler: this.upsertSession.bind(this) },
+            { name: 'get-session', handler: this.getSession.bind(this) }
         ]
     }
 
@@ -118,6 +122,18 @@ export class PierService {
             directoryAsPierPath: false,
             ...data,
         })
+    }
+
+    async upsertSession(session: LandscapeSession)  {
+        let existingSession = await this.db.sessions.asyncFindOne({ slug: session.slug })
+        if (existingSession) {
+            return await this.db.sessions.asyncUpdate({slug: session.slug }, session)
+        }
+        return await this.db.sessions.asyncInsert(session)
+    }
+
+    async getSession(slug: string): Promise<LandscapeSession | null> {
+        return await this.db.sessions.asyncFindOne({ slug })
     }
 
     async getPier(slug: string): Promise<Pier | null> {
@@ -607,6 +623,15 @@ export interface Pier {
     directoryAsPierPath?: boolean;
     bootProcessId?: number;
     bootProcessDisconnected?: boolean;
+}
+
+export interface SessionData {
+    [key: string]: string;
+}
+
+export interface LandscapeSession {
+    slug: string;
+    data: SessionData;
 }
 
 export type AddPier = Pick<Pier, 'name' | 'type' | 'shipName' | 'keyFile'> & {
