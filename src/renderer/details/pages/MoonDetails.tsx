@@ -45,7 +45,7 @@ export const MoonDetails: React.FC = () => {
                 <label htmlFor="name">Name <span className="text-gray-300 dark:text-gray-700">(local only)</span></label>
                 <NameField form={form} />
             </div>
-            <Tabs.Root value={tab} onValueChange={setTab}>
+            <Tabs.Root className="mt-2" value={tab} onValueChange={setTab}>
                 <Tabs.List className="flex mb-4 border-b border-gray-300 dark:border-gray-700">
                     <Tooltip.Root>
                         <Tooltip.Trigger className="default-ring">

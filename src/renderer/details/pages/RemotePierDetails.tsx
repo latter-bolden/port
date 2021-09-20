@@ -42,7 +42,7 @@ export const RemotePierDetails = () => {
                 <label htmlFor="name">Name <span className="text-gray-300 dark:text-gray-700">(local only)</span></label>
                 <NameField form={form} />
             </div>
-            <div>
+            <div className="mt-2">
                 <label htmlFor="directory">URL</label>
                 <div className="relative">
                     <input 

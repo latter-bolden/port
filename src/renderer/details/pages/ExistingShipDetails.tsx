@@ -33,7 +33,7 @@ export const ExistingShipDetails = () => {
                 <label htmlFor="name">Name <span className="text-gray-300 dark:text-gray-700">(local only)</span></label>
                 <NameField form={form} />
             </div>
-            <div className="mb-8">
+            <div className="mt-2 mb-8">
                 <label htmlFor="type">Ship Type</label>
                 <select name="type" ref={form.register({ required: true })} className="input ml-3 bg-white dark:bg-black">
                     <option value="planet">Planet</option>
