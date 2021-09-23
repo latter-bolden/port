@@ -1,16 +1,17 @@
 import { exec } from 'child_process';
 import db from './db';
 import { platform, arch } from 'os';
-import { HandlerEntry, HandlerMap, init, send } from './server/ipc';
+import { Handler, HandlerEntry, HandlerMap, init, send } from './server/ipc';
 import { OSHandlers, OSService } from './services/os-service';
 import { PierHandlers, PierService } from './services/pier-service';
 import { ipcRenderer } from 'electron';
-import { migrate as statusMigration } from './migrations/status-migration';
-import { portPierMigration } from './migrations/port-migration';
 
 start();
 
-export type Handlers = OSHandlers & PierHandlers//& { init: () => Promise<PierData> };
+export type Handlers = OSHandlers & PierHandlers & { 
+    connected: Handler,
+    disconnected: Handler
+}
 
 async function start() {
     const handlerMap: HandlerMap<Handlers> = {} as HandlerMap<Handlers>;
@@ -24,8 +25,6 @@ async function start() {
       console.log('received socket set', name)
       init(name, handlerMap)
 
-      statusMigration(db)
-      portPierMigration(pierService);
       architectureSupportCheck();
     })
 
@@ -48,18 +47,23 @@ async function architectureSupportCheck() {
     
     try {
         if (osPlatform === 'darwin') {
-            const isM1 = await new Promise((resolve) => {
+            const sysctlCheck = await new Promise((resolve) => {
                 exec('sysctl sysctl.proc_translated', (error, stdout, stderr) => {
                     if (error || stderr) {
                         resolve(false);
                     }
 
-                    const isTranslated = !!(stdout.trim().slice(-1));
-                    resolve(isTranslated);
+                    resolve(!stdout.includes('unknown'));
                 })
             });
 
-            if (osArch === 'arm64' || isM1) {
+            const archCheck = await new Promise((resolve) => {
+                exec('arch', (error, stdout, stderr) => {
+                    resolve(stdout.includes('arm64'))
+                })
+            })
+
+            if (osArch === 'arm64' || archCheck || sysctlCheck) {
                 await send('arch-unsupported', osPlatform + '-' + osArch);
             }
         }

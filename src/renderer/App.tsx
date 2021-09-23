@@ -31,8 +31,8 @@ const queryClient = new QueryClient({
 export const useStore = create(() => ({
     piers: [],
     architectureUnsupported: null,
+    archCheckOpen: true,
     updateStatus: 'initial',
-    migrationStatus: 'initial',
     zoomLevels: {
         main: 1,
         views: '1'
@@ -50,9 +50,6 @@ const AppWrapped = () => (
 )
 
 const App = () => {
-    useQuery('migration-status', () => send('get-migration-status'), {
-        onSuccess: migrationStatus => useStore.setState({ migrationStatus })
-    })
     useQuery(pierKey(), async () => {
         const piers = await send('get-piers')
         
@@ -80,9 +77,10 @@ const App = () => {
 
     useEffect(() => {
         const listeners = [
-            listen('piers-migrating', () => useStore.setState({ migrationStatus: 'migrating' })),
-            listen('piers-migrated', () => useStore.setState({ migrationStatus: 'migrated' })),
-            listen('arch-unsupported', ({ architectureUnsupported }) => useStore.setState({ architectureUnsupported }))
+            listen('arch-unsupported', (architectureUnsupported) => {
+                console.log({ architectureUnsupported })
+                useStore.setState({ architectureUnsupported })
+            })
         ]
 
         return () => {

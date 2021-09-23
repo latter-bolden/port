@@ -36,7 +36,6 @@ export interface PierHandlers {
     'get-pier': PierService["getPier"]
     'get-piers': PierService["getPiers"]
     'get-messages': PierService["getMessages"]
-    'get-migration-status': PierService["getMigrationStatus"]
     'get-pier-auth': PierService["getPierAuth"]
     'collect-existing-pier': PierService["collectExistingPier"]
     'boot-pier': PierService["bootPier"]
@@ -56,8 +55,6 @@ export class PierService {
     private readonly resumesInProgress: Map<string, Promise<Pier | null>>;
     private pierDirectory: string;
 
-    migrationStatus = 'migrating';
-
     constructor(db: DB) {
         this.db = db;
         this.urbitPath = joinPath(binariesPath, 'urbit');
@@ -71,7 +68,6 @@ export class PierService {
             { name: 'get-pier', handler: this.getPier.bind(this) },
             { name: 'get-piers', handler: this.getPiers.bind(this) },
             { name: 'get-messages', handler: this.getMessages.bind(this) },
-            { name: 'get-migration-status', handler: this.getMigrationStatus.bind(this) },
             { name: 'get-pier-auth', handler: this.getPierAuth.bind(this) },
             { name: 'collect-existing-pier', handler: this.collectExistingPier.bind(this) },
             { name: 'boot-pier', handler: this.bootPier.bind(this) },
@@ -84,10 +80,6 @@ export class PierService {
             { name: 'eject-pier', handler: this.ejectPier.bind(this) },
             { name: 'validate-key-file', handler: this.validateKeyfile.bind(this) }
         ]
-    }
-
-    async getMigrationStatus(): Promise<string> {
-        return this.migrationStatus;
     }
     
     async setPierDirectory(): Promise<void> {
