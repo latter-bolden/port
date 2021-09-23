@@ -91,7 +91,7 @@ async function start(bootBg: boolean) {
 
   mainWindow = createMainWindow(MAIN_WINDOW_WEBPACK_ENTRY, serverSocket, app.quit.bind(this), bgWindow)
 
-  registerShorcuts(mainWindow);
+  registerShortcuts(mainWindow);
 
   if (!isDev) {
     autoUpdater.checkForUpdates()
@@ -140,18 +140,45 @@ app.on('activate', (event, hasVisibleWindows) => {
   }
 });
 
-function registerShorcuts(mainWindow: BrowserWindow) {
+function showWindow(window: BrowserWindow): void {
+  window.setAlwaysOnTop(true);
+  if (window.isMaximized()) {
+    window.maximize();
+  } else {
+    window.showInactive();
+  }
+
+  window.setAlwaysOnTop(false);
+  window.focus();
+  app.focus({
+      steal: true
+  });
+}
+
+function registerShortcuts(mainWindow: BrowserWindow) {
   globalShortcut.register('CommandOrControl+/', () => {
-    const contents = mainWindow.getBrowserViews()[0].webContents;
-    mainWindow.focus();
+    const focusedWindow = BrowserWindow.getFocusedWindow(); 
+    const isLandscape = focusedWindow?.webContents.getURL().includes('/apps/landscape');
+    const contents = isLandscape ? focusedWindow.webContents : mainWindow.getBrowserViews()[0].webContents;
+    showWindow(isLandscape ? focusedWindow : mainWindow);
 
     setTimeout(() => {
       contents.focus();
-    }, 0);
 
-    setTimeout(() => {
-      sendKeybinding(contents, '/', ['ctrl']);
-    }, 0)
+      setTimeout(() => {
+        sendKeybinding(contents, '/', ['ctrl']);
+      }, 15)
+    }, 15);
+  })
+
+  globalShortcut.register('Control+Tab', () => {
+    const windows = BrowserWindow.getAllWindows().filter(win => win.title !== 'background');
+    const focusedWindow = BrowserWindow.getFocusedWindow();
+
+    const windowCount = windows.length;
+    const focusedIndex = windows.indexOf(focusedWindow);
+
+    showWindow(windows[(focusedIndex + 1) % windowCount])
   })
 }
 

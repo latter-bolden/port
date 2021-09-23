@@ -160,10 +160,9 @@ export function createMainWindow(
 
   const onWillNavigate = (event: Event, webContents: WebContents, urlTarget: string): void => {
     onNavigation({
-      event,
-      webContents,
+      preventDefault: event.preventDefault,
+      currentUrl: webContents.getURL(),
       urlTarget,
-      mainWindow,
       createNewWindow
     })
   };
@@ -171,24 +170,10 @@ export function createMainWindow(
   const createNewWindow: (url: string) => BrowserWindow = (url: string) => {
     const window = new BrowserWindow(DEFAULT_WINDOW_OPTIONS);
 
-    window.webContents.on('new-window', onNewWindow);
+    window.webContents.on('new-window', onNewWindow(url));
     window.webContents.on('will-navigate', (e, url) => onWillNavigate(e, window.webContents, url));
     window.loadURL(url);
     return window;
-  };
-
-  const createNewTab = (url: string, foreground: boolean): BrowserWindow => {
-    const focusedWindow = BrowserWindow.getFocusedWindow();
-    if (!focusedWindow) {
-      return undefined;
-    }
-
-    const newTab = createNewWindow(url);
-    focusedWindow.addTabbedWindow(newTab);
-    if (!foreground) {
-      focusedWindow.focus();
-    }
-    return newTab;    
   };
 
   const createAboutBlankWindow = (): BrowserWindow => {
@@ -204,7 +189,8 @@ export function createMainWindow(
     return window;
   };
 
-  const onNewWindow = (
+  const onNewWindow = (targetUrl: string) =>
+  (
     event: Event & { newGuest?: any },
     urlToGo: string,
     frameName: string,
@@ -219,12 +205,11 @@ export function createMainWindow(
     onNewWindowHelper(
       urlToGo,
       disposition,
-      mainUrl,
+      targetUrl,
       preventDefault,
       shell.openExternal.bind(this),
       createAboutBlankWindow,
-      nativeTabsSupported,
-      createNewTab,
+      createNewWindow,
       false,
       onBlockedExternalUrl,
     );
@@ -250,7 +235,7 @@ export function createMainWindow(
     mainUrl
   );
 
-  mainWindow.webContents.on('new-window', onNewWindow);
+  mainWindow.webContents.on('new-window', onNewWindow(mainUrl));
   mainWindow.webContents.on('will-navigate', (e, url) => onWillNavigate(e, mainWindow.webContents, url));
   mainWindow.webContents.on('did-start-loading', () => {
     const loadingUrl = mainWindow.webContents.getURL().split('#')[0]
@@ -278,7 +263,7 @@ export function createMainWindow(
     storages: ['appcache', 'filesystem', 'indexdb', 'localstorage', 'cachestorage']
   });
   mainWindow.webContents.session.clearCache();
-  osHelperStart(mainWindow, createNewWindow, bgWindow)
+  osHelperStart(mainWindow, createNewWindow, onNewWindow, bgWindow)
   mainWindow.loadURL(mainUrl);
 
   //mainWindow.on('new-tab' as any, () => createNewTab(mainUrl, true));

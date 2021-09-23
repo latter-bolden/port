@@ -56,8 +56,7 @@ export function onNewWindowHelper(
   preventDefault,
   openExternal,
   createAboutBlankWindow,
-  nativeTabsSupported,
-  createNewTab,
+  createNewWindow,
   blockExternal: boolean,
   onBlockedExternalUrl: (url: string) => void,
 ): void {
@@ -71,52 +70,47 @@ export function onNewWindowHelper(
   } else if (urlToGo === 'about:blank') {
     const newWindow = createAboutBlankWindow();
     preventDefault(newWindow);
-  } else if (nativeTabsSupported()) {
-    if (disposition === 'background-tab') {
-      const newTab = createNewTab(urlToGo, false);
-      preventDefault(newTab);
-    } else if (disposition === 'foreground-tab') {
-      const newTab = createNewTab(urlToGo, true);
-      preventDefault(newTab);
-    }
+  } else {
+    onNavigation({
+      preventDefault,
+      urlTarget: urlToGo,
+      currentUrl: targetUrl,
+      createNewWindow
+    })
   }
 }
 
-function getAppFromPath(path: string) {
-  const parts = path.split('/').filter(el => !!el);
-  return parts[0] || '';
-}
-
 interface onNavigationParameters {
-  event: Event;
-  webContents: WebContents; 
-  urlTarget: string; 
-  mainWindow: BrowserWindow;
-  createNewWindow: (url: string) => BrowserWindow;
+  preventDefault: () => void;
+  currentUrl: string; 
+  urlTarget: string;
+  createNewWindow?: (url: string) => BrowserWindow;
 }
 
-export function onNavigation({ event, urlTarget, ...params }: onNavigationParameters) {
-  const currentUrl = new URL(params.webContents.getURL());
+export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewWindow }: onNavigationParameters) {
+  const url = new URL(currentUrl);
   const targetUrl = new URL(urlTarget);
-  const sameHost = targetUrl.hostname === currentUrl.hostname;
-  
-  const currentApp = getAppFromPath(currentUrl.pathname);
-  const targetApp = getAppFromPath(targetUrl.pathname);
-  const sameApp = sameHost && currentApp === targetApp;
-  const targetIsLandscape = targetApp === '' || targetApp === '~landscape';
+  const sameHost = targetUrl.hostname === url.hostname;
+  const sameApp = sameHost && url.pathname.startsWith(targetUrl.pathname);
 
-  console.log({ urlTarget, targetApp, currentUrl });
-  
   if (!sameHost || sameApp) {
       return;
   }
 
-  if (!sameApp && targetIsLandscape) {
-      event.preventDefault();
-      params.mainWindow.focus();
-      return;
+  const targetWindow = BrowserWindow.getAllWindows().find(b => {
+    const path = b.webContents.getURL()
+      .replace(`${targetUrl.protocol}//${targetUrl.hostname}`, '');
+    return path.startsWith(targetUrl.pathname);
+  })
+
+  if (!sameApp && targetWindow) {
+    preventDefault();
+    targetWindow.focus();
+    return;
   }
 
-  event.preventDefault();
-  params.createNewWindow(urlTarget)
+  if (createNewWindow) {
+    preventDefault();
+    createNewWindow(urlTarget)
+  }
 }
