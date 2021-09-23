@@ -1,8 +1,9 @@
-import { app, autoUpdater, BrowserWindow } from 'electron';
+import { app, autoUpdater, BrowserWindow, globalShortcut, WebContents } from 'electron';
 import findOpenSocket from '../renderer/client/find-open-socket'
 import isDev from 'electron-is-dev'
 import { isOSX } from './helpers';
 import { createMainWindow } from './main-window';
+import { InputEvent } from 'electron/main';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const BACKGROUND_WINDOW_WEBPACK_ENTRY: string;
 
@@ -87,6 +88,8 @@ async function start(bootBg: boolean) {
 
   mainWindow = createMainWindow(MAIN_WINDOW_WEBPACK_ENTRY, serverSocket, app.quit.bind(this), bgWindow)
 
+  registerShortcuts(mainWindow);
+
   if (!isDev) {
     autoUpdater.checkForUpdates()
 
@@ -133,3 +136,51 @@ app.on('activate', (event, hasVisibleWindows) => {
     }
   }
 });
+
+function showWindow(window: BrowserWindow): void {
+  window.setAlwaysOnTop(true);
+  if (window.isMaximized()) {
+    window.maximize();
+  } else {
+    window.showInactive();
+  }
+
+  window.setAlwaysOnTop(false);
+  window.focus();
+  app.focus({
+      steal: true
+  });
+}
+
+function registerShortcuts(mainWindow: BrowserWindow) {
+  globalShortcut.register('CommandOrControl+/', () => {
+    const focusedWindow = BrowserWindow.getFocusedWindow(); 
+    const isLandscape = focusedWindow?.webContents.getURL().includes('/apps/landscape');
+    const contents = isLandscape ? focusedWindow.webContents : mainWindow.getBrowserViews()[0].webContents;
+    showWindow(isLandscape ? focusedWindow : mainWindow);
+
+    setTimeout(() => {
+      contents.focus();
+
+      setTimeout(() => {
+        sendKeybinding(contents, '/', ['ctrl']);
+      }, 15)
+    }, 15);
+  })
+
+  globalShortcut.register('Control+Tab', () => {
+    const windows = BrowserWindow.getAllWindows().filter(win => win.title !== 'background');
+    const focusedWindow = BrowserWindow.getFocusedWindow();
+
+    const windowCount = windows.length;
+    const focusedIndex = windows.indexOf(focusedWindow);
+
+    showWindow(windows[(focusedIndex + 1) % windowCount])
+  })
+}
+
+function sendKeybinding (contents: WebContents, keyCode: string, modifiers?: InputEvent["modifiers"]) {
+  contents.sendInputEvent({ type: 'keyDown', modifiers, keyCode })
+  contents.sendInputEvent({ type: 'char', modifiers, keyCode })
+  contents.sendInputEvent({ type: 'keyUp', modifiers, keyCode })
+}

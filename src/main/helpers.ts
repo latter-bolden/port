@@ -1,3 +1,5 @@
+import { URL } from 'url'
+import { BrowserWindow, WebContents } from "electron";
 import { getPlatform } from "../get-platform";
 
 //Taken from https://github.com/nativefier/nativefier/blob/master/app/src/helpers/helpers.ts
@@ -54,8 +56,7 @@ export function onNewWindowHelper(
   preventDefault,
   openExternal,
   createAboutBlankWindow,
-  nativeTabsSupported,
-  createNewTab,
+  createNewWindow,
   blockExternal: boolean,
   onBlockedExternalUrl: (url: string) => void,
 ): void {
@@ -69,13 +70,47 @@ export function onNewWindowHelper(
   } else if (urlToGo === 'about:blank') {
     const newWindow = createAboutBlankWindow();
     preventDefault(newWindow);
-  } else if (nativeTabsSupported()) {
-    if (disposition === 'background-tab') {
-      const newTab = createNewTab(urlToGo, false);
-      preventDefault(newTab);
-    } else if (disposition === 'foreground-tab') {
-      const newTab = createNewTab(urlToGo, true);
-      preventDefault(newTab);
-    }
+  } else {
+    onNavigation({
+      preventDefault,
+      urlTarget: urlToGo,
+      currentUrl: targetUrl,
+      createNewWindow
+    })
+  }
+}
+
+interface onNavigationParameters {
+  preventDefault: () => void;
+  currentUrl: string; 
+  urlTarget: string;
+  createNewWindow?: (url: string) => BrowserWindow;
+}
+
+export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewWindow }: onNavigationParameters) {
+  const url = new URL(currentUrl);
+  const targetUrl = new URL(urlTarget);
+  const sameHost = targetUrl.hostname === url.hostname;
+  const sameApp = sameHost && url.pathname.startsWith(targetUrl.pathname);
+
+  if (!sameHost || sameApp) {
+      return;
+  }
+
+  const targetWindow = BrowserWindow.getAllWindows().find(b => {
+    const path = b.webContents.getURL()
+      .replace(`${targetUrl.protocol}//${targetUrl.hostname}`, '');
+    return path.startsWith(targetUrl.pathname);
+  })
+
+  if (!sameApp && targetWindow) {
+    preventDefault();
+    targetWindow.focus();
+    return;
+  }
+
+  if (createNewWindow) {
+    preventDefault();
+    createNewWindow(urlTarget)
   }
 }
