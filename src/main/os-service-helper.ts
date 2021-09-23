@@ -2,6 +2,7 @@ import { app, autoUpdater, BrowserView, BrowserWindow, dialog, ipcMain, IpcMainI
 import isDev from 'electron-is-dev'
 import { ViewData } from '../background/services/os-service';
 import { initContextMenu } from './context-menu';
+import { onNavigation } from './helpers';
 import { updateZoomLevels } from './main-window';
 
 declare const LANDSCAPE_PRELOAD_WEBPACK_ENTRY: string;
@@ -47,8 +48,8 @@ export async function toggleDevTools(mainWindow: BrowserWindow, bgWindow?: Brows
     }
 }
 
-async function createView(mainWindow: BrowserWindow, createNewWindow, data: ViewData) {
-    const { url, bounds } = data;
+async function createView(mainWindow: BrowserWindow, createNewWindow, onNewWindow, data: ViewData) {
+    const { url } = data;
     let view = views.get(url);
     const newView = !view;
 
@@ -67,6 +68,16 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, data: View
             console.log(err);
             return { error: err.message }
         }
+
+        view.webContents.on('will-navigate', (event, urlTarget) => {
+            onNavigation({
+                preventDefault: event.preventDefault,
+                currentUrl: view.webContents.getURL(),
+                urlTarget,
+                createNewWindow
+            })
+        });
+        view.webContents.on('new-window', onNewWindow(url));
 
         views.set(url, view);
         viewQueue.push(url);
@@ -190,13 +201,13 @@ function respondToPrompt(event, arg) {
 }
 
 let promptResponse;
-export function start(mainWindow: BrowserWindow, createNewWindow, bgWindow?: BrowserWindow): void {
+export function start(mainWindow: BrowserWindow, createNewWindow, onNewWindow, bgWindow?: BrowserWindow): void {
     ipcMain.handle('quit', () => app.quit())
     ipcMain.handle('open-dialog', openDialog)
     ipcMain.handle('set-title', (event, args) => setTitle(mainWindow, event, args))
     ipcMain.handle('clear-data', () => clearData(mainWindow))
     ipcMain.handle('toggle-dev-tools', () => toggleDevTools(mainWindow, bgWindow))
-    ipcMain.handle('create-view', (event, args) => createView(mainWindow, createNewWindow, args))
+    ipcMain.handle('create-view', (event, args) => createView(mainWindow, createNewWindow, onNewWindow, args))
     ipcMain.handle('update-view-bounds', (event, args) => updateViewBounds(args, mainWindow))
     ipcMain.handle('remove-view', (event, args) => removeView(mainWindow, args))
     ipcMain.handle('install-updates', () => installUpdates(bgWindow))
