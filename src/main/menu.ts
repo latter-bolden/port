@@ -1,6 +1,7 @@
 import pjson from '../../package.json'
 import { toggleDevTools } from './os-service-helper'
-import { Menu, clipboard, shell, MenuItemConstructorOptions } from 'electron';
+import { Menu, clipboard, shell, MenuItemConstructorOptions, BrowserWindow } from 'electron';
+import { showWindow } from './helpers';
 
 //Taken from https://github.com/nativefier/nativefier/blob/master/app/src/components/menu.ts
 export function createMenu({
@@ -119,6 +120,18 @@ export function createMenu({
             focusedWindow.reload();
           }
         },
+      },
+      {
+        label: 'Switch Open Window',
+        accelerator: 'Ctrl+Tab',
+        click: (item, focusedWindow) => {
+          const windows = BrowserWindow.getAllWindows().filter(win => win.title !== 'background');
+
+          const windowCount = windows.length;
+          const focusedIndex = windows.indexOf(focusedWindow);
+
+          showWindow(windows[(focusedIndex + 1) % windowCount])
+        }
       },
       {
         type: 'separator',

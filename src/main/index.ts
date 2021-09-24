@@ -1,7 +1,7 @@
 import { app, autoUpdater, BrowserWindow, globalShortcut, WebContents } from 'electron';
 import findOpenSocket from '../renderer/client/find-open-socket'
 import isDev from 'electron-is-dev'
-import { isOSX } from './helpers';
+import { isOSX, showWindow } from './helpers';
 import { createMainWindow } from './main-window';
 import { InputEvent } from 'electron/main';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -137,26 +137,17 @@ app.on('activate', (event, hasVisibleWindows) => {
   }
 });
 
-function showWindow(window: BrowserWindow): void {
-  window.setAlwaysOnTop(true);
-  if (window.isMaximized()) {
-    window.maximize();
-  } else {
-    window.showInactive();
-  }
-
-  window.setAlwaysOnTop(false);
-  window.focus();
-  app.focus({
-      steal: true
-  });
-}
-
 function registerShortcuts(mainWindow: BrowserWindow) {
   globalShortcut.register('CommandOrControl+/', () => {
-    const focusedWindow = BrowserWindow.getFocusedWindow(); 
+    const focusedWindow = BrowserWindow.getFocusedWindow();
+    const mainView = mainWindow.getBrowserViews()[0]; 
+
+    if ((!mainView && !focusedWindow) || (focusedWindow === mainWindow && !mainView)){
+      return;
+    }
+
     const isLandscape = focusedWindow?.webContents.getURL().includes('/apps/landscape');
-    const contents = isLandscape ? focusedWindow.webContents : mainWindow.getBrowserViews()[0].webContents;
+    const contents = isLandscape ? focusedWindow.webContents : mainView.webContents;
     showWindow(isLandscape ? focusedWindow : mainWindow);
 
     setTimeout(() => {
@@ -166,16 +157,6 @@ function registerShortcuts(mainWindow: BrowserWindow) {
         sendKeybinding(contents, '/', ['ctrl']);
       }, 15)
     }, 15);
-  })
-
-  globalShortcut.register('Control+Tab', () => {
-    const windows = BrowserWindow.getAllWindows().filter(win => win.title !== 'background');
-    const focusedWindow = BrowserWindow.getFocusedWindow();
-
-    const windowCount = windows.length;
-    const focusedIndex = windows.indexOf(focusedWindow);
-
-    showWindow(windows[(focusedIndex + 1) % windowCount])
   })
 }
 

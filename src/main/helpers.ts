@@ -1,5 +1,5 @@
 import { URL } from 'url'
-import { BrowserWindow, WebContents } from "electron";
+import { app, BrowserWindow, WebContents } from "electron";
 import { getPlatform } from "../get-platform";
 
 //Taken from https://github.com/nativefier/nativefier/blob/master/app/src/helpers/helpers.ts
@@ -9,6 +9,21 @@ export function isOSX(): boolean {
 
 export function nativeTabsSupported(): boolean {
   return isOSX();
+}
+
+export function showWindow(window: BrowserWindow): void {
+  window.setAlwaysOnTop(true);
+  if (window.isMaximized()) {
+    window.maximize();
+  } else {
+    window.showInactive();
+  }
+
+  window.setAlwaysOnTop(false);
+  window.focus();
+  app.focus({
+      steal: true
+  });
 }
 
 export function linkIsInternal(
