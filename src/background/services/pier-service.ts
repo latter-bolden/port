@@ -318,7 +318,7 @@ export class PierService {
             return;
         }
         
-        const args = this.getSpawnArgs(pier);
+        const args = this.getSpawnArgs(pier).push(pier.spawnArgs);
         const updatedPier = await this.updatePier({ ...pier, status: 'booting' });
         this.boot(updatedPier, args);
     }
@@ -600,6 +600,7 @@ export interface Pier {
     lastUsed: string;
     shipName?: string;
     keyFile?: string;
+    spawnArgs?: string;
     webPort?: number;
     loopbackPort?: number;
     directoryAsPierPath?: boolean;
@@ -611,6 +612,7 @@ export type AddPier = Pick<Pier, 'name' | 'type' | 'shipName' | 'keyFile'> & {
     status?: ShipStatus;
     directory?: string;
     directoryAsPierPath?: boolean;
+    spawnArgs?: string;
 }
 
 export interface NewMoon {

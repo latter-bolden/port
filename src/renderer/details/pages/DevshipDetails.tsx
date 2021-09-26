@@ -3,6 +3,7 @@ import { send } from '../../client/ipc'
 import { DetailsContainer } from '../components/DetailsContainer'
 import { NameField } from '../components/NameField'
 import { ShipNameField } from '../components/ShipNameField'
+import { ArgumentsField } from '../components/ArgumentsField'
 import { useAddPier } from '../useAddPier'
 
 export const DevshipDetails: React.FC = () => {
@@ -27,6 +28,10 @@ export const DevshipDetails: React.FC = () => {
             <div>
                 <label htmlFor="shipname">Shipname <span className="text-gray-300 dark:text-gray-700">(Urbit ID)</span></label>
                 <ShipNameField form={form} />
+            </div>
+            <div>
+                <label htmlFor="spawnArgs">Boot options <span className="text-gray-300 dark:text-gray-700">agruments</span></label>
+                <ArgumentsField form={form} />
             </div>
         </DetailsContainer>
     )
