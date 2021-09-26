@@ -25,7 +25,7 @@ export const ArgumentsField: React.FC<ArgumentsFieldProps> = ({ form, validator,
                 })}
                 className="input flex w-full mt-2" 
                 placeholder={placeholder}
-                aria-invalid={!!form.errors.spawnArgs}
+                //aria-invalid={!!form.errors.spawnArgs}
             />
         </>
     )
