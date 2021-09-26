@@ -8,9 +8,9 @@ interface ArgumentsFieldProps {
     validator?: Validate;
 }
 
-export const ArgumentsField: React.FC<ArgumentsFieldProps> = ({ form, validator, placeholder = '~sampel-palnet' }) => {
-    //const argsPattern = /^[a-z~-]*$/i;
-    //const argsContainsInvalidCharacters = form.errors.spawnArgs?.type === 'pattern';
+export const ArgumentsField: React.FC<ArgumentsFieldProps> = ({ form, validator, placeholder = '-v' }) => {
+    const argsPattern = /^[a-z -]*$/i;
+    const argsContainsInvalidCharacters = form.errors.spawnArgs?.type === 'pattern';
 
     return (
         <>
@@ -20,12 +20,12 @@ export const ArgumentsField: React.FC<ArgumentsFieldProps> = ({ form, validator,
                 type="text"
                 ref={form.register({ 
                     required: false,
-                    //pattern: argsPattern,
-                    //validate: validator,
+                    pattern: argsPattern,
+                    validate: validator,
                 })}
                 className="input flex w-full mt-2" 
                 placeholder={placeholder}
-                //aria-invalid={!!form.errors.spawnArgs}
+                aria-invalid={!!form.errors.spawnArgs}
             />
         </>
     )
