@@ -609,7 +609,7 @@ export interface Pier {
     bootProcessDisconnected?: boolean;
 }
 
-export type AddPier = Pick<Pier, 'name' | 'type' | 'shipName' | 'keyFile'> & {
+export type AddPier = Pick<Pier, 'name' | 'type' | 'shipName' | 'keyFile' | 'spawnArgs'> & {
     status?: ShipStatus;
     directory?: string;
     directoryAsPierPath?: boolean;
