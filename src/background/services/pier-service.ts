@@ -317,8 +317,8 @@ export class PierService {
         if (pier.status !== 'unbooted') {
             return;
         }
-        let args = []
-        args.push(pier.spawnArgs, this.getSpawnArgs(pier));
+        let args = this.getSpawnArgs(pier)
+        args.unshift(pier.spawnArgs);
         console.log(args)
         const updatedPier = await this.updatePier({ ...pier, status: 'booting' });
         this.boot(updatedPier, args);
