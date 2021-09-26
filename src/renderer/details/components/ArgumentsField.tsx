@@ -27,6 +27,9 @@ export const ArgumentsField: React.FC<ArgumentsFieldProps> = ({ form, validator,
                 placeholder={placeholder}
                 aria-invalid={!!form.errors.spawnArgs}
             />
+            <span className={`inline-block h-8.5 mt-2 text-xs text-red-600 ${form.errors?.spawnArgs ? 'visible' : 'invisible'}`} role="alert">
+                { (!form.errors.spawnArgs || argsContainsInvalidCharacters) && 'Invalid boot arguments' }
+            </span>
         </>
     )
 }
