@@ -613,7 +613,6 @@ export type AddPier = Pick<Pier, 'name' | 'type' | 'shipName' | 'keyFile'> & {
     status?: ShipStatus;
     directory?: string;
     directoryAsPierPath?: boolean;
-    spawnArgs?: string;
 }
 
 export interface NewMoon {
