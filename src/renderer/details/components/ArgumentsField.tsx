@@ -9,7 +9,7 @@ interface ArgumentsFieldProps {
 }
 
 export const ArgumentsField: React.FC<ArgumentsFieldProps> = ({ form, validator, placeholder = '-v' }) => {
-    const argsPattern = /^[a-z -]*$/i;
+    const argsPattern = /^-.*$/i;
     const argsContainsInvalidCharacters = form.errors.spawnArgs?.type === 'pattern';
 
     return (
