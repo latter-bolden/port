@@ -10,7 +10,7 @@ interface ArgumentsFieldProps {
 
 export const ArgumentsField: React.FC<ArgumentsFieldProps> = ({ form, validator, placeholder = '-v' }) => {
     const argsPattern = /^-.*$/i;
-    const argsContainsInvalidCharacters = form.errors.spawnArgs?.type === 'pattern';
+    //const argsContainsInvalidCharacters = form.errors.spawnArgs?.type === 'pattern';
 
     return (
         <>
@@ -25,7 +25,7 @@ export const ArgumentsField: React.FC<ArgumentsFieldProps> = ({ form, validator,
                 })}
                 className="input flex w-full mt-2" 
                 placeholder={placeholder}
-                aria-invalid={!!form.errors.spawnArgs}
+                //aria-invalid={!!form.errors.spawnArgs}
             />
         </>
     )
