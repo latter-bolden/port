@@ -318,7 +318,8 @@ export class PierService {
             return;
         }
         let args = []
-        args.push(this.getSpawnArgs(pier), pier.spawnArgs);
+        args.push(pier.spawnArgs, this.getSpawnArgs(pier));
+        console.log(args)
         const updatedPier = await this.updatePier({ ...pier, status: 'booting' });
         this.boot(updatedPier, args);
     }
