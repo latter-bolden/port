@@ -17,7 +17,7 @@ const comet: RouteInfo = {
 const devship: RouteInfo = {
     key: 'devship',
     path: '/boot/devship',
-    title: 'Development ship',
+    title: 'Development Ship',
     heading: 'Boot a development ship',
     description: 'Start a development ship with local networking'
 }
