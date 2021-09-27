@@ -6,8 +6,11 @@ const userData = remote.app.getPath('userData');
 
 console.log('db location:', userData)
 
+export type Settings =
+    | 'seen-grid-update-modal';
+
 export interface SettingsDocument {
-    name: string;
+    name: Settings;
     value: string;
 }
 
