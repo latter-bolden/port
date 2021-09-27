@@ -19,6 +19,7 @@ import { pierKey } from './query-keys';
 import { listen, send } from './client/ipc';
 import { Star } from './details/pages/Star';
 import { ipcRenderer } from 'electron';
+import { Settings } from '../background/db';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -32,6 +33,9 @@ export const useStore = create(() => ({
     piers: [],
     architectureUnsupported: null,
     archCheckOpen: true,
+    settings: {
+        'seen-grid-update-modal': 'true',
+    },
     updateStatus: 'initial',
     zoomLevels: {
         main: 1,
@@ -50,6 +54,16 @@ const AppWrapped = () => (
 )
 
 const App = () => {
+    useQuery('settings', () => send('get-settings'), {
+        onSuccess: (settings) => {
+            const newSettings = settings.reduce((map, setting) => {
+                map[setting.name] = setting.value;
+                return map;
+            }, {}) as Record<Settings, string>;
+
+            useStore.setState({ settings: newSettings });
+        }
+    })
     useQuery(pierKey(), async () => {
         const piers = await send('get-piers')
         
