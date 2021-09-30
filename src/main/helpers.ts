@@ -122,6 +122,10 @@ export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewW
   if (!sameApp && targetWindow) {
     preventDefault();
     targetWindow.focus();
+
+    if (targetUrl.searchParams.has('grid-note') || targetUrl.searchParams.has('grid-link')) {
+      targetWindow.webContents.loadURL(targetUrl.toString());
+    }
     return;
   }
 

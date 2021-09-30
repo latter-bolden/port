@@ -66,8 +66,8 @@ export const Welcome = () => {
                                 ))}
                             </DropdownMenu.Content>
                         </DropdownMenu.Root>
-                        <Link to="/settings" className="flex items-center p-2 hover:text-black dark:hover:text-white focus:text-black dark:focus:text-white focus:outline-none focus:ring-0 transition-colors no-underline">
-                            <SettingsIcon className="w-4 h-4 mr-2" primary="fill-current text-gray-500 dark:text-gray-600" secondary="fill-current text-gray-700 dark:text-gray-800" />
+                        <Link to="/settings" className="flex items-center p-2 font-normal hover:text-black dark:hover:text-white focus:text-black dark:focus:text-white focus:outline-none focus:ring-0 transition-colors no-underline">
+                            <SettingsIcon className="w-4 h-4 mr-2" primary="fill-current text-gray-200 dark:text-gray-800" secondary="fill-current text-gray-400 dark:text-gray-600" />
                             Settings
                         </Link>
                     </nav>
