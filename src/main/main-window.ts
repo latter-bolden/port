@@ -296,7 +296,8 @@ function hideOrCloseWindow(
     event.preventDefault();
     window.hide();
   } else {
-    bgWindow.close();
+    bgWindow.destroy();
+    isDev && console.log('closing bg and main, and everything else')
   }
 }
 
