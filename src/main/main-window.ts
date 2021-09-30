@@ -11,7 +11,7 @@ import {
 } from './helpers';
 import { initContextMenu } from './context-menu';
 import { start as osHelperStart, views } from './os-service-helper'
-import { createMenu } from './menu';
+import { start as settingsHelperStart } from './setting-service-helper'
 
 const ZOOM_INTERVAL = 0.1;
 
@@ -225,10 +225,10 @@ export function createMainWindow(
     goForward: onGoForward,
     getCurrentUrl,
     clearAppData,
+    mainWindow,
     bgWindow
   };
 
-  createMenu(menuOptions);
   initContextMenu(
     createNewWindow,
     undefined, //nativeTabsSupported() ? createNewTab : undefined,
@@ -264,6 +264,7 @@ export function createMainWindow(
   });
   mainWindow.webContents.session.clearCache();
   osHelperStart(mainWindow, createNewWindow, onNewWindow, bgWindow)
+  settingsHelperStart(mainWindow, menuOptions);
   isDev && mainWindow.webContents.openDevTools();
   mainWindow.loadURL(mainUrl);
   //mainWindow.on('new-tab' as any, () => createNewTab(mainUrl, true));

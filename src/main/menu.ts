@@ -1,7 +1,13 @@
 import pjson from '../../package.json'
 import { toggleDevTools } from './os-service-helper'
 import { Menu, clipboard, shell, MenuItemConstructorOptions, BrowserWindow } from 'electron';
-import { showWindow } from './helpers';
+import { leap, showWindow } from './helpers';
+import { Settings } from '../background/db';
+
+interface MenuOptions {
+  settings: Record<Settings, string>;
+  [ref: string]: any;
+}
 
 //Taken from https://github.com/nativefier/nativefier/blob/master/app/src/components/menu.ts
 export function createMenu({
@@ -14,8 +20,10 @@ export function createMenu({
   goForward,
   getCurrentUrl,
   clearAppData,
+  mainWindow,
   bgWindow,
-}): void {
+  settings
+}: MenuOptions): void {
   const zoomResetLabel =
     zoomBuildTimeValue === 1.0
       ? 'Reset Zoom'
@@ -133,6 +141,11 @@ export function createMenu({
           showWindow(windows[(focusedIndex + 1) % windowCount])
         }
       },
+      settings['global-leap'] === 'false' ? {
+        label: 'Leap',
+        accelerator: 'CommandOrControl+/',
+        click: () => leap(mainWindow)
+      } : null,
       {
         type: 'separator',
       },
@@ -186,7 +199,7 @@ export function createMenu({
         accelerator: 'CmdOrCtrl+num0',
         click: zoomReset,
       },
-    ],
+    ].filter(item => !!item),
   };
 
   

@@ -7,7 +7,8 @@ const userData = remote.app.getPath('userData');
 console.log('db location:', userData)
 
 export type Settings =
-    | 'seen-grid-update-modal';
+    | 'seen-grid-update-modal'
+    | 'global-leap';
 
 export interface SettingsDocument {
     name: Settings;

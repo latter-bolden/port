@@ -12,6 +12,7 @@ import { routes } from '../routes'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { ChevronDown } from '../icons/ChevronDown'
 import { pierKey } from '../query-keys'
+import { SettingsIcon } from '../icons/Settings'
 
 const CenteredLayout = () => (
     <Layout title="Welcome" className="px-8">
@@ -48,11 +49,11 @@ export const Welcome = () => {
                         <Logo className="h-14 w-14 mr-3" />
                         <h1 className="text-4xl font-normal text-center">urbit</h1> 
                     </header>
-                    <nav className="flex justify-end min-w-48 pl-16">
+                    <nav className="flex flex-col items-end min-w-48 pl-16 space-y-4 text-sm text-gray-500 dark:text-gray-400">
                         <DropdownMenu.Root>
                             <DropdownMenu.Trigger className="button text-sm">
+                                <ChevronDown className="mr-3 w-5 h-5" primary="fill-current" />
                                 Boot Menu
-                                <ChevronDown className="ml-3 w-5 h-5" primary="fill-current" />
                             </DropdownMenu.Trigger>
                             <DropdownMenu.Content as="ul" align="end" sideOffset={-30} className="min-w-52 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-900 rounded shadow-lg">
                                 { routes.map(route => (
@@ -65,6 +66,10 @@ export const Welcome = () => {
                                 ))}
                             </DropdownMenu.Content>
                         </DropdownMenu.Root>
+                        <Link to="/settings" className="flex items-center p-2 hover:text-black dark:hover:text-white focus:text-black dark:focus:text-white focus:outline-none focus:ring-0 transition-colors no-underline">
+                            <SettingsIcon className="w-4 h-4 mr-2" primary="fill-current text-gray-500 dark:text-gray-600" secondary="fill-current text-gray-700 dark:text-gray-800" />
+                            Settings
+                        </Link>
                     </nav>
                 </aside>
                 <section className="col-span-2">
