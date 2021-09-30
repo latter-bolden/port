@@ -9,7 +9,8 @@ export interface SettingsHandlers {
 }
 
 const defaultSettings: SettingsDocument[] = [
-  { name: 'seen-grid-update-modal', value: 'false' }
+  { name: 'seen-grid-update-modal', value: 'false' },
+  { name: 'global-leap', value: 'true' }
 ]
 
 export class SettingsService {
@@ -18,6 +19,7 @@ export class SettingsService {
   constructor(db: DB) {
       this.db = db;
       this.setupDefaults();
+      this.sendUpdate();
   }
 
   handlers(): HandlerEntry<SettingsHandlers>[] {
@@ -32,7 +34,9 @@ export class SettingsService {
   }
 
   async setSetting(key: Settings, value: string): Promise<unknown> {
-    return this.db.settings.asyncUpdate({ name: key }, { name: key, value })
+    const update = await this.db.settings.asyncUpdate({ name: key }, { name: key, value });
+    await this.sendUpdate();
+    return update;
   }
 
   private setupDefaults(): void {
@@ -43,5 +47,13 @@ export class SettingsService {
         await this.db.settings.asyncInsert(setting);
       }
     })
+  }
+
+  private async sendUpdate() {
+    const settings = await this.getSettings();
+    await ipc.invoke('update-settings', settings.reduce((map, setting) => {
+        map[setting.name] = setting.value;
+        return map;
+    }, {}) as Record<Settings, string>)
   }
 }

@@ -1,9 +1,8 @@
-import { app, autoUpdater, BrowserWindow, globalShortcut, WebContents } from 'electron';
+import { app, autoUpdater, BrowserWindow } from 'electron';
 import findOpenSocket from '../renderer/client/find-open-socket'
 import isDev from 'electron-is-dev'
-import { isOSX, showWindow } from './helpers';
+import { isOSX } from './helpers';
 import { createMainWindow } from './main-window';
-import { InputEvent } from 'electron/main';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const BACKGROUND_WINDOW_WEBPACK_ENTRY: string;
 
@@ -88,8 +87,6 @@ async function start(bootBg: boolean) {
 
   mainWindow = createMainWindow(MAIN_WINDOW_WEBPACK_ENTRY, serverSocket, app.quit.bind(this), bgWindow)
 
-  registerShortcuts(mainWindow);
-
   if (!isDev) {
     autoUpdater.checkForUpdates()
 
@@ -136,32 +133,3 @@ app.on('activate', (event, hasVisibleWindows) => {
     }
   }
 });
-
-function registerShortcuts(mainWindow: BrowserWindow) {
-  globalShortcut.register('CommandOrControl+/', () => {
-    const focusedWindow = BrowserWindow.getFocusedWindow();
-    const mainView = mainWindow.getBrowserViews()[0]; 
-
-    if ((!mainView && !focusedWindow) || (focusedWindow === mainWindow && !mainView)){
-      return;
-    }
-
-    const isLandscape = focusedWindow?.webContents.getURL().includes('/apps/landscape');
-    const contents = isLandscape ? focusedWindow.webContents : mainView.webContents;
-    showWindow(isLandscape ? focusedWindow : mainWindow);
-
-    setTimeout(() => {
-      contents.focus();
-
-      setTimeout(() => {
-        sendKeybinding(contents, '/', ['ctrl']);
-      }, 15)
-    }, 15);
-  })
-}
-
-function sendKeybinding (contents: WebContents, keyCode: string, modifiers?: InputEvent["modifiers"]) {
-  contents.sendInputEvent({ type: 'keyDown', modifiers, keyCode })
-  contents.sendInputEvent({ type: 'char', modifiers, keyCode })
-  contents.sendInputEvent({ type: 'keyUp', modifiers, keyCode })
-}

@@ -686,6 +686,11 @@
   dependencies:
     "@babel/runtime" "^7.13.10"
 
+"@radix-ui/react-polymorphic@0.0.13":
+  version "0.0.13"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-polymorphic/-/react-polymorphic-0.0.13.tgz#d010d48281626191c9513f11db5d82b37662418a"
+  integrity sha512-0sGqBp+v9/yrsMhPfAejxcem2MwAFgaSAxF3Sieaklm6ZVYM/hTZxxWI5NVOLGV+482GwW0wIqwpVUzREjmh+w==
+
 "@radix-ui/react-popover@^0.0.16":
   version "0.0.16"
   resolved "https://registry.yarnpkg.com/@radix-ui/react-popover/-/react-popover-0.0.16.tgz#1421bac581c0e570d7a4dd27745639f88d778d08"
@@ -751,6 +756,14 @@
     "@babel/runtime" "^7.13.10"
     "@radix-ui/react-polymorphic" "0.0.11"
 
+"@radix-ui/react-primitive@0.0.15":
+  version "0.0.15"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-primitive/-/react-primitive-0.0.15.tgz#c0cf609ee565a32969d20943e2697b42a04fbdf3"
+  integrity sha512-Y7JLnen/G3AT0cQXXkBo3A1OuWaKGerkd2gKs0Fuqxv+kTxEmYoqSp/soo0Mm3Ccw61LKLQAjPiE37GK9/Zqwg==
+  dependencies:
+    "@babel/runtime" "^7.13.10"
+    "@radix-ui/react-polymorphic" "0.0.13"
+
 "@radix-ui/react-roving-focus@0.0.12":
   version "0.0.12"
   resolved "https://registry.yarnpkg.com/@radix-ui/react-roving-focus/-/react-roving-focus-0.0.12.tgz#cfd654e6d0a885a8b595c1f21bcfd2e0d7b4da0f"
@@ -789,6 +802,17 @@
     "@radix-ui/react-primitive" "0.0.12"
     "@radix-ui/react-roving-focus" "0.0.12"
     "@radix-ui/react-use-callback-ref" "0.0.5"
+    "@radix-ui/react-use-controllable-state" "0.0.6"
+
+"@radix-ui/react-toggle@^0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-toggle/-/react-toggle-0.0.10.tgz#60133110fad940586c763cf243ede3c6ce283a0a"
+  integrity sha512-fr62h2p6tqayDBg3hkrdvVJFQQmzBNHolyOqF+MifeTAryBJ3AsQu9ZvuYxJzkIaPPAIGOohRdR48FSQGJWndA==
+  dependencies:
+    "@babel/runtime" "^7.13.10"
+    "@radix-ui/primitive" "0.0.5"
+    "@radix-ui/react-polymorphic" "0.0.13"
+    "@radix-ui/react-primitive" "0.0.15"
     "@radix-ui/react-use-controllable-state" "0.0.6"
 
 "@radix-ui/react-tooltip@^0.0.17":
@@ -2077,6 +2101,11 @@ ci-info@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-2.0.0.tgz#67a9e964be31a51e15e5010d58e6f12834002f46"
   integrity sha512-5tK7EtrZ0N+OLFMthtqOj4fI2Jeb88C4CAZPu25LDVUgXJ0A3Js4PMGqrn0JU1W0Mh1/Z8wZzYPxqUrXeBboCQ==
+
+classnames@^2.3.1:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.3.1.tgz#dfcfa3891e306ec1dad105d0e88f4417b8535e8e"
+  integrity sha512-OlQdbZ7gLfGarSqxesMesDa5uz7KFbID8Kpq/SxIoNGDqY8lSYs0D+hhtBXhcdB3rcbXArFr7vlHheLk1voeNA==
 
 clean-css@^4.2.3:
   version "4.2.3"

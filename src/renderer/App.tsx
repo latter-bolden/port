@@ -20,6 +20,7 @@ import { listen, send } from './client/ipc';
 import { Star } from './details/pages/Star';
 import { ipcRenderer } from 'electron';
 import { Settings } from '../background/db';
+import { Settings as SettingsPage } from './pages/Settings';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -113,6 +114,7 @@ const App = () => {
             <Route path="/boot/new/:slug" component={Boot} />
             <Route exact path="/pier/:slug/launch" component={Launch} />
             <Route path="/pier/:slug" component={Ship} />
+            <Route path="/settings" component={SettingsPage} />
             <Route exact path="/" component={Welcome} />
         </Switch>    
     );

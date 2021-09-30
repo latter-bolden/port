@@ -1,5 +1,6 @@
 import { URL } from 'url'
 import { app, BrowserWindow, WebContents } from "electron";
+import { InputEvent } from 'electron/main';
 import { getPlatform } from "../get-platform";
 
 //Taken from https://github.com/nativefier/nativefier/blob/master/app/src/helpers/helpers.ts
@@ -128,4 +129,31 @@ export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewW
     preventDefault();
     createNewWindow(urlTarget)
   }
+}
+
+export function leap(mainWindow: BrowserWindow) {
+  const focusedWindow = BrowserWindow.getFocusedWindow();
+  const mainView = mainWindow.getBrowserViews()[0]; 
+
+  if ((!mainView && !focusedWindow) || (focusedWindow === mainWindow && !mainView)){
+    return;
+  }
+
+  const isLandscape = focusedWindow?.webContents.getURL().includes('/apps/landscape');
+  const contents = isLandscape ? focusedWindow.webContents : mainView.webContents;
+  showWindow(isLandscape ? focusedWindow : mainWindow);
+
+  setTimeout(() => {
+    contents.focus();
+
+    setTimeout(() => {
+      sendKeybinding(contents, '/', ['ctrl']);
+    }, 15)
+  }, 15);
+}
+
+function sendKeybinding (contents: WebContents, keyCode: string, modifiers?: InputEvent["modifiers"]) {
+  contents.sendInputEvent({ type: 'keyDown', modifiers, keyCode })
+  contents.sendInputEvent({ type: 'char', modifiers, keyCode })
+  contents.sendInputEvent({ type: 'keyUp', modifiers, keyCode })
 }
