@@ -1,13 +1,15 @@
-import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents, nativeTheme } from 'electron';
+import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents, nativeTheme, protocol, app } from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import isDev from 'electron-is-dev';
 
 import {
+  createUrbitUrl,
   isOSX,
   linkIsInternal,
   nativeTabsSupported,
   onNavigation,
-  onNewWindowHelper
+  onNewWindowHelper,
+  URBIT_PROTOCOL
 } from './helpers';
 import { initContextMenu } from './context-menu';
 import { start as osHelperStart, views } from './os-service-helper'
@@ -159,6 +161,7 @@ export function createMainWindow(
   };
 
   const onWillNavigate = (event: Event, webContents: WebContents, urlTarget: string): void => {
+    console.log(urlTarget)
     onNavigation({
       preventDefault: event.preventDefault,
       currentUrl: webContents.getURL(),
@@ -256,6 +259,11 @@ export function createMainWindow(
     mainWindow.webContents.send('set-socket', {
       name: socketName
     });
+  })
+
+  protocol.registerHttpProtocol(URBIT_PROTOCOL, (req, cb) => {
+    console.log(req.url);
+    mainWindow.loadURL(createUrbitUrl(req.url))
   })
 
 
