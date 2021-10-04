@@ -12,6 +12,13 @@ export function nativeTabsSupported(): boolean {
   return isOSX();
 }
 
+export const URBIT_PROTOCOL = 'web+urbitgraph'
+
+export function createUrbitUrl(viewUrl: URL, urbitUrl: string): string {
+  const prefix = `${viewUrl.protocol}//${viewUrl.hostname}${viewUrl.port ? ':' + viewUrl.port : ''}`
+  return `${prefix}/apps/grid/perma?ext=${encodeURIComponent(urbitUrl)}`
+}
+
 export function showWindow(window: BrowserWindow): void {
   window.setAlwaysOnTop(true);
   if (window.isMaximized()) {
