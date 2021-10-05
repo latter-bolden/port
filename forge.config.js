@@ -11,13 +11,13 @@ module.exports = {
     executableName: 'port',
     darwinDarkModeSupport: 'true',
     icon: "icons/urbit-logo",
-    protocols: [
-      {
-        name: "Urbit Links",
-        protocol: "web+urbitgraph",
-        schemes: ["web+urbitgraph"]
-      }
-    ],
+    // protocols: [
+    //   {
+    //     name: "Urbit Links",
+    //     protocol: "web+urbitgraph",
+    //     schemes: ["web+urbitgraph"]
+    //   }
+    // ],
     extendInfo: {
       NSMicrophoneUsageDescription: "We need access to your microphone for Urbit apps",
       NSCameraUsageDescription: "We need access to your camera for Urbit apps"
