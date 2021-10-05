@@ -87,6 +87,7 @@ async function start(bootBg: boolean) {
 
   mainWindow = createMainWindow(MAIN_WINDOW_WEBPACK_ENTRY, serverSocket, app.quit.bind(this), bgWindow)
 
+
   if (!isDev) {
     autoUpdater.checkForUpdates()
 

@@ -74,7 +74,8 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, onNewWindo
                 preventDefault: event.preventDefault,
                 currentUrl: view.webContents.getURL(),
                 urlTarget,
-                createNewWindow
+                createNewWindow,
+                mainWindow
             })
         });
         view.webContents.on('new-window', onNewWindow(url));

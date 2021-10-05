@@ -4,7 +4,6 @@ import isDev from 'electron-is-dev';
 
 import {
   isOSX,
-  linkIsInternal,
   nativeTabsSupported,
   onNavigation,
   onNewWindowHelper
@@ -159,11 +158,13 @@ export function createMainWindow(
   };
 
   const onWillNavigate = (event: Event, webContents: WebContents, urlTarget: string): void => {
+    isDev && console.log('will-navigate', urlTarget)
     onNavigation({
       preventDefault: event.preventDefault,
       currentUrl: webContents.getURL(),
       urlTarget,
-      createNewWindow
+      createNewWindow,
+      mainWindow
     })
   };
 
@@ -196,6 +197,7 @@ export function createMainWindow(
     frameName: string,
     disposition,
   ): void => {
+    isDev && console.log('creating new window', targetUrl, urlToGo, frameName, disposition);
     const preventDefault = (newGuest: any): void => {
       event.preventDefault();
       if (newGuest) {
@@ -212,6 +214,7 @@ export function createMainWindow(
       createNewWindow,
       false,
       onBlockedExternalUrl,
+      mainWindow
     );
   };
 
@@ -257,7 +260,6 @@ export function createMainWindow(
       name: socketName
     });
   })
-
 
   mainWindow.webContents.session.clearStorageData({
     storages: ['appcache', 'filesystem', 'indexdb', 'localstorage', 'cachestorage']

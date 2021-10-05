@@ -11,13 +11,24 @@ module.exports = {
     executableName: 'port',
     darwinDarkModeSupport: 'true',
     icon: "icons/urbit-logo",
+    // protocols: [
+    //   {
+    //     name: "Urbit Links",
+    //     protocol: "web+urbitgraph",
+    //     schemes: ["web+urbitgraph"]
+    //   }
+    // ],
+    extendInfo: {
+      NSMicrophoneUsageDescription: "We need access to your microphone for Urbit apps",
+      NSCameraUsageDescription: "We need access to your camera for Urbit apps"
+    },
     osxSign: {
       identity: 'Developer ID Application: Hunter Miller (8YA38DLJ3T)',
       "entitlements": "entitlements.plist",
       "entitlements-inherit": "entitlements.plist",
       'hardened-runtime': true,
       'gatekeeper-assess': false,
-      'signature-flags': 'library'
+      'signature-flags': 'library',
     },
     osxNotarize: {
       appleId: process.env.APPLE_ID,
