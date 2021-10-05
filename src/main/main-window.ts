@@ -1,15 +1,12 @@
-import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents, nativeTheme, protocol, app } from 'electron';
+import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents, nativeTheme } from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import isDev from 'electron-is-dev';
 
 import {
-  createUrbitUrl,
   isOSX,
-  linkIsInternal,
   nativeTabsSupported,
   onNavigation,
-  onNewWindowHelper,
-  URBIT_PROTOCOL
+  onNewWindowHelper
 } from './helpers';
 import { initContextMenu } from './context-menu';
 import { start as osHelperStart, views } from './os-service-helper'
@@ -161,12 +158,13 @@ export function createMainWindow(
   };
 
   const onWillNavigate = (event: Event, webContents: WebContents, urlTarget: string): void => {
-    console.log(urlTarget)
+    isDev && console.log('will-navigate', urlTarget)
     onNavigation({
       preventDefault: event.preventDefault,
       currentUrl: webContents.getURL(),
       urlTarget,
-      createNewWindow
+      createNewWindow,
+      mainWindow
     })
   };
 
@@ -199,6 +197,7 @@ export function createMainWindow(
     frameName: string,
     disposition,
   ): void => {
+    isDev && console.log('creating new window', targetUrl, urlToGo, frameName, disposition);
     const preventDefault = (newGuest: any): void => {
       event.preventDefault();
       if (newGuest) {
@@ -215,6 +214,7 @@ export function createMainWindow(
       createNewWindow,
       false,
       onBlockedExternalUrl,
+      mainWindow
     );
   };
 
@@ -260,14 +260,6 @@ export function createMainWindow(
       name: socketName
     });
   })
-
-  protocol.registerHttpProtocol(URBIT_PROTOCOL, (req, cb) => {
-    console.log(req.url);
-    const mainView = mainWindow.getBrowserViews()[0];
-    const viewUrl = new URL(mainView.webContents.getURL());
-    mainWindow.loadURL(createUrbitUrl(viewUrl, req.url))
-  })
-
 
   mainWindow.webContents.session.clearStorageData({
     storages: ['appcache', 'filesystem', 'indexdb', 'localstorage', 'cachestorage']

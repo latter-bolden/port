@@ -1,8 +1,7 @@
-import { app, autoUpdater, BrowserWindow, dialog } from 'electron';
+import { app, autoUpdater, BrowserWindow } from 'electron';
 import findOpenSocket from '../renderer/client/find-open-socket'
 import isDev from 'electron-is-dev'
-import path from 'path'
-import { createUrbitUrl, isOSX, URBIT_PROTOCOL } from './helpers';
+import { isOSX } from './helpers';
 import { createMainWindow } from './main-window';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const BACKGROUND_WINDOW_WEBPACK_ENTRY: string;
@@ -88,31 +87,6 @@ async function start(bootBg: boolean) {
 
   mainWindow = createMainWindow(MAIN_WINDOW_WEBPACK_ENTRY, serverSocket, app.quit.bind(this), bgWindow)
 
-  console.log('default', process.defaultApp, 'length', process.argv.length, process.execPath, path.resolve(process.argv[1]))
-
-  if (process.defaultApp) {
-    if (process.argv.length >= 2) {
-      app.setAsDefaultProtocolClient(URBIT_PROTOCOL, process.execPath, [path.resolve(process.argv[1])])
-    }
-  } else {
-    app.setAsDefaultProtocolClient(URBIT_PROTOCOL)
-  }
-
-  app.on('open-url', (event, url) => {
-    event.preventDefault();
-    
-    const mainView = mainWindow.getBrowserViews()[0];
-    const viewUrl = new URL(mainView.webContents.getURL());
-    mainView.webContents.loadURL(createUrbitUrl(viewUrl, url));
-
-    mainWindow.setAlwaysOnTop(true);
-    setTimeout(() => {
-      if (mainWindow.isMinimized()) {
-          mainWindow.restore()
-      }
-      mainWindow.setAlwaysOnTop(false)
-    }, 100);
-  })
 
   if (!isDev) {
     autoUpdater.checkForUpdates()

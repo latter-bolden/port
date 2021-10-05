@@ -15,7 +15,7 @@ export function nativeTabsSupported(): boolean {
 export const URBIT_PROTOCOL = 'web+urbitgraph'
 
 export function createUrbitUrl(viewUrl: URL, urbitUrl: string): string {
-  const prefix = `${viewUrl.protocol}//${viewUrl.hostname}${viewUrl.port ? ':' + viewUrl.port : ''}`
+  const prefix = `${viewUrl.protocol}//${viewUrl.host}`
   return `${prefix}/apps/grid/perma?ext=${encodeURIComponent(urbitUrl)}`
 }
 
@@ -47,6 +47,10 @@ export function linkIsInternal(
     const regex = RegExp(internalUrlRegex);
     return regex.test(newUrl);
   }
+
+  if (newUrl.startsWith(URBIT_PROTOCOL)) {
+    return true;
+  } 
 
   try {
     // Consider as "same domain-ish", without TLD/SLD list:
@@ -82,6 +86,7 @@ export function onNewWindowHelper(
   createNewWindow,
   blockExternal: boolean,
   onBlockedExternalUrl: (url: string) => void,
+  mainWindow: BrowserWindow
 ): void {
   if (!linkIsInternal(targetUrl, urlToGo)) {
     preventDefault();
@@ -98,7 +103,8 @@ export function onNewWindowHelper(
       preventDefault,
       urlTarget: urlToGo,
       currentUrl: targetUrl,
-      createNewWindow
+      createNewWindow,
+      mainWindow
     })
   }
 }
@@ -108,16 +114,34 @@ interface onNavigationParameters {
   currentUrl: string; 
   urlTarget: string;
   createNewWindow?: (url: string) => BrowserWindow;
+  mainWindow: BrowserWindow;
 }
 
-export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewWindow }: onNavigationParameters) {
+export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewWindow, mainWindow }: onNavigationParameters) {
   const url = new URL(currentUrl);
   const targetUrl = new URL(urlTarget);
   const sameHost = targetUrl.hostname === url.hostname;
   const sameApp = sameHost && url.pathname.startsWith(targetUrl.pathname);
+  const isProtocolLink = targetUrl.protocol.startsWith(URBIT_PROTOCOL);
 
-  if (!sameHost || sameApp) {
+  if ((!sameHost || sameApp) && !isProtocolLink) {
       return;
+  }
+
+  if (isProtocolLink) {
+    const view = mainWindow.getBrowserViews().find(v => {
+      const viewUrl = new URL(v.webContents.getURL());
+      return url.host === viewUrl.host;
+    });
+    const urbitUrl = createUrbitUrl(url, urlTarget);
+
+    preventDefault();
+    if (view) {
+      showWindow(mainWindow);
+      return view.webContents.loadURL(urbitUrl);
+    } else {
+      return createNewWindow(urbitUrl);
+    }
   }
 
   const targetWindow = BrowserWindow.getAllWindows().find(b => {
