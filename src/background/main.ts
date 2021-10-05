@@ -49,27 +49,7 @@ async function architectureSupportCheck() {
     const osArch = arch();
     
     try {
-        if (osPlatform === 'darwin') {
-            const sysctlCheck = await new Promise((resolve) => {
-                exec('sysctl sysctl.proc_translated', (error, stdout, stderr) => {
-                    if (error || stderr) {
-                        resolve(false);
-                    }
-
-                    resolve(!stdout.includes('unknown'));
-                })
-            });
-
-            const archCheck = await new Promise((resolve) => {
-                exec('arch', (error, stdout, stderr) => {
-                    resolve(stdout.includes('arm64'))
-                })
-            })
-
-            if (osArch === 'arm64' || archCheck || sysctlCheck) {
-                await send('arch-unsupported', osPlatform + '-' + osArch);
-            }
-        }
+        console.log('architecture supported')
     } catch (err) {
         console.log('Unable to detect unsupported architecture');
         console.error(err);
