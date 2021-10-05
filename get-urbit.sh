@@ -6,7 +6,7 @@ cd resources/mac
 rm urbit*
 curl -JLO https://urbit.org/install/mac/latest
 tar zxvf ./darwin.tgz --strip-components=1 --strip=1
-rm urbit-*.tgz urbit-king
+rm darwin.tgz urbit-king
 install_name_tool -rpath $rpath $staticpath urbit
 install_name_tool -rpath $rpath $staticpath urbit-worker
 
@@ -14,4 +14,4 @@ cd ../linux
 rm urbit*  
 curl -JLO https://urbit.org/install/linux64/latest
 tar zxvf ./linux64.tgz --strip-components=1 --strip=1
-rm urbit-*.tgz urbit-king
+rm linux64.tgz urbit-king
