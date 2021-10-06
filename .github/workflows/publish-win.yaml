@@ -15,6 +15,7 @@ jobs:
         run: yarn install
       - name: Get Urbit Binaries
         run: get-urbit
+        shell: cmd
       - name: Build & Publish
         run: |
           yarn run publish
