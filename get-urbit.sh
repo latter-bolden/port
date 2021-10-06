@@ -15,9 +15,3 @@ rm urbit*
 curl -JLO https://urbit.org/install/linux64/latest
 tar zxvf ./linux64.tgz --strip-components=1 --strip=1
 rm linux64.tgz urbit-king
-
-cd ../win
-rm urbit*
-curl -JLO https://github.com/urbit/urbit/releases/download/urbit-v1.6/windows.tgz
-tar zxvf ./windows.tgz --strip-components=1 --strip=1
-rm windows.tgz
