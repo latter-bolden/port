@@ -4,16 +4,16 @@ module.exports = [
     test: /\.node$/,
     use: 'node-loader',
   },
-  {
-    test: /\.(m?js|node)$/,
-    parser: { amd: false },
-    use: {
-      loader: '@vercel/webpack-asset-relocator-loader',
-      options: {
-        outputAssetBase: 'native_modules',
-      },
-    },
-  },
+  // {
+  //   test: /\.(m?js|node)$/,
+  //   parser: { amd: false },
+  //   use: {
+  //     loader: '@vercel/webpack-asset-relocator-loader',
+  //     options: {
+  //       outputAssetBase: 'native_modules',
+  //     },
+  //   },
+  // },
   {
     test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
     use: [

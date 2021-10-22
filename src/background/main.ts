@@ -5,7 +5,6 @@ import { OSHandlers, OSService } from './services/os-service';
 import { PierHandlers, PierService } from './services/pier-service';
 import { ipcRenderer } from 'electron';
 import { SettingsHandlers, SettingsService } from './services/settings-service';
-import { TerminalHandlers, TerminalService } from './services/terminal-service';
 
 start();
 
@@ -13,7 +12,6 @@ export type Handlers =
     & OSHandlers 
     & PierHandlers 
     & SettingsHandlers 
-    & TerminalHandlers
     & { 
         connected: Handler,
         disconnected: Handler
@@ -24,12 +22,10 @@ async function start() {
     const osService = new OSService();
     const pierService = new PierService(db);
     const settingsService = new SettingsService(db);
-    const terminalService = new TerminalService();
 
     addHandlers(handlerMap, osService.handlers());
     addHandlers(handlerMap, pierService.handlers());
     addHandlers(handlerMap, settingsService.handlers());
-    addHandlers(handlerMap, terminalService.handlers());
 
     ipcRenderer.on('set-socket', (event, { name }) => {
       console.log('received socket set', name)

@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { XTerm } from 'xterm-for-react';
 import { FitAddon } from 'xterm-addon-fit';
-import { listen, send, unlisten } from '../client/ipc';
 import { ipcRenderer } from 'electron';
+
+const isDev = process.env.NODE_ENV === 'development';
 
 export const Terminal = () => {
   const [loaded, setLoaded] = useState(false);
@@ -10,7 +11,8 @@ export const Terminal = () => {
   const xterm = useRef<XTerm>(null);
   const fit = useRef(new FitAddon());
 
-  const write = (data) => {
+  const write = (event, data) => {
+    isDev && console.log('incoming write', data)
     xterm.current.terminal.write(data);
   };
 
@@ -20,6 +22,7 @@ export const Terminal = () => {
     setLoaded(true);
 
     ipcRenderer.on('ship', (e, data) => {
+      isDev && console.log('receiving ship', data);
       setShip(data);
     })
   }, []);
@@ -29,14 +32,16 @@ export const Terminal = () => {
       return;
     }
 
-    listen('terminal-incoming', write);
+    isDev && console.log('listening for incoming terminal writes')
+    ipcRenderer.on('terminal-incoming', write);
     window.addEventListener('resize', fitTerm)
 
     fit.current.fit()
-    send('terminal-loaded', ship);
+    isDev && console.log('sending terminal loaded')
+    ipcRenderer.send('terminal-loaded', ship);
 
     return () => {
-      unlisten('terminal-incoming');
+      ipcRenderer.removeListener('terminal-incoming', write);
       window.removeEventListener('resize', fitTerm);
     }
   }, [loaded, ship])
@@ -53,7 +58,7 @@ export const Terminal = () => {
         lineHeight: 1.2
       }}
       onData={e => {
-        send('terminal-keystroke', { ship, data: e });
+        ipcRenderer.send('terminal-keystroke', { ship, data: e });
       }} 
     />
   )

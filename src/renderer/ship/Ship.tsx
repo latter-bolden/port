@@ -14,6 +14,7 @@ import { pierKey } from '../query-keys'
 import { Pier } from '../../background/services/pier-service'
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from '../shared/Dialog'
 import { Button } from '../shared/Button'
+import { ipcRenderer } from 'electron'
 
 
 export const Ship: React.FC = () => {
@@ -99,7 +100,7 @@ export const Ship: React.FC = () => {
                 <div className="px-4 py-5 bg-gray-100 dark:bg-gray-900 rounded">               
                     <h2 className="text-base font-semibold text-black dark:text-white mb-4">Troubleshooting</h2>
                     <div className="flex items-center font-semibold">
-                        <Button onClick={() => send('terminal-create', ship.shipName)}>
+                        <Button onClick={() => ipcRenderer.send('terminal-create', ship.shipName)}>
                             Start in Terminal
                         </Button>
                     </div>
