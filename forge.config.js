@@ -113,6 +113,14 @@ module.exports = {
               }
             },
             {
+              name: "terminal",
+              html: "./src/renderer/terminal/index.html",
+              js: "./src/renderer/terminal/index.tsx",
+              preload: {
+                js: "./src/renderer/client/preload.ts"
+              }
+            },
+            {
               html: "./src/background/server/server.html",
               js: "./src/background/main.ts",
               name: "background_window"

@@ -485,10 +485,16 @@ export class PierService {
 
         return new Promise((resolve, reject) => {
             urbit.on('close', (code) => {
-                if (code !== 0) {
+                if (typeof code === 'undefined') {
+                    reject('bailing out')
+                }
+
+                if (typeof code === 'number' && code !== 0) {
                     console.error(`Exited with code ${code}`)
                     reject(code.toString())
                 }
+
+                reject();
             })
 
             urbit.on('error', (err) => {

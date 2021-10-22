@@ -13,6 +13,7 @@ import { LaunchButton } from './components/LaunchButton'
 import { pierKey } from '../query-keys'
 import { Pier } from '../../background/services/pier-service'
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from '../shared/Dialog'
+import { Button } from '../shared/Button'
 
 
 export const Ship: React.FC = () => {
@@ -94,6 +95,14 @@ export const Ship: React.FC = () => {
                     <hr className="my-3 border-gray-300 dark:border-gray-700"/>
                     <p className="mb-1">{ ship.directory }</p>
                     <p><span className="text-gray-700 dark:text-gray-300">Last Used: </span>{ formattedDate }</p>
+                </div>
+                <div className="px-4 py-5 bg-gray-100 dark:bg-gray-900 rounded">               
+                    <h2 className="text-base font-semibold text-black dark:text-white mb-4">Troubleshooting</h2>
+                    <div className="flex items-center font-semibold">
+                        <Button onClick={() => send('terminal-create', ship.shipName)}>
+                            Start in Terminal
+                        </Button>
+                    </div>
                 </div>
                 <div className="px-4 py-5 bg-gray-100 dark:bg-gray-900 rounded">               
                     <h2 className="text-base font-semibold text-black dark:text-white mb-4">Ship Migration</h2>

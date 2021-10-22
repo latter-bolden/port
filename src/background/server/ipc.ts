@@ -33,7 +33,7 @@ export interface Push {
 
 export type ClientMessage = Reply | Error | Push;
 
-export type Handler<Result = unknown> = (...args: unknown[]) => Promise<Result>
+export type Handler<Result = unknown> = (...args: unknown[]) => Promise<Result> | Result
 
 export type HandlerEntry<HandlerSet> = { 
     name: keyof HandlerSet, 
