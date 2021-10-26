@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { HashRouter, Route, Switch } from 'react-router-dom'
 import { hot } from 'react-hot-loader';
 import { Welcome } from './pages/Welcome'
-import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
+import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from 'react-query';
 import { Launch } from './ship/Launch';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorPage } from './pages/ErrorPage';
@@ -55,6 +55,7 @@ const AppWrapped = () => (
 )
 
 const App = () => {
+    const queryClient = useQueryClient();
     useQuery('settings', () => send('get-settings'), {
         onSuccess: (settings) => {
             const newSettings = settings.reduce((map, setting) => {
@@ -75,7 +76,13 @@ const App = () => {
         return send('get-piers')
     }, {
         refetchInterval: 60 * 1000,
-        refetchIntervalInBackground: true
+        refetchIntervalInBackground: true,
+        refetchOnWindowFocus: true,
+        onSuccess: (piers) => {
+            piers.forEach(pier => {
+                queryClient.invalidateQueries(pierKey(pier.slug));
+            })
+        }
     });
 
     useEffect(() => {

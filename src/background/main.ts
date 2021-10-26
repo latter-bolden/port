@@ -1,7 +1,6 @@
-import { exec } from 'child_process';
 import db from './db';
 import { platform, arch } from 'os';
-import { Handler, HandlerEntry, HandlerMap, init, send } from './server/ipc';
+import { Handler, HandlerEntry, HandlerMap, init } from './server/ipc';
 import { OSHandlers, OSService } from './services/os-service';
 import { PierHandlers, PierService } from './services/pier-service';
 import { ipcRenderer } from 'electron';
@@ -9,10 +8,14 @@ import { SettingsHandlers, SettingsService } from './services/settings-service';
 
 start();
 
-export type Handlers = OSHandlers & PierHandlers & SettingsHandlers & { 
-    connected: Handler,
-    disconnected: Handler
-}
+export type Handlers = 
+    & OSHandlers 
+    & PierHandlers 
+    & SettingsHandlers 
+    & { 
+        connected: Handler,
+        disconnected: Handler
+    }
 
 async function start() {
     const handlerMap: HandlerMap<Handlers> = {} as HandlerMap<Handlers>;

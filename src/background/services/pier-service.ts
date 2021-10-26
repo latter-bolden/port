@@ -1,6 +1,6 @@
 import { join as joinPath } from 'path';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
-import { shell, remote } from 'electron';
+import { shell, remote, ipcRenderer } from 'electron';
 import isDev from 'electron-is-dev';
 import axios from 'axios'
 import { DB } from '../db'
@@ -40,6 +40,7 @@ export interface PierHandlers {
     'collect-existing-pier': PierService["collectExistingPier"]
     'boot-pier': PierService["bootPier"]
     'resume-pier': PierService["resumePier"]
+    'spawn-in-terminal': PierService["spawnInTerminal"]
     'check-pier': PierService["checkPier"]
     'check-boot': PierService["checkBoot"]
     'check-url': PierService["checkUrlAccessible"]
@@ -72,6 +73,7 @@ export class PierService {
             { name: 'collect-existing-pier', handler: this.collectExistingPier.bind(this) },
             { name: 'boot-pier', handler: this.bootPier.bind(this) },
             { name: 'resume-pier', handler: this.resumePier.bind(this) },
+            { name: 'spawn-in-terminal', handler: this.spawnInTerminal.bind(this) },
             { name: 'check-pier', handler: this.checkPier.bind(this) },
             { name: 'check-url', handler: this.checkUrlAccessible.bind(this) },
             { name: 'check-boot', handler: this.checkBoot.bind(this) },
@@ -368,7 +370,7 @@ export class PierService {
                         app: 'hood'
                     },
                     source: {
-                        dojo: '+hood/ota (sein:title our now our) %kids'
+                        dojo: '+hood/install (sein:title our now our) %kids, =local %base'
                     }
                 })
             } catch (err) {
@@ -437,6 +439,26 @@ export class PierService {
         })
     }
 
+    async spawnInTerminal(pier: Pier): Promise<void> {
+        const stringifiedArgs = this.getSpawnArgs(pier, true).map(arg => arg.replace(/ /g, '\\ ')).join(' ');
+        const spawnCommand = `${this.urbitPath} ${stringifiedArgs}`;
+
+        await this.stopPier(pier);
+
+        ipcRenderer.send('terminal-create', {
+            ship: pier.shipName,
+            initialCommand: spawnCommand,
+            exitCommand: '\x04'
+        })
+
+        return new Promise((resolve) => {
+            setTimeout(async () => {
+                await this.checkPier(pier);
+                resolve();
+            }, 1500);
+        });
+    }
+
     private getPierPath(pier: Pier) {
         if (pier.directoryAsPierPath) {
             return pier.directory;
@@ -485,10 +507,16 @@ export class PierService {
 
         return new Promise((resolve, reject) => {
             urbit.on('close', (code) => {
-                if (code !== 0) {
+                if (typeof code === 'undefined') {
+                    reject('bailing out')
+                }
+
+                if (typeof code === 'number' && code !== 0) {
                     console.error(`Exited with code ${code}`)
                     reject(code.toString())
                 }
+
+                reject();
             })
 
             urbit.on('error', (err) => {
