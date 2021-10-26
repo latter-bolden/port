@@ -11,7 +11,7 @@ import {
 import { initContextMenu } from './context-menu';
 import { start as osHelperStart, views } from './os-service-helper'
 import { start as settingsHelperStart } from './setting-service-helper'
-import { start as terminalHelperStart } from './terminal-service-helper';
+import { start as terminalServiceStart } from './terminal-service';
 
 const ZOOM_INTERVAL = 0.1;
 
@@ -268,7 +268,7 @@ export function createMainWindow(
   mainWindow.webContents.session.clearCache();
   osHelperStart(mainWindow, createNewWindow, onNewWindow, bgWindow)
   settingsHelperStart(mainWindow, menuOptions);
-  terminalHelperStart();
+  terminalServiceStart();
   isDev && mainWindow.webContents.openDevTools();
   mainWindow.loadURL(mainUrl);
   //mainWindow.on('new-tab' as any, () => createNewTab(mainUrl, true));

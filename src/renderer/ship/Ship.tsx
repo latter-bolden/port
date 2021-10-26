@@ -14,7 +14,6 @@ import { pierKey } from '../query-keys'
 import { Pier } from '../../background/services/pier-service'
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from '../shared/Dialog'
 import { Button } from '../shared/Button'
-import { ipcRenderer } from 'electron'
 
 
 export const Ship: React.FC = () => {
@@ -47,6 +46,11 @@ export const Ship: React.FC = () => {
             history.push('/')
         }
     })
+    const { mutate: spawnTerminal } = useMutation(() => send('spawn-in-terminal', ship), {
+        onSuccess: () => {
+            queryClient.invalidateQueries(pierKey(ship.slug));
+        }
+    });
     
     function onHover(ship: Pier) {
         return () => queryClient.setQueryData(pierKey(ship.slug), ship);
@@ -76,8 +80,8 @@ export const Ship: React.FC = () => {
                 </Link>
             }
         >
-            <section className="w-full max-w-md mr-6">
-                <div className="px-4 py-5 bg-gray-100 dark:bg-gray-900 rounded mb-8">
+            <section className="w-full max-w-md mr-6 space-y-8">
+                <div className="px-4 py-5 bg-gray-100 dark:bg-gray-900 rounded">
                     <header className="flex items-center">
                         <div className="mr-6">
                             <h1 className="font-semibold mb-1">
@@ -100,7 +104,7 @@ export const Ship: React.FC = () => {
                 <div className="px-4 py-5 bg-gray-100 dark:bg-gray-900 rounded">               
                     <h2 className="text-base font-semibold text-black dark:text-white mb-4">Troubleshooting</h2>
                     <div className="flex items-center font-semibold">
-                        <Button onClick={() => ipcRenderer.send('terminal-create', ship.shipName)}>
+                        <Button onClick={() => spawnTerminal()}>
                             Start in Terminal
                         </Button>
                     </div>

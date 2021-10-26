@@ -6,19 +6,34 @@ declare const TERMINAL_WEBPACK_ENTRY: string;
 
 const shell = os.platform() === "win32" ? "powershell.exe" : "bash";
 
-interface Payload {
+export interface Payload {
   ship: string;
   data: string;
 }
 
+interface TerminalProcessParams {
+  ship: string;
+  initialCommand?: string;
+  exitCommand?: string;
+}
+
 class TerminalProcess {
   ship: string;
+  initialCommand?: string;
+  exitCommand?: string;
   pty: IPty;
+  initialized: boolean;
+  msgCount: number;
   window: BrowserWindow;
 
-  constructor(ship: string) {
+  constructor({ ship, initialCommand, exitCommand }: TerminalProcessParams) {
     this.ship = ship;
+    this.initialCommand = initialCommand;
+    this.exitCommand = exitCommand;
+    this.initialized = false;
+    this.msgCount = 0;
     this.window = new BrowserWindow({
+      title: `${ship} | Terminal`,
       height: 450,
       width: 800,
       backgroundColor: "#000000",
@@ -26,7 +41,8 @@ class TerminalProcess {
         nodeIntegration: true
       }
     });
-    this.window.on('close', () => {
+    this.window.on('close', (event) => {
+      event.preventDefault();
       this.destroy();
     });
     this.window.webContents.on('did-finish-load', () => {
@@ -34,9 +50,14 @@ class TerminalProcess {
       this.window.webContents.send('ship', ship)
     })
     this.window.loadURL(TERMINAL_WEBPACK_ENTRY);
-  }
+  } 
 
   init(): void {
+    if (this.initialized) {
+      return;
+    }
+
+    this.initialized = true;
     isDev && console.log('initializing pty')
     this.pty = spawn(shell, [], {
       name: "xterm-color",
@@ -47,9 +68,32 @@ class TerminalProcess {
     });
 
     this.pty.onData(data => {
-      console.log('sending terminal data', data)
-      this.window.webContents.send('terminal-incoming', data)
+      //console.log('sending terminal data', data)
+      try {
+        this.window.webContents.send('terminal-incoming', { ship: this.ship, data });
+      } catch(err) {
+        console.log(err)
+      }
+
+      this.msgCount++;
     });
+
+    this.pty.onExit(({ exitCode, signal}) => {
+      this.destroy();
+      console.log('exiting with', exitCode, signal);
+    })
+
+    this.runInitCommand();
+  }
+
+  runInitCommand() {
+    setTimeout(() => {
+      if (this.initialCommand && this.msgCount >= 1) {
+        this.pty.write(this.initialCommand + '\r');
+      } else {
+        this.runInitCommand();
+      }
+    }, 500);
   }
 
   write(key: string): void {
@@ -57,8 +101,19 @@ class TerminalProcess {
   }
 
   destroy(): void {
-    this.window.destroy();
-    this.pty.kill();
+    if (this.exitCommand) {
+      this.pty.write(this.exitCommand)
+    }
+
+    try {
+      this.pty.kill();
+    
+      setTimeout(() => {
+        this.window.destroy();
+      }, 100);
+    } catch (err) {
+      console.log('errored on destroy', err)
+    }
   }
 }
 
@@ -73,10 +128,10 @@ function withTerm(ship: string, cb: (term: TerminalProcess) => void) {
 }
 
 export function start(): void {
-  ipcMain.on('terminal-create', (event, ship) => {
-    const term = new TerminalProcess(ship);
+  ipcMain.on('terminal-create', (event, params: TerminalProcessParams) => {
+    const term = new TerminalProcess(params);
     isDev && console.log('creating terminal')
-    procs.set(ship, term);
+    procs.set(params.ship, term);
   })
 
   ipcMain.on('terminal-loaded', (event, ship) => {
@@ -89,6 +144,9 @@ export function start(): void {
   })
 
   ipcMain.on('terminal-kill', (event, ship) => {
-    withTerm(ship, term => term.destroy());
+    withTerm(ship, term => {
+      term.destroy();
+      procs.delete(ship);
+    });
   })
 }

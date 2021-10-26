@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { XTerm } from 'xterm-for-react';
 import { FitAddon } from 'xterm-addon-fit';
 import { ipcRenderer } from 'electron';
+import { Payload } from '../../main/terminal-service';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -11,7 +12,11 @@ export const Terminal = () => {
   const xterm = useRef<XTerm>(null);
   const fit = useRef(new FitAddon());
 
-  const write = (event, data) => {
+  const write = (event, { ship: incomingShip, data }: Payload) => {
+    if (ship !== incomingShip) {
+      return;
+    }
+
     isDev && console.log('incoming write', data)
     xterm.current.terminal.write(data);
   };
