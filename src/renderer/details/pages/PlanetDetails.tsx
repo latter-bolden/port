@@ -24,7 +24,7 @@ export const PlanetDetails: React.FC = () => {
                 <label htmlFor="name">Name <span className="text-gray-300 dark:text-gray-700">(local only)</span></label>
                 <NameField form={form} />
             </div>
-            <div>
+            <div className="mt-2">
                 <label htmlFor="shipname">Shipname <span className="text-gray-300 dark:text-gray-700">(Urbit ID)</span></label>
                 <ShipNameField form={form} />
             </div>

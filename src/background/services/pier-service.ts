@@ -37,6 +37,7 @@ export interface PierHandlers {
     'get-piers': PierService["getPiers"]
     'get-messages': PierService["getMessages"]
     'get-pier-auth': PierService["getPierAuth"]
+    'update-pier': PierService["updatePier"]
     'collect-existing-pier': PierService["collectExistingPier"]
     'boot-pier': PierService["bootPier"]
     'resume-pier': PierService["resumePier"]
@@ -70,6 +71,7 @@ export class PierService {
             { name: 'get-piers', handler: this.getPiers.bind(this) },
             { name: 'get-messages', handler: this.getMessages.bind(this) },
             { name: 'get-pier-auth', handler: this.getPierAuth.bind(this) },
+            { name: 'update-pier', handler: this.updatePier.bind(this) },
             { name: 'collect-existing-pier', handler: this.collectExistingPier.bind(this) },
             { name: 'boot-pier', handler: this.bootPier.bind(this) },
             { name: 'resume-pier', handler: this.resumePier.bind(this) },
@@ -634,6 +636,8 @@ export type AddPier = Pick<Pier, 'name' | 'type' | 'shipName' | 'keyFile'> & {
     directory?: string;
     directoryAsPierPath?: boolean;
 }
+
+export type UpdatePier = Pick<Pier, 'name' | 'type'> 
 
 export interface NewMoon {
     name: string;

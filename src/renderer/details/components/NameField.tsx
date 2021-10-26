@@ -1,12 +1,12 @@
 import React from 'react'
 import { UseFormMethods } from 'react-hook-form/dist/types';
 import { useQuery } from 'react-query';
-import { AddPier } from '../../../background/services/pier-service';
+import { AddPier, UpdatePier} from '../../../background/services/pier-service';
 import { send } from '../../client/ipc';
 import { pierKey } from '../../query-keys';
 
 interface NameFieldProps {
-    form: UseFormMethods<AddPier>
+    form: UseFormMethods<AddPier | UpdatePier>
 }
 
 export const NameField: React.FC<NameFieldProps> = ({ form }) => {
@@ -32,16 +32,15 @@ export const NameField: React.FC<NameFieldProps> = ({ form }) => {
                     validate: nameValidator,
                     maxLength: 64 
                 })}
-                className="input flex w-full mt-2" 
-                placeholder="My Ship" 
+                className="input flex w-full mt-2"
+                placeholder="My Ship"
                 aria-invalid={!!form.errors.name}
             />
-            <span className={`inline-block h-8.5 mt-2 text-xs text-red-600 ${form.errors?.name ? 'visible' : 'invisible'}`} role="alert">
+            <span className={`inline-block h-8.5 w-52 mt-2 text-xs text-red-600`} role="alert">
                 { form.errors.name?.type === 'required' && 'Name is required'}
                 { form.errors.name?.type === 'maxLength' && 'Name must be 64 characters or less'}
                 { nameNotUnique && 'Name must be unique' }
-                { /* need this for height? */ }
-                { (!form.errors.name || nameContainsInvalidCharacters) && 'Name must only contain alphanumeric, dash, underscore, or space characters' }
+                { nameContainsInvalidCharacters && 'Name must only contain alphanumeric, dash, underscore, or space characters' }
             </span>
         </>
     )
