@@ -6,7 +6,7 @@ Formerly called Taisho, Port allows you to spin up, access, and manage your ship
 
 ## Installing
 
-Head over to [releases](https://github.com/arthyn/port/releases) and download the installer from the latest release. Currently only available for MacOS and Linux. 
+Head over to [releases](https://github.com/arthyn/port/releases) and download the installer for your operating system from the latest release. Currently available for all major OSes. 
 
 ## Screenshots
 ![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/taisho-welcome.jpg)  
@@ -34,9 +34,5 @@ The renderer is a React + Typescript + TailwindCSS application. We use IPC to co
 ### Urbit
 
 The urbit binaries for each respective OS should live in the `resources` folder under the respective OS' folder. They aren't included because of size, but you can get them by running the `get-urbit.sh` script.
-
-**Windows**
-
-The current plan for Windows is to wait for the port currently being reviewed by the core Urbit team. Once official we'll add support ASAP.
 
 ![Mothership](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/BALEEN%20CLASS_PATREON_190519.jpg)
