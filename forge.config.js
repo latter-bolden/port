@@ -48,7 +48,9 @@ module.exports = {
   makers: [
     {
       name: "@electron-forge/maker-squirrel",
-      config: {}
+      config: {
+        setupIcon: "icons/urbit-logo.ico"
+      }
     },
     {
       name: '@electron-forge/maker-dmg',

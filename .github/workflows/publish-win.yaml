@@ -1,0 +1,23 @@
+name: Publish Windows
+on:
+  push:
+    branches: [ main ]
+jobs:
+  publish:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 14
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Install Packages
+        run: yarn install
+      - name: Get Urbit Binaries
+        run: get-urbit
+        shell: cmd
+      - name: Build & Publish
+        run: |
+          yarn run publish
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
