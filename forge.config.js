@@ -7,6 +7,9 @@ require('dotenv').config()
 module.exports = {
   packagerConfig: {
     appBundleId: 'dev.hmiller.port',
+    asar: {
+      unpack: '**/node_modules/node-pty/build/Release/*'
+    },
     name: 'port',
     executableName: 'port',
     darwinDarkModeSupport: 'true',
@@ -105,6 +108,7 @@ module.exports = {
         mainConfig: "./src/main/webpack.main.config.js",
         renderer: {
           config: "./src/renderer/webpack.renderer.config.js",
+          nodeIntegration: true,
           entryPoints: [
             {
               name: "main_window",

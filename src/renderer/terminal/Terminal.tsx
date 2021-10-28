@@ -17,7 +17,8 @@ export const Terminal = () => {
       return;
     }
 
-    isDev && console.log('incoming write', data)
+    // this possibly causes crash on terminal close?
+    // isDev && console.log('incoming write', data)
     xterm.current.terminal.write(data);
   };
 

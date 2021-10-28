@@ -1,10 +1,10 @@
 import os from "os"
-import { IPty, spawn } from "node-pty";
+import * as pty from "node-pty";
 import { BrowserWindow, ipcMain } from "electron";
 import isDev from 'electron-is-dev';
 declare const TERMINAL_WEBPACK_ENTRY: string;
 
-const shell = os.platform() === "win32" ? "powershell.exe" : "bash";
+const shell = os.platform() === "win32" ? "cmd.exe" : "bash";
 
 export interface Payload {
   ship: string;
@@ -21,7 +21,7 @@ class TerminalProcess {
   ship: string;
   initialCommand?: string;
   exitCommand?: string;
-  pty: IPty;
+  pty: pty.IPty;
   initialized: boolean;
   msgCount: number;
   window: BrowserWindow;
@@ -41,6 +41,11 @@ class TerminalProcess {
         nodeIntegration: true
       }
     });
+
+    if (isDev) {
+      this.window.webContents.openDevTools();
+    }
+
     this.window.on('close', (event) => {
       event.preventDefault();
       this.destroy();
@@ -58,19 +63,36 @@ class TerminalProcess {
     }
 
     this.initialized = true;
-    isDev && console.log('initializing pty')
-    this.pty = spawn(shell, [], {
-      name: "xterm-color",
-      cols: 80,
-      rows: 30,
-      cwd: process.env.HOME,
-      env: process.env
-    });
+    const cwd = process.env.HOME || process.env.USERPROFILE;
+    const baseEnv = Object.assign(
+      {},
+      process.env,
+      {
+        TERM: 'xterm-256color',
+        COLORTERM: 'truecolor',
+      }
+    );
 
+    isDev && console.log('initializing pty', cwd)
+    try {
+      this.pty = pty.spawn(shell, [], {
+        cols: 80,
+        rows: 30,
+        cwd,
+        env: baseEnv
+      });
+    } catch (err) {
+      console.error('pty errored', err);
+    }
+    
+
+    console.log('listening for data');
     this.pty.onData(data => {
       //console.log('sending terminal data', data)
       try {
-        this.window.webContents.send('terminal-incoming', { ship: this.ship, data });
+        if (this.window) {
+          this.window.webContents.send('terminal-incoming', { ship: this.ship, data });
+        }
       } catch(err) {
         console.log(err)
       }
@@ -79,7 +101,11 @@ class TerminalProcess {
     });
 
     this.pty.onExit(({ exitCode, signal}) => {
-      this.destroy();
+      if (this.window) {
+        this.window.destroy();
+        this.window = null;
+      }
+      
       console.log('exiting with', exitCode, signal);
     })
 
@@ -89,6 +115,7 @@ class TerminalProcess {
   runInitCommand() {
     setTimeout(() => {
       if (this.initialCommand && this.msgCount >= 1) {
+        console.log('writing', this.initialCommand);
         this.pty.write(this.initialCommand + '\r');
       } else {
         this.runInitCommand();
@@ -97,20 +124,26 @@ class TerminalProcess {
   }
 
   write(key: string): void {
-    this.pty.write(key);
+    if (this.pty) {
+      this.pty.write(key);
+    }
   }
 
   destroy(): void {
-    if (this.exitCommand) {
+    if (this.exitCommand && this.pty) {
       this.pty.write(this.exitCommand)
     }
 
     try {
-      this.pty.kill();
-    
+      this.window.destroy();
+      this.window = null;
+
       setTimeout(() => {
-        this.window.destroy();
-      }, 100);
+        if (this.pty) {
+          this.pty.kill();
+          this.pty = null;
+        }
+      }, 2000);
     } catch (err) {
       console.log('errored on destroy', err)
     }
