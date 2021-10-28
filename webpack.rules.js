@@ -15,7 +15,7 @@ module.exports = [
   //   },
   // },
   {
-    test: /node-pty/,
+    test: /conpty_console_list_agent/,
     loader: 'string-replace-loader',
     options: {
       search: 'build/Debug',
