@@ -7,9 +7,9 @@ require('dotenv').config()
 module.exports = {
   packagerConfig: {
     appBundleId: 'dev.hmiller.port',
-    asar: {
-      unpack: '**/node_modules/node-pty/build/Release/*'
-    },
+    // asar: {
+    //   unpack: '**/node_modules/node-pty/build/Release/*'
+    // },
     name: 'port',
     executableName: 'port',
     darwinDarkModeSupport: 'true',

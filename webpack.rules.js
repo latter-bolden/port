@@ -15,6 +15,14 @@ module.exports = [
   //   },
   // },
   {
+    test: /node-pty/,
+    loader: 'string-replace-loader',
+    options: {
+      search: 'build/Debug',
+      replace: 'build/Release'
+    }
+  },
+  {
     test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
     use: [
       {
