@@ -52,6 +52,7 @@ module.exports = {
     {
       name: "@electron-forge/maker-squirrel",
       config: {
+        setupExe: "PortSetup.exe",
         setupIcon: "icons/urbit-logo.ico"
       }
     },
