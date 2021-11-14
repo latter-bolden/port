@@ -101,6 +101,8 @@ export class OSService {
 
 export interface ViewData {
     url: string;
+    ship: string;
+    code: string;
     bounds: {
         x: number;
         y: number;

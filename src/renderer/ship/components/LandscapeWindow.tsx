@@ -5,6 +5,7 @@ import { Pier } from '../../../background/services/pier-service'
 import { Link, useHistory } from 'react-router-dom'
 import { Spinner } from '../../shared/Spinner'
 import { LeftArrow } from '../../icons/LeftArrow'
+import { useQuery } from 'react-query'
 
 interface LandscapeWindowProps {
     pier: Pier;
@@ -17,6 +18,11 @@ export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading 
     const [status, setStatus] = useState('initial');
     const url = getUrl(pier);
 
+    const { data } = useQuery(['auth', pier?.slug], 
+    () => send('get-pier-auth', pier), {
+        enabled: !!pier && pier.status === 'running' && pier.type !== 'remote'
+    })
+
     useResizeObserver<HTMLDivElement>({ 
         ref: landscapeRef,
         onResize: ({ width, height }) => {
@@ -24,6 +30,8 @@ export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading 
                 requestAnimationFrame(() => {
                     send('update-view-bounds', {
                         url,
+                        ship: pier.shipName,
+                        code: data?.code,
                         bounds: getBounds(landscapeRef.current, width, height)
                     })
                 })
@@ -36,6 +44,8 @@ export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading 
             try {
                 await send('create-view', {
                     url,
+                    ship: pier.shipName,
+                    code: data?.code,
                     bounds: getBounds(landscapeRef.current)
                 })
                 setStatus('loaded')
@@ -44,11 +54,11 @@ export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading 
             }
         }
 
-        if (landscapeRef.current && url) {
+        if (landscapeRef.current && url && data) {
             setStatus('loading')
             createView();    
         }
-    }, [landscapeRef.current, url])
+    }, [landscapeRef.current, url, data])
 
     useEffect(() => {
         const unlisten = history.listen(() => {

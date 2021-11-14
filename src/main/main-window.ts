@@ -262,10 +262,10 @@ export function createMainWindow(
     });
   })
 
-  mainWindow.webContents.session.clearStorageData({
-    storages: ['appcache', 'filesystem', 'indexdb', 'localstorage', 'cachestorage']
-  });
-  mainWindow.webContents.session.clearCache();
+  // mainWindow.webContents.session.clearStorageData({
+  //   storages: ['appcache', 'filesystem', 'indexdb', 'localstorage', 'cachestorage']
+  // });
+  // mainWindow.webContents.session.clearCache();
   osHelperStart(mainWindow, createNewWindow, onNewWindow, bgWindow)
   settingsHelperStart(mainWindow, menuOptions);
   terminalServiceStart();

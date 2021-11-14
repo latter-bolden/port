@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { app, autoUpdater, BrowserView, BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent, nativeTheme } from 'electron'
 import isDev from 'electron-is-dev'
 import { ViewData } from '../background/services/os-service';
@@ -49,19 +50,42 @@ export async function toggleDevTools(mainWindow: BrowserWindow, bgWindow?: Brows
 }
 
 async function createView(mainWindow: BrowserWindow, createNewWindow, onNewWindow, data: ViewData) {
-    const { url } = data;
+    const { url, ship, code } = data;
     let view = views.get(url);
     const newView = !view;
 
     if (newView) {
         view = new BrowserView({
             webPreferences: {
+                partition: `persist:${ship}`,
                 devTools: true,
                 preload: LANDSCAPE_PRELOAD_WEBPACK_ENTRY
             }
         });
         initContextMenu(createNewWindow, undefined, mainWindow.webContents.getURL(), view)
-        
+
+        if (code) {
+            const response = await axios.post(`${url}/~/login`, `password=${code.trim()}`, {
+                withCredentials: true
+            });
+    
+            const cookie = response.headers['set-cookie'];
+            const session = view.webContents.session;
+            session.clearStorageData();
+            const parts = new RegExp(/(urbauth-~[\w-]+)=(.*); Path=\/;/).exec(cookie || '');
+    
+            console.log(cookie);
+            console.log(parts);
+    
+            if (cookie) {
+                session.cookies.set({
+                    url,
+                    name: parts[1],
+                    value: parts[2]
+                });
+            }
+        }
+
         try {
             await view.webContents.loadURL(url);
         } catch (err) {

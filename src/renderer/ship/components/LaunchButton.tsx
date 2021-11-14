@@ -28,7 +28,7 @@ export const LaunchButton: React.FC<LaunchButtonProps> = ({ ship, loadData, clas
             to={path} 
             className={buttonClass}
             onMouseEnter={loadData} 
-            onClick={async () => await send('clear-data')}
+            // onClick={async () => await send('clear-data')}
         >
             { buttonLabels[ship.status] }
             <RightArrow className="ml-auto w-5 h-5" primary="fill-current text-transparent" secondary="fill-current"/>
