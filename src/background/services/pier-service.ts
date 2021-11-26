@@ -442,6 +442,10 @@ export class PierService {
     }
 
     async spawnInTerminal(pier: Pier): Promise<void> {
+        if (pier.type === 'remote') {
+            return;
+        }
+        
         const stringifiedArgs = this.getSpawnArgs(pier, true).map(arg => arg.replace(/ /g, '\\ ')).join(' ');
         const spawnCommand = `${this.urbitPath} ${stringifiedArgs}`;
 

@@ -102,14 +102,16 @@ export const Ship: React.FC = () => {
                     <p className="mb-1">{ ship.directory }</p>
                     <p><span className="text-gray-700 dark:text-gray-300">Last Used: </span>{ formattedDate }</p>
                 </div>
-                <div className="px-4 py-5 bg-gray-100 dark:bg-gray-900 rounded">               
-                    <h2 className="text-base font-semibold text-black dark:text-white mb-4">Troubleshooting</h2>
-                    <div className="flex items-center font-semibold">
-                        <Button onClick={() => spawnTerminal()}>
-                            Start in Terminal
-                        </Button>
+                {ship.type !== 'remote' && (
+                    <div className="px-4 py-5 bg-gray-100 dark:bg-gray-900 rounded">               
+                        <h2 className="text-base font-semibold text-black dark:text-white mb-4">Troubleshooting</h2>
+                        <div className="flex items-center font-semibold">
+                            <Button onClick={() => spawnTerminal()}>
+                                Start in Terminal
+                            </Button>
+                        </div>
                     </div>
-                </div>
+                )}
                 <div className="px-4 py-5 bg-gray-100 dark:bg-gray-900 rounded">               
                     <h2 className="text-base font-semibold text-black dark:text-white mb-4">Ship Migration</h2>
                     <div className="flex items-center font-semibold">
