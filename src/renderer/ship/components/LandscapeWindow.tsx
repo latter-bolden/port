@@ -54,7 +54,7 @@ export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading 
             }
         }
 
-        if (landscapeRef.current && url && data) {
+        if (landscapeRef.current && url && (data || pier.type === 'remote')) {
             setStatus('loading')
             createView();    
         }

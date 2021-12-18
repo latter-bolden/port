@@ -552,7 +552,7 @@ export class PierService {
                     })
                 }
         
-                const ports = parsePorts(line);
+                const ports = parsePorts(line) || await this.portRunningCheck(pier);
                 if (ports) {
                     resolve(ports);
                 }

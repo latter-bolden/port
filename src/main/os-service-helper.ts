@@ -71,7 +71,6 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, onNewWindo
     
             const cookie = response.headers['set-cookie'];
             const session = view.webContents.session;
-            session.clearStorageData();
             const parts = new RegExp(/(urbauth-~[\w-]+)=(.*); Path=\/;/).exec(cookie || '');
     
             console.log(cookie);
