@@ -1,4 +1,5 @@
 import { join as joinPath } from 'path';
+import process from 'process';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { shell, remote, ipcRenderer } from 'electron';
 import isDev from 'electron-is-dev';
@@ -384,11 +385,11 @@ export class PierService {
     async stopPier(pier: Pier): Promise<Pier> {
         const updatedPier = await this.checkPier(pier);
 
-        if (updatedPier.status !== 'running') {
+        if (updatedPier.status !== 'running' && updatedPier.status !== 'booting') {
             return updatedPier;
         }
 
-        await this.stopUrbit(updatedPier.loopbackPort, updatedPier.shipName);
+        await this.stopUrbit(updatedPier);
 
         return await this.updatePier({ ...updatedPier, status: 'stopped' });
     }
@@ -423,11 +424,16 @@ export class PierService {
         await this.db.piers.asyncRemove({ slug: pier.slug })  
     }
 
-    private async stopUrbit(loopbackPort: number, shipName: string): Promise<void> {
-        const url = `http://localhost:${loopbackPort}`
+    private async stopUrbit(ship: Pier): Promise<void> {
+        if (ship.status === 'booting' && typeof ship.bootProcessId !== 'undefined') {
+            process.kill(ship.bootProcessId, 'SIGTSTP');
+            return;
+        }
+
+        const url = `http://localhost:${ship.loopbackPort}`
         const check = await this.dojo(url, 'our')
 
-        if (check !== shipName) {
+        if (check !== ship.shipName) {
             return;
         }
 

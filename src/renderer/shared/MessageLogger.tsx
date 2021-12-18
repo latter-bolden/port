@@ -11,6 +11,7 @@ function formatMsg(msg: BootMessage) {
 export const MessageLogger: React.FC<{ ship: Pier, showErrors?: boolean }> = ({ ship, showErrors = false }) => {
     const slug = ship?.slug;
     const { data } = useQuery(['messages', slug], () => send('get-messages', { slug }), {
+        enabled: ship?.status === 'booting' || ship?.status === 'running',
         refetchInterval: 500
     })
     const disconnected = !!ship?.bootProcessDisconnected;
