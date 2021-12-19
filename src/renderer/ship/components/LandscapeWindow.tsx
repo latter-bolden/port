@@ -49,6 +49,7 @@ export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading 
                     bounds: getBounds(landscapeRef.current)
                 })
                 setStatus('loaded')
+                await send('refresh-settings');
             } catch (err) {
                 setStatus('errored')
             }

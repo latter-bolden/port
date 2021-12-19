@@ -4,7 +4,9 @@ import { leap } from './helpers';
 import { createMenu } from './menu';
 
 function registerShortcuts(settings: Record<Settings, string>, mainWindow: BrowserWindow) {
-  if (settings['global-leap'] === 'true') {
+  const hasView = mainWindow.getBrowserViews()?.length > 0;
+  
+  if (settings['global-leap'] === 'true' && hasView) {
     globalShortcut.register('CommandOrControl+/', () => leap(mainWindow))
   } else {
     globalShortcut.unregister('CommandOrControl+/')

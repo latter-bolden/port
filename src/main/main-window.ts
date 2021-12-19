@@ -176,7 +176,19 @@ export function createMainWindow(
 
     window.webContents.on('new-window', onNewWindow(url));
     window.webContents.on('will-navigate', (e, url) => onWillNavigate(e, window.webContents, url));
-    window.loadURL(url);
+    window.webContents.on('did-finish-load', () => {
+      console.log('finished load')
+      try {
+        const view = mainWindow.getBrowserView();
+        const currentTitle = window.webContents.getTitle();
+        const title = `${currentTitle} | ${view.webContents.getTitle()}`;
+        console.log('setting title to', title)
+        window.setTitle(title)
+      } catch {
+        console.error('no view')
+      }
+    })
+    window.webContents.loadURL(url);
     return window;
   };
 

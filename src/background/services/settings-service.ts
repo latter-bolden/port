@@ -6,6 +6,7 @@ import { each } from 'async';
 export interface SettingsHandlers {
     'get-settings': SettingsService['getSettings'];
     'set-setting': SettingsService['setSetting'];
+    'refresh-settings': SettingsService['refreshSettings'];
 }
 
 const defaultSettings: SettingsDocument[] = [
@@ -25,7 +26,8 @@ export class SettingsService {
   handlers(): HandlerEntry<SettingsHandlers>[] {
       return [
           { name: 'get-settings', handler: this.getSettings.bind(this) },
-          { name: 'set-setting', handler: this.setSetting.bind(this) }
+          { name: 'set-setting', handler: this.setSetting.bind(this) },
+          { name: 'refresh-settings', handler: this.refreshSettings.bind(this) }
       ]
   }
 
@@ -37,6 +39,10 @@ export class SettingsService {
     const update = await this.db.settings.asyncUpdate({ name: key }, { name: key, value });
     await this.sendUpdate();
     return update;
+  }
+
+  async refreshSettings(): Promise<void> {
+    return this.sendUpdate();
   }
 
   private setupDefaults(): void {
