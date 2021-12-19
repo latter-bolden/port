@@ -44,7 +44,7 @@ export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading 
             try {
                 await send('create-view', {
                     url,
-                    ship: pier.shipName,
+                    ship: pier.shipName || pier.slug,
                     code: data?.code,
                     bounds: getBounds(landscapeRef.current)
                 })

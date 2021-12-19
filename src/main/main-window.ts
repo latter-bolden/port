@@ -13,6 +13,7 @@ import { start as osHelperStart, views } from './os-service-helper'
 import { start as settingsHelperStart } from './setting-service-helper'
 import { start as terminalServiceStart } from './terminal-service';
 
+declare const LANDSCAPE_PRELOAD_WEBPACK_ENTRY: string;
 const ZOOM_INTERVAL = 0.1;
 
 function getWindowOrViewContents(focusedWindow: BrowserWindow): WebContents {
@@ -68,7 +69,8 @@ export function createMainWindow(
       nodeIntegration: false, // `true` is *insecure*, and cause trouble with messenger.com
       webSecurity: true,
       zoomFactor: 1,
-      contextIsolation: false
+      contextIsolation: false,
+      preload: LANDSCAPE_PRELOAD_WEBPACK_ENTRY
     },
   };
 

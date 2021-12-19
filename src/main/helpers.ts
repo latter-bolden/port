@@ -1,6 +1,7 @@
 import { URL } from 'url'
 import { app, BrowserWindow, WebContents } from "electron";
 import { InputEvent } from 'electron/main';
+import isDev from 'electron-is-dev';
 import { getPlatform } from "../get-platform";
 
 //Taken from https://github.com/nativefier/nativefier/blob/master/app/src/helpers/helpers.ts
@@ -121,7 +122,8 @@ export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewW
   const url = new URL(currentUrl);
   const targetUrl = new URL(urlTarget);
   const sameHost = targetUrl.hostname === url.hostname;
-  const sameApp = sameHost && url.pathname.startsWith(targetUrl.pathname);
+  const sameApp = sameHost && targetUrl.pathname.startsWith(url.pathname);
+  isDev && console.log('navigating', url.pathname, targetUrl.pathname)
   const isProtocolLink = targetUrl.protocol.startsWith(URBIT_PROTOCOL);
 
   if ((!sameHost || sameApp) && !isProtocolLink) {
