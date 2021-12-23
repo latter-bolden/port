@@ -19,7 +19,7 @@ export const EditableShipName = (props: { ship: Pier }) => {
       name: props.ship.name
     }
   })
-  const { mutate } = useMutation((data: UpdatePier) => send('update-pier', {...props.ship, ...data}), {
+  const { mutate } = useMutation((data: UpdatePier) => send('update-pier', props.ship.slug, data), {
     onSuccess: (pier: Pier) => {
       queryClient.setQueryData(pierKey(pier.slug), pier)
       setEditMode(false)

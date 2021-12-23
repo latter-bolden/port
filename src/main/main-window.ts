@@ -13,6 +13,7 @@ import { start as osHelperStart, views } from './os-service-helper'
 import { start as settingsHelperStart } from './setting-service-helper'
 import { start as terminalServiceStart } from './terminal-service';
 
+declare const LANDSCAPE_PRELOAD_WEBPACK_ENTRY: string;
 const ZOOM_INTERVAL = 0.1;
 
 function getWindowOrViewContents(focusedWindow: BrowserWindow): WebContents {
@@ -68,7 +69,8 @@ export function createMainWindow(
       nodeIntegration: false, // `true` is *insecure*, and cause trouble with messenger.com
       webSecurity: true,
       zoomFactor: 1,
-      contextIsolation: false
+      contextIsolation: false,
+      preload: LANDSCAPE_PRELOAD_WEBPACK_ENTRY
     },
   };
 
@@ -174,7 +176,19 @@ export function createMainWindow(
 
     window.webContents.on('new-window', onNewWindow(url));
     window.webContents.on('will-navigate', (e, url) => onWillNavigate(e, window.webContents, url));
-    window.loadURL(url);
+    window.webContents.on('did-finish-load', () => {
+      console.log('finished load')
+      try {
+        const view = mainWindow.getBrowserView();
+        const currentTitle = window.webContents.getTitle();
+        const title = `${currentTitle} | ${view.webContents.getTitle()}`;
+        console.log('setting title to', title)
+        window.setTitle(title)
+      } catch {
+        console.error('no view')
+      }
+    })
+    window.webContents.loadURL(url);
     return window;
   };
 
@@ -262,10 +276,10 @@ export function createMainWindow(
     });
   })
 
-  mainWindow.webContents.session.clearStorageData({
-    storages: ['appcache', 'filesystem', 'indexdb', 'localstorage', 'cachestorage']
-  });
-  mainWindow.webContents.session.clearCache();
+  // mainWindow.webContents.session.clearStorageData({
+  //   storages: ['appcache', 'filesystem', 'indexdb', 'localstorage', 'cachestorage']
+  // });
+  // mainWindow.webContents.session.clearCache();
   osHelperStart(mainWindow, createNewWindow, onNewWindow, bgWindow)
   settingsHelperStart(mainWindow, menuOptions);
   terminalServiceStart();

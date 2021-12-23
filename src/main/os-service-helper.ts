@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { app, autoUpdater, BrowserView, BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent, nativeTheme } from 'electron'
 import isDev from 'electron-is-dev'
 import { ViewData } from '../background/services/os-service';
@@ -49,23 +50,57 @@ export async function toggleDevTools(mainWindow: BrowserWindow, bgWindow?: Brows
 }
 
 async function createView(mainWindow: BrowserWindow, createNewWindow, onNewWindow, data: ViewData) {
-    const { url } = data;
+    const { url, ship, code } = data;
     let view = views.get(url);
     const newView = !view;
 
     if (newView) {
+        console.log(Date.now(), 'creating view', url);
         view = new BrowserView({
             webPreferences: {
+                partition: `persist:${ship}`,
                 devTools: true,
                 preload: LANDSCAPE_PRELOAD_WEBPACK_ENTRY
             }
         });
         initContextMenu(createNewWindow, undefined, mainWindow.webContents.getURL(), view)
-        
+
+        const session = view.webContents.session;
+        const cookies = await session.cookies.get({
+            name: `urbauth-${ship}`
+        });
+
+        isDev && console.log('auth cookies', cookies);
+
+        if (code && cookies.length === 0) {
+            isDev && console.log(Date.now(), 'logging in');
+            const response = await axios.post(`${url}/~/login`, `password=${code.trim()}`, {
+                withCredentials: true
+            });
+    
+            const cookie = response.headers['set-cookie'];
+            const parts = new RegExp(/(urbauth-~[\w-]+)=(.*); Path=\/;/).exec(cookie || '');
+    
+            isDev && console.log(cookie);
+            isDev && console.log(parts);
+    
+            if (cookie) {
+                session.cookies.set({
+                    url,
+                    name: parts[1],
+                    value: parts[2]
+                });
+            }
+
+            isDev && console.log(Date.now(), 'logged in');
+        }
+
         try {
+            isDev && console.log(Date.now(), 'loading URL')
+            isDev && view.webContents.toggleDevTools();
             await view.webContents.loadURL(url);
         } catch (err) {
-            console.log(err);
+            isDev && console.log(err);
             return { error: err.message }
         }
 
@@ -109,6 +144,7 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, onNewWindo
         updateZoomLevels(mainWindow);
     }, 10);
 
+    isDev && console.log(Date.now(), 'view created');
     return { success: true }
 }
 

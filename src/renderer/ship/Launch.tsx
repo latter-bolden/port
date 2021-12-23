@@ -54,6 +54,7 @@ export const Launch = () => {
     const { slug } = useParams<{ slug: string }>()
     const [pier, setPier] = useState<Pier>();
     const { data: initialPier } = useQuery(pierKey(slug), () => send('get-pier', slug))
+    const pierLoaded = initialPier?.slug;
     const { mutate, isIdle, isLoading } = useMutation(() => send('resume-pier', initialPier), 
         {
             onSuccess: (data: Pier) => {
@@ -63,8 +64,10 @@ export const Launch = () => {
     )
 
     useEffect(() => {
-        mutate()
-    }, [JSON.stringify(initialPier)])
+        if (pierLoaded) {
+            mutate()
+        }
+    }, [pierLoaded])
 
     return (
         <Layout 

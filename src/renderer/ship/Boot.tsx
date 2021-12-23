@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { Link, useHistory, useParams } from 'react-router-dom'
 import { send } from '../client/ipc'
@@ -21,18 +21,11 @@ const BootFooter = ({ queryClient }) => (
 
 export const Boot: React.FC = () => {
     const history = useHistory();
+    const queryClient = useQueryClient();
     const shipSettled = useRef(false);
-    const queryClient = useQueryClient()
+    const bootFailedTimer = useRef(null);
     const { slug } = useParams<{ slug: string }>();
-    const { data: ship } = useQuery(pierKey(slug), async () => {
-        const pier = await send('get-pier', slug);
-
-        if (pier.bootProcessDisconnected) {
-            return await send('check-boot', pier)
-        }
-
-        return pier;
-    }, {
+    const { data: ship } = useQuery(pierKey(slug), async () => await send('check-boot', slug), {
         refetchInterval: !shipSettled.current ? 1000 : undefined
     })
     const { mutate } = useMutation(() => send('boot-pier', ship), {
@@ -69,6 +62,27 @@ export const Boot: React.FC = () => {
 
         mutate();
     }, [slug])
+
+    useEffect(() => {
+        if (!ship) {
+            return;
+        }
+
+        const maxBootDuration = ship.type === 'comet' ? 60 : 20; // in minutes
+        bootFailedTimer.current = setTimeout(() => {
+            send('stop-pier', ship);
+        }, maxBootDuration * 60 * 1000);
+
+        return () => {
+            window.clearTimeout(bootFailedTimer.current);
+        }
+    }, [ship])
+
+    useEffect(() => {
+        if (ship.status === 'running') {
+            window.clearTimeout(bootFailedTimer.current);
+        }
+    }, [ship.status]);
 
     const shipType = ship?.type ? ship.type[0].toLocaleUpperCase() + ship.type.substring(1) : ''
     const title = `Booting ${shipType}`
