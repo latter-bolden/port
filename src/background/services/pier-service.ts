@@ -16,7 +16,7 @@ import mv from 'mv'
 import { each } from 'async';
 import find from 'find-process';
 
-const IS_PROD = process.env.NODE_ENV === 'production';
+const IS_PROD = !isDev;
 const platform = getPlatform();
 
 const asyncRm = promisify(unlink);
