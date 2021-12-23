@@ -37,6 +37,9 @@ module.exports = {
       appleId: process.env.APPLE_ID,
       appleIdPassword: process.env.APPLE_ID_PASSWORD,
       ascProvider: '8YA38DLJ3T'
+    },
+    win32metadata: {
+      CompanyName: 'Urbit Foundation'
     }
   },
   hooks: {
