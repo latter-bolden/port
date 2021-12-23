@@ -129,12 +129,11 @@ export class PierService {
         return await this.db.messageLog.asyncFind(query || {})
     }
 
-    async updatePier({ _id, ...newPier }: Pier): Promise<Pier> {
-        await this.db.piers.asyncUpdate({ slug: newPier.slug }, {
-            lastUsed: (new Date()).toISOString(),
-            ...newPier
-        })
-        return newPier;
+    async updatePier(slug: string, newPier: Partial<Pier>): Promise<Pier> {
+        const currentPier = await this.getPier(slug);
+        const completePier = { ...currentPier, ...newPier };
+        await this.db.piers.asyncUpdate({ slug }, completePier);
+        return completePier;
     }
 
     async getPierAuth(pier: Pier): Promise<PierAuth> {
@@ -146,10 +145,7 @@ export class PierService {
         const username = await this.dojo(loopback, 'our');
         const code = await this.dojo(loopback, '+code');
 
-        await this.updatePier({
-            ...pier,
-            shipName: username
-        })
+        await this.updatePier(pier.slug, { shipName: username });
 
         return {
             username,
@@ -175,7 +171,9 @@ export class PierService {
         };
 
         try {
-            const res = await axios.post(url, req);
+            const res = await axios.post(url, req, {
+                withCredentials: false
+            });
             return await res.data
         } catch (err) {
             isDev && console.error(err);
@@ -189,8 +187,7 @@ export class PierService {
             return pier
 
         const dojoCheck = await this.runningCheck(pier);
-        return await this.updatePier({
-            ...pier,
+        return await this.updatePier(pier.slug, {
             webPort: dojoCheck?.web,
             loopbackPort: dojoCheck?.loopback,
             status: dojoCheck ? 'running' : 'stopped' 
@@ -199,15 +196,20 @@ export class PierService {
 
     private async runningCheck(pier: Pier): Promise<PortSet | null> {
         const ports = await this.portRunningCheck(pier);
-        if (!ports || !ports.web || !ports.loopback || !pier.shipName) {
+        if (!ports || !ports.web || !ports.loopback) {
             console.log(`${pier.name} is not running or can't be contacted.`)
             return null;
         }
 
         const loopback = `http://localhost:${ports.loopback}`
         const check = await this.dojo(loopback, 'our')
+        const webLive = await this.checkUrlAccessible(`http://localhost:${ports.web}`);
 
-        if (check && check === pier.shipName) {
+        if (check && !pier.shipName) {
+            await this.updatePier(pier.slug, { shipName: check });
+        }
+
+        if (check || webLive) {
             return ports
         }
 
@@ -268,13 +270,12 @@ export class PierService {
             const accuratePier = await this.checkPier(pier)
             if (accuratePier.status === 'running') {
                 this.resumesInProgress.delete(accuratePier.slug);
-                return await this.updatePier({ ...accuratePier, lastUsed: (new Date()).toISOString() });
+                return await this.updatePier(accuratePier.slug, { lastUsed: (new Date()).toISOString() });
             }
 
             const urbit = this.spawnUrbit(this.getSpawnArgs(accuratePier));
             const ports = await this.handleUrbitProcess(urbit, accuratePier);
-            const updatedPier: Pier = await this.updatePier({
-                ...accuratePier,
+            const updatedPier: Pier = await this.updatePier(pier.slug, {
                 lastUsed: (new Date()).toISOString(),
                 webPort: ports.web,
                 loopbackPort: ports.loopback,
@@ -302,15 +303,15 @@ export class PierService {
             })
         })
 
-        return await this.updatePier({ 
-            ...pier,
+        return await this.updatePier(pier.slug, {
             status: 'stopped',
             directory: this.pierDirectory 
         });
     }
 
-    async checkBoot(pier: Pier): Promise<Pier> {
-        const ports = await this.portRunningCheck(pier);
+    async checkBoot(slug: string): Promise<Pier> {
+        const pier = await this.getPier(slug);
+        const ports = await this.runningCheck(pier);
         if (ports) {                
             return await this.handlePostBoot(pier, ports);
         }
@@ -324,7 +325,7 @@ export class PierService {
         }
         
         const args = this.getSpawnArgs(pier);
-        const updatedPier = await this.updatePier({ ...pier, status: 'booting' });
+        const updatedPier = await this.updatePier(pier.slug, { status: 'booting' });
         this.boot(updatedPier, args);
     }
 
@@ -332,20 +333,30 @@ export class PierService {
         try {
             const urbit = this.spawnUrbit(args);
             const ports = await this.handleUrbitProcess(urbit, pier, true);
-            return await this.handlePostBoot(pier, ports)
+            const updatedPier = await this.handlePostBoot(pier, ports);
+            await this.checkUrlAccessible(`http://localhost:${ports.web}`);
+            return updatedPier;
         } catch (err) {
-            return await this.updatePier({ ...pier, status: 'errored' })
+            return await this.updatePier(pier.slug, { status: 'errored' })
         }
     }
 
     private async handlePostBoot(pier: Pier, ports: PortSet): Promise<Pier> {
-        await this.updatePier({ ...pier, status: 'booted' });
+        const shipUpdates = {
+            webPort: ports.web,
+            loopbackPort: ports.loopback,
+            status: 'running' as ShipStatus
+        };
 
         if (pier.type === 'comet') {
             this.startOTA(ports);
+            const shipName = await this.dojo(`http://localhost:${ports.loopback}`, 'our');
+            return await this.updatePier(pier.slug, {
+                ...shipUpdates,
+                shipName
+            });
         }
         
-        const shipName = await this.dojo(`http://localhost:${ports.loopback}`, 'our')
         if (pier.keyFile) {
             try {
                 await asyncRm(pier.keyFile)
@@ -354,30 +365,25 @@ export class PierService {
                 console.log('Deleting keyfile failed')
             }
         }
-        
-        return await this.updatePier({
-            ...pier,
-            shipName,
-            webPort: ports.web,
-            loopbackPort: ports.loopback,
-            status: 'running'
-        });
+
+        return await this.updatePier(pier.slug, shipUpdates);
     }
 
     private startOTA(ports: PortSet) {
         setTimeout(() => {
             try {
+                console.log('attempting ota');
                 //make sure OTAs start |ota (sein:title our now our) %kids
                 this.dojo(`http://localhost:${ports.loopback}`, {
                     sink: {
                         app: 'hood'
                     },
                     source: {
-                        dojo: '+hood/install (sein:title our now our) %kids, =local %base'
+                        dojo: '+hood/ota (sein:title our now our)'//old '+hood/install (sein:title our now our) %kids, =local %base'
                     }
                 })
             } catch (err) {
-                console.error('attempting ota', err)
+                console.error('attempted ota', err)
             }
         }, 5000)
     }
@@ -391,7 +397,7 @@ export class PierService {
 
         await this.stopUrbit(updatedPier);
 
-        return await this.updatePier({ ...updatedPier, status: 'stopped' });
+        return await this.updatePier(updatedPier.slug, { status: 'stopped' });
     }
 
     async ejectPier(pier: Pier): Promise<void> {
@@ -508,13 +514,12 @@ export class PierService {
     }
 
     private handleUrbitProcess(urbit: ChildProcessWithoutNullStreams, pier: Pier, persist = false): Promise<PortSet | null> {
-        const parsePorts = this.portParser();
         if (pier.status === 'booting') {
-            this.updatePier({ ...pier, bootProcessId: urbit.pid })
+            this.updatePier(pier.slug, { bootProcessId: urbit.pid })
         }
 
         return new Promise((resolve, reject) => {
-            urbit.on('close', (code) => {
+            const onClose = (code) => {
                 if (typeof code === 'undefined') {
                     reject('bailing out')
                 }
@@ -525,14 +530,14 @@ export class PierService {
                 }
 
                 reject();
-            })
+            }
 
-            urbit.on('error', (err) => {
+            const onErr = (err) => {
                 console.error(err)
                 reject(err)
-            })
+            }
 
-            urbit.stderr.on('data', (data) => {
+            const onStdErr = (data) => {
                 console.error(data.toString())
 
                 if (persist) {
@@ -543,9 +548,9 @@ export class PierService {
                         time: (new Date()).toISOString()
                     })
                 }
-            })
+            }
 
-            urbit.stdout.on('data', async (data) => {
+            const onStdOut = async (data) => {
                 const line = data.toString() 
                 console.log(line)
         
@@ -558,11 +563,23 @@ export class PierService {
                     })
                 }
         
-                const ports = parsePorts(line) || await this.portRunningCheck(pier);
+                const ports = await this.runningCheck(pier);
                 if (ports) {
+                    urbit.off('close', onClose);
+                    urbit.off('error', onErr);
+                    urbit.stderr.pause();
+                    urbit.stdout.pause();
+                    urbit.stderr.off('data', onStdErr);
+                    urbit.stdout.off('data', onStdOut);
+                    
                     resolve(ports);
                 }
-            })
+            }
+
+            urbit.on('close', onClose);
+            urbit.on('error', onErr);
+            urbit.stderr.on('data', onStdErr);
+            urbit.stdout.on('data', onStdOut);
         })
     }
 
@@ -606,11 +623,10 @@ export class PierService {
         });
 
         await each(bootingShips, async ship => {
-            this.checkBoot(ship)
+            this.checkBoot(ship.slug)
 
             const processes = await find('pid', ship.bootProcessId);
-            this.updatePier({ 
-                ...ship,
+            this.updatePier(ship.slug, {
                 bootProcessDisconnected: !processes.map(proc => proc.ppid).includes(process.pid),
             });
         })

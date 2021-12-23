@@ -25,15 +25,7 @@ export const Boot: React.FC = () => {
     const shipSettled = useRef(false);
     const bootFailedTimer = useRef(null);
     const { slug } = useParams<{ slug: string }>();
-    const { data: ship } = useQuery(pierKey(slug), async () => {
-        const pier = await send('get-pier', slug);
-
-        if (pier.bootProcessDisconnected) {
-            return await send('check-boot', pier)
-        }
-
-        return pier;
-    }, {
+    const { data: ship } = useQuery(pierKey(slug), async () => await send('check-boot', slug), {
         refetchInterval: !shipSettled.current ? 1000 : undefined
     })
     const { mutate } = useMutation(() => send('boot-pier', ship), {

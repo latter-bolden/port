@@ -55,6 +55,7 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, onNewWindo
     const newView = !view;
 
     if (newView) {
+        console.log(Date.now(), 'creating view', url);
         view = new BrowserView({
             webPreferences: {
                 partition: `persist:${ship}`,
@@ -64,17 +65,24 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, onNewWindo
         });
         initContextMenu(createNewWindow, undefined, mainWindow.webContents.getURL(), view)
 
-        if (code) {
+        const session = view.webContents.session;
+        const cookies = await session.cookies.get({
+            name: `urbauth-${ship}`
+        });
+
+        isDev && console.log('auth cookies', cookies);
+
+        if (code && cookies.length === 0) {
+            isDev && console.log(Date.now(), 'logging in');
             const response = await axios.post(`${url}/~/login`, `password=${code.trim()}`, {
                 withCredentials: true
             });
     
             const cookie = response.headers['set-cookie'];
-            const session = view.webContents.session;
             const parts = new RegExp(/(urbauth-~[\w-]+)=(.*); Path=\/;/).exec(cookie || '');
     
-            console.log(cookie);
-            console.log(parts);
+            isDev && console.log(cookie);
+            isDev && console.log(parts);
     
             if (cookie) {
                 session.cookies.set({
@@ -83,12 +91,16 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, onNewWindo
                     value: parts[2]
                 });
             }
+
+            isDev && console.log(Date.now(), 'logged in');
         }
 
         try {
+            isDev && console.log(Date.now(), 'loading URL')
+            isDev && view.webContents.toggleDevTools();
             await view.webContents.loadURL(url);
         } catch (err) {
-            console.log(err);
+            isDev && console.log(err);
             return { error: err.message }
         }
 
@@ -132,6 +144,7 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, onNewWindo
         updateZoomLevels(mainWindow);
     }, 10);
 
+    isDev && console.log(Date.now(), 'view created');
     return { success: true }
 }
 
