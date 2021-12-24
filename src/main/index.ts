@@ -15,7 +15,7 @@ let mainWindow: BrowserWindow;
 
 if (!isDev) {
   const server = 'https://update.electronjs.org'
-  const feed = `${server}/arthyn/port/${process.platform}-${process.arch}/${app.getVersion()}`
+  const feed = `${server}/urbit/port/${process.platform}-${process.arch}/${app.getVersion()}`
 
   autoUpdater.setFeedURL({
     url: feed

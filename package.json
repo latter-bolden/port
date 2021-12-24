@@ -1,16 +1,16 @@
 {
   "name": "port",
   "productName": "Port",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "A ship runner and manager for Urbit OS",
   "repository": {
     "type": "git",
-    "url": "https://github.com/arthyn/port.git"
+    "url": "https://github.com/urbit/port.git"
   },
   "keywords": [],
   "author": {
-    "name": "Hunter Miller",
-    "email": "hunter@hmiller.dev"
+    "name": "Urbit Foundation",
+    "email": "dev@urbit.org"
   },
   "license": "MIT",
   "main": ".webpack/main",

@@ -98,7 +98,7 @@ module.exports = {
       name: '@electron-forge/publisher-github',
       config: {
         repository: {
-          owner: 'arthyn',
+          owner: 'urbit',
           name: 'port'
         },
         draft: true

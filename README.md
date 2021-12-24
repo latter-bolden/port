@@ -6,7 +6,7 @@ Formerly called Taisho, Port allows you to spin up, access, and manage your ship
 
 ## Installing
 
-Head over to [releases](https://github.com/arthyn/port/releases) and download the installer for your operating system from the latest release. Currently available for all major OSes. 
+Head over to [releases](https://github.com/urbit/port/releases) and download the installer for your operating system from the latest release. Currently available for all major OSes. 
 
 ## Screenshots
 ![](https://hmillerdev.nyc3.digitaloceanspaces.com/nocsyx-lassul/taisho-welcome.jpg)  
