@@ -247,13 +247,13 @@ export function createMenu({
       {
         label: `Port v${pjson.version}`,
         click: () => {
-          shell.openExternal('https://github.com/arthyn/port');
+          shell.openExternal('https://github.com/urbit/port');
         },
       },
       {
         label: 'Report an Issue',
         click: () => {
-          shell.openExternal('https://github.com/arthyn/port/issues');
+          shell.openExternal('https://github.com/urbit/port/issues');
         },
       },
     ],
