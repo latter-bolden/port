@@ -13,8 +13,6 @@ jobs:
           node-version: 14
       - name: Install Packages
         run: yarn install
-      - name: Rebuild Native Modules
-        run: npx electron-rebuild
       - name: Get Urbit Binaries
         run: get-urbit
         shell: cmd

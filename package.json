@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@davidwinter/electron-forge-maker-snap": "^2.0.3",
-    "@electron-forge/cli": "^6.0.0-beta.61",
+    "@electron-forge/cli": "^6.0.0-beta.63",
     "@electron-forge/maker-deb": "^6.0.0-beta.54",
     "@electron-forge/maker-dmg": "^6.0.0-beta.54",
     "@electron-forge/maker-rpm": "^6.0.0-beta.54",
