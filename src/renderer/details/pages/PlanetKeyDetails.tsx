@@ -6,19 +6,19 @@ import { NameField } from '../components/NameField'
 import { ShipNameField } from '../components/ShipNameField'
 import { useAddPier } from '../useAddPier'
 
-export const Star: React.FC = () => {
+export const PlanetKeyDetails: React.FC = () => {
     const {
         form,
         mutate
-    } = useAddPier(data => send('add-pier', { ...data, type: 'star' }));
+    } = useAddPier(data => send('add-pier', { ...data, type: 'planet' }));
     const { isValid } = form.formState;
 
     return (
         <DetailsContainer
-            title="Boot a Star"
+            title="Boot a Planet"
             buttonDisabled={!isValid}
             onSubmit={form.handleSubmit(data => mutate(data))}
-            backPath="/"
+            backPath="/boot/planet"
         >
             <h1 className="font-semibold text-base mb-6">Enter Ship Details</h1>
             <div>

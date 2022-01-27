@@ -19,7 +19,23 @@ const planet: RouteInfo = {
     path: '/boot/planet',
     title: 'Planet',
     heading: 'Boot a fresh ID',
-    description: 'Boot your planet with the keyfile from Bridge'
+    description: 'Boot your planet from an invite code or a keyfile from Bridge'
+}
+
+const planetKey: RouteInfo = {
+    key: 'planet',
+    path: '/boot/planet/key',
+    title: 'Planet',
+    heading: 'Boot from a Keyfile',
+    description: 'Use a keyfile downloaded from Bridge'
+}
+
+const planetInvite: RouteInfo = {
+    key: 'planet',
+    path: '/boot/planet/invite',
+    title: 'Planet',
+    heading: 'Boot from an Invite Code',
+    description: 'Use an invite code you got from a friend'
 }
 
 const star: RouteInfo = {
@@ -61,7 +77,9 @@ export const routeMap = {
     planet,
     moon,
     existing,
-    remote
+    remote,
+    planetKey,
+    planetInvite
 }
 
 export const routes: RouteInfo[] = [
@@ -70,5 +88,7 @@ export const routes: RouteInfo[] = [
     moon,
     comet,
     existing,
-    remote
+    remote,
+    planetKey,
+    planetInvite
 ]

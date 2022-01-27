@@ -17,6 +17,7 @@ export const CometDetails: React.FC = () => {
             title="Comet Details"
             buttonDisabled={!isValid}
             onSubmit={form.handleSubmit(data => mutate(data))}
+            backPath="/"
         >
             <h1 className="font-semibold text-base mb-4">Enter Comet Details</h1>
             <div>

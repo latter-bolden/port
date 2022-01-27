@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { HashRouter, Route, Switch } from 'react-router-dom'
+import { HashRouter, Route, Switch, useHistory } from 'react-router-dom'
 import { hot } from 'react-hot-loader';
 import { Welcome } from './pages/Welcome'
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from 'react-query';
@@ -13,6 +13,8 @@ import { MoonDetails } from './details/pages/MoonDetails';
 import { CometDetails } from './details/pages/CometDetails';
 import { Boot } from './ship/Boot';
 import { PlanetDetails } from './details/pages/PlanetDetails';
+import { PlanetInviteDetails } from './details/pages/PlanetInviteDetails';
+import { PlanetKeyDetails } from './details/pages/PlanetKeyDetails';
 import { routeMap } from './routes';
 import create from 'zustand';
 import { pierKey } from './query-keys';
@@ -97,6 +99,15 @@ const App = () => {
         }
     }, [])
 
+    const history = useHistory();
+    useEffect(() => {
+      const listener = (event, args) => {
+        history.push('/boot/planet');
+      } 
+
+      ipcRenderer.on('navigate', listener);
+    }, [])
+
     useEffect(() => {
         const listeners = [
             listen('arch-unsupported', (architectureUnsupported) => {
@@ -115,6 +126,8 @@ const App = () => {
             <Route exact path={routeMap.remote.path} component={RemotePierDetails} />
             <Route exact path={routeMap.existing.path} component={ExistingShipDetails} />
             <Route exact path={routeMap.planet.path} component={PlanetDetails} />
+            <Route exact path={routeMap.planetInvite.path} component={PlanetInviteDetails} />
+            <Route exact path={routeMap.planetKey.path} component={PlanetKeyDetails} />
             <Route exact path={routeMap.moon.path} component={MoonDetails} />
             <Route exact path={routeMap.comet.path} component={CometDetails} />
             <Route exact path={routeMap.star.path} component={Star} />

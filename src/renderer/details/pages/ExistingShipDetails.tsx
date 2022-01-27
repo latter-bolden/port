@@ -27,6 +27,7 @@ export const ExistingShipDetails = () => {
             title="Existing Ship Details" 
             buttonDisabled={!isValid} 
             onSubmit={form.handleSubmit(data => mutate(data))}
+            backPath="/"
         >
             <h1 className="font-semibold text-base mb-6">Enter Ship Details</h1>
             <div>

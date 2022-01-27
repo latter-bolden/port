@@ -1,4 +1,5 @@
 import { app, autoUpdater, BrowserWindow } from 'electron';
+import path from 'path';
 import findOpenSocket from '../renderer/client/find-open-socket'
 import isDev from 'electron-is-dev'
 import { isOSX } from './helpers';
@@ -97,10 +98,41 @@ async function start(bootBg: boolean) {
   }
 }
 
+
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient('urbit-port', process.execPath, [path.resolve(process.argv[1])])
+  }
+} else {
+  app.setAsDefaultProtocolClient('urbit-port')
+}
+
+const gotTheLock = app.requestSingleInstanceLock()
+
+if (!gotTheLock) {
+  app.quit()
+  return;
+}
+
+app.on('second-instance', (event, commandLine, workingDirectory) => {
+  // Someone tried to run a second instance, we should focus our window.
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore()
+    }
+    mainWindow.focus()
+  }
+})
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => start(true));
+
+app.on('open-url', (event, url) => {
+  console.log('sending', url);
+  mainWindow.webContents.send('navigate', {url});
+})
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

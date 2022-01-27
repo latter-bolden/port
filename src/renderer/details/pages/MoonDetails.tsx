@@ -39,6 +39,7 @@ export const MoonDetails: React.FC = () => {
             title="Boot a Moon"
             buttonDisabled={!isValid || tab === 'from-planet'}
             onSubmit={form.handleSubmit(data => mutate(data))}
+            backPath="/"
         >
             <h1 className="font-semibold text-base mb-6">Enter Moon Details</h1>                    
             <div>
