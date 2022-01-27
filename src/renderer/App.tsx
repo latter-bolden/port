@@ -102,7 +102,8 @@ const App = () => {
     const history = useHistory();
     useEffect(() => {
       const listener = (event, args) => {
-        history.push('/boot/planet');
+        console.log(args);
+        history.push(`/boot/planet/invite/${args.ticket}`);
       } 
 
       ipcRenderer.on('navigate', listener);
@@ -126,7 +127,7 @@ const App = () => {
             <Route exact path={routeMap.remote.path} component={RemotePierDetails} />
             <Route exact path={routeMap.existing.path} component={ExistingShipDetails} />
             <Route exact path={routeMap.planet.path} component={PlanetDetails} />
-            <Route exact path={routeMap.planetInvite.path} component={PlanetInviteDetails} />
+            <Route path={routeMap.planetInvite.path} component={PlanetInviteDetails} />
             <Route exact path={routeMap.planetKey.path} component={PlanetKeyDetails} />
             <Route exact path={routeMap.moon.path} component={MoonDetails} />
             <Route exact path={routeMap.comet.path} component={CometDetails} />

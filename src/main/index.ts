@@ -130,8 +130,9 @@ app.on('second-instance', (event, commandLine, workingDirectory) => {
 app.on('ready', () => start(true));
 
 app.on('open-url', (event, url) => {
-  console.log('sending', url);
-  mainWindow.webContents.send('navigate', {url});
+  let ticket = url.split('urbit-port://')[1];
+  console.log('sending', ticket);
+  mainWindow.webContents.send('navigate', { ticket })
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common

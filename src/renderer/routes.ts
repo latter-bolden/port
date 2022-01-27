@@ -32,7 +32,7 @@ const planetKey: RouteInfo = {
 
 const planetInvite: RouteInfo = {
     key: 'planet',
-    path: '/boot/planet/invite',
+    path: '/boot/planet/invite/:ticket',
     title: 'Planet',
     heading: 'Boot from an Invite Code',
     description: 'Use an invite code you got from a friend'
