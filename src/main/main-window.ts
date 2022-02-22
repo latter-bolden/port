@@ -6,7 +6,8 @@ import {
   isOSX,
   nativeTabsSupported,
   onNavigation,
-  onNewWindowHelper
+  onNewWindowHelper,
+  URBIT_PROTOCOL
 } from './helpers';
 import { initContextMenu } from './context-menu';
 import { start as osHelperStart, views } from './os-service-helper'
@@ -15,7 +16,6 @@ import { start as terminalServiceStart } from './terminal-service';
 
 declare const LANDSCAPE_PRELOAD_WEBPACK_ENTRY: string;
 const ZOOM_INTERVAL = 0.1;
-let deeplinkingUrl;
 
 function getWindowOrViewContents(focusedWindow: BrowserWindow): WebContents {
   const view = focusedWindow.getBrowserView();
@@ -234,6 +234,23 @@ export function createMainWindow(
     );
   };
 
+  const handleProtocolLink = (url: string) => {
+    const view = mainWindow.getBrowserViews()[0];
+    if (!view) {
+      return;
+    }
+
+    const currentUrl = view.webContents.getURL();
+    console.log('deeplink', url, currentUrl);
+    onNavigation({
+      preventDefault: () => {}, //eslint-disable-line @typescript-eslint/no-empty-function
+      urlTarget: url,
+      currentUrl,
+      mainWindow,
+      createNewWindow
+    })
+  }
+
   const menuOptions = {
     appQuit: onAppQuit,
     zoomIn: onZoomIn,
@@ -306,11 +323,11 @@ export function createMainWindow(
     // Set the path of electron.exe and your app.
     // These two additional parameters are only available on windows.
     // Setting this is required to get this working in dev mode.
-    app.setAsDefaultProtocolClient('web+urbitgraph', process.execPath, [
+    app.setAsDefaultProtocolClient(URBIT_PROTOCOL, process.execPath, [
       process.argv[1]
     ]);
   } else {
-    app.setAsDefaultProtocolClient('web+urbitgraph');
+    app.setAsDefaultProtocolClient(URBIT_PROTOCOL);
   }
   
   // Force single application instance
@@ -322,17 +339,8 @@ export function createMainWindow(
   } else {
     app.on('second-instance', (e, argv) => {
       if (process.platform !== 'darwin') {
-        // Find the arg that is our custom protocol url and store it
-        deeplinkingUrl = argv.find((arg) => arg.startsWith('web+urbitgraph://'));
-        const currentUrl = mainWindow.getBrowserViews()[0].webContents.getURL();
-        console.log('deeplink', deeplinkingUrl, currentUrl);
-        onNavigation({
-          preventDefault: () => {}, //eslint-disable-line @typescript-eslint/no-empty-function
-          urlTarget: deeplinkingUrl,
-          currentUrl,
-          mainWindow,
-          createNewWindow
-        })
+        console.log('handling protocol link');
+        handleProtocolLink(argv.find((arg) => arg.startsWith(`${URBIT_PROTOCOL}://`)))
       }
   
       if (mainWindow) {
@@ -343,6 +351,11 @@ export function createMainWindow(
       }
     });
   }
+
+  app.on('open-url', (event, url) => {
+    console.log('handling protocol link', url);
+    handleProtocolLink(url);
+  })
 
   return mainWindow;
 }
