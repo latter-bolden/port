@@ -1,4 +1,4 @@
-import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents, nativeTheme } from 'electron';
+import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents, nativeTheme, app } from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import isDev from 'electron-is-dev';
 
@@ -15,6 +15,7 @@ import { start as terminalServiceStart } from './terminal-service';
 
 declare const LANDSCAPE_PRELOAD_WEBPACK_ENTRY: string;
 const ZOOM_INTERVAL = 0.1;
+let deeplinkingUrl;
 
 function getWindowOrViewContents(focusedWindow: BrowserWindow): WebContents {
   const view = focusedWindow.getBrowserView();
@@ -300,6 +301,48 @@ export function createMainWindow(
     }
     hideOrCloseWindow(mainWindow, bgWindow, event);
   });
+
+  if (isDev && process.platform === 'win32') {
+    // Set the path of electron.exe and your app.
+    // These two additional parameters are only available on windows.
+    // Setting this is required to get this working in dev mode.
+    app.setAsDefaultProtocolClient('web+urbitgraph', process.execPath, [
+      process.argv[1]
+    ]);
+  } else {
+    app.setAsDefaultProtocolClient('web+urbitgraph');
+  }
+  
+  // Force single application instance
+  const gotTheLock = app.requestSingleInstanceLock();
+  
+  if (!gotTheLock) {
+    app.quit();
+    return;
+  } else {
+    app.on('second-instance', (e, argv) => {
+      if (process.platform !== 'darwin') {
+        // Find the arg that is our custom protocol url and store it
+        deeplinkingUrl = argv.find((arg) => arg.startsWith('web+urbitgraph://'));
+        const currentUrl = mainWindow.getBrowserViews()[0].webContents.getURL();
+        console.log('deeplink', deeplinkingUrl, currentUrl);
+        onNavigation({
+          preventDefault: () => {}, //eslint-disable-line @typescript-eslint/no-empty-function
+          urlTarget: deeplinkingUrl,
+          currentUrl,
+          mainWindow,
+          createNewWindow
+        })
+      }
+  
+      if (mainWindow) {
+        if (mainWindow.isMinimized()) {
+          mainWindow.restore();
+        }
+        mainWindow.focus();
+      }
+    });
+  }
 
   return mainWindow;
 }
