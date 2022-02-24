@@ -1,0 +1,23 @@
+name: Make Windows
+on:
+  pull_request:
+    branches: [ main ]
+jobs:
+  make:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 14
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Install Packages
+        run: yarn install
+      - name: Rebuild Native Modules
+        run: npx electron-rebuild
+      - name: Get Urbit Binaries
+        run: get-urbit
+        shell: cmd
+      - name: Build
+        run: |
+          yarn run make:win

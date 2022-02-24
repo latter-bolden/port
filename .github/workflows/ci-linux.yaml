@@ -1,0 +1,31 @@
+name: Make Linux
+on:
+  pull_request:
+    branches: [ main ]
+jobs:
+  make:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 14
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Setup Snapcraft
+        run: |
+          sudo snap install snapcraft --classic
+          echo "$SNAP_TOKEN" | snapcraft login --with -     
+        env:
+          SNAP_TOKEN: ${{secrets.SNAP_TOKEN}}
+      - name: Install Packages
+        run: yarn install
+      - name: Rebuild Native Modules
+        run: npx electron-rebuild
+      - name: Get Urbit Binaries
+        run: ./get-urbit.sh
+      - name: Build & Publish
+        run: |
+          yarn run make:linux
+          snapcraft upload --release=devel out/make/*.snap
+        env:
+          SNAPCRAFT_BUILD_ENVIRONMENT: host
