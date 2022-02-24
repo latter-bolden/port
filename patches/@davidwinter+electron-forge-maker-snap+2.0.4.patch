@@ -1,5 +1,5 @@
 diff --git a/node_modules/@davidwinter/electron-forge-maker-snap/snap-packager.js b/node_modules/@davidwinter/electron-forge-maker-snap/snap-packager.js
-index 79752f1..319f9a0 100644
+index 79752f1..8723290 100644
 --- a/node_modules/@davidwinter/electron-forge-maker-snap/snap-packager.js
 +++ b/node_modules/@davidwinter/electron-forge-maker-snap/snap-packager.js
 @@ -24,14 +24,19 @@ module.exports = class SnapPackager {
@@ -23,14 +23,6 @@ index 79752f1..319f9a0 100644
  		return ini.encode(data, {section: 'Desktop Entry'});
  	}
  
-@@ -55,6 +60,7 @@ module.exports = class SnapPackager {
- 		delete doc.apps['SNAP-TEMPLATE'];
- 		doc.apps[this.values.executableName].command = `${this.values.executableName}/${this.values.executableName} --no-sandbox`;
- 		doc.apps[this.values.executableName].plugs = this.values.plugs;
-+		doc.apps[this.values.executableName].desktop = path.join('gui', `${this.values.executableName}.desktop`);
- 
- 		doc.parts.app['override-build'] = `cp -rv . $SNAPCRAFT_PART_INSTALL/${this.values.executableName}`;
- 		doc.parts.app['stage-packages'] = this.values.stagePackages;
 diff --git a/node_modules/@davidwinter/electron-forge-maker-snap/snap-values.js b/node_modules/@davidwinter/electron-forge-maker-snap/snap-values.js
 index 1134385..3427933 100644
 --- a/node_modules/@davidwinter/electron-forge-maker-snap/snap-values.js
