@@ -26,6 +26,6 @@ jobs:
       - name: Build
         run: |
           yarn run make:linux
-          snapcraft upload --release=devel out/make/*.snap
+          snapcraft upload --release=edge out/make/*.snap
         env:
           SNAPCRAFT_BUILD_ENVIRONMENT: host
