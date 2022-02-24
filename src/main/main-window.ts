@@ -1,3 +1,4 @@
+import path from 'path';
 import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents, nativeTheme, app } from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import isDev from 'electron-is-dev';
@@ -13,6 +14,7 @@ import { initContextMenu } from './context-menu';
 import { start as osHelperStart, views } from './os-service-helper'
 import { start as settingsHelperStart } from './setting-service-helper'
 import { start as terminalServiceStart } from './terminal-service';
+import { getPlatform } from '../get-platform';
 
 declare const LANDSCAPE_PRELOAD_WEBPACK_ENTRY: string;
 const ZOOM_INTERVAL = 0.1;
@@ -319,16 +321,12 @@ export function createMainWindow(
     hideOrCloseWindow(mainWindow, bgWindow, event);
   });
 
-  if (isDev && process.platform === 'win32') {
-    // Set the path of electron.exe and your app.
-    // These two additional parameters are only available on windows.
-    // Setting this is required to get this working in dev mode.
-    app.setAsDefaultProtocolClient(URBIT_PROTOCOL, process.execPath, [
-      process.argv[1]
-    ]);
-  } else {
+  if (getPlatform() === 'mac') {
     app.setAsDefaultProtocolClient(URBIT_PROTOCOL);
-  }
+} else {
+    const args = process.argv[1] ? [path.resolve(process.argv[1])] : [];
+    app.setAsDefaultProtocolClient(URBIT_PROTOCOL, process.execPath, args);
+} 
   
   // Force single application instance
   const gotTheLock = app.requestSingleInstanceLock();
