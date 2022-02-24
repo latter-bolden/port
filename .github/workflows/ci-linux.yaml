@@ -23,7 +23,7 @@ jobs:
         run: npx electron-rebuild
       - name: Get Urbit Binaries
         run: ./get-urbit.sh
-      - name: Build & Publish
+      - name: Build
         run: |
           yarn run make:linux
           snapcraft upload --release=devel out/make/*.snap
