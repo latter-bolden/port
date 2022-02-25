@@ -15,6 +15,8 @@ import { pierKey } from '../query-keys'
 import { Pier } from '../../background/services/pier-service'
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from '../shared/Dialog'
 import { Button } from '../shared/Button'
+import { WindowsBootWarning } from '../alerts/WindowsBootWarning'
+import { getPlatform } from '../../get-platform'
 
 
 export const Ship: React.FC = () => {
@@ -25,6 +27,8 @@ export const Ship: React.FC = () => {
         const pier = await send('get-pier', slug)
         return send('check-pier', pier)
     })
+    const { data: ships } = useQuery(pierKey(), () => send('get-piers'));
+    const disableBoot = getPlatform() === 'win' && !!ships?.find(s => s.status === 'running' && s.type !== 'remote' && s.slug !== ship.slug);
     const { mutate: stopShip } = useMutation(() => send('stop-pier', ship), {
         onSuccess: (newShip: Pier) => {
             queryClient.invalidateQueries(pierKey(slug))
@@ -106,9 +110,11 @@ export const Ship: React.FC = () => {
                     <div className="px-4 py-5 bg-gray-100 dark:bg-gray-900 rounded">               
                         <h2 className="text-base font-semibold text-black dark:text-white mb-4">Troubleshooting</h2>
                         <div className="flex items-center font-semibold">
-                            <Button onClick={() => spawnTerminal()}>
-                                Start in Terminal
-                            </Button>
+                            <WindowsBootWarning show={disableBoot}>
+                                <Button onClick={() => spawnTerminal()} disabled={disableBoot}>
+                                    Start in Terminal
+                                </Button>
+                            </WindowsBootWarning>
                         </div>
                     </div>
                 )}

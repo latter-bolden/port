@@ -13,6 +13,8 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { ChevronDown } from '../icons/ChevronDown'
 import { pierKey } from '../query-keys'
 import { SettingsIcon } from '../icons/Settings'
+import { WindowsBootWarning } from '../alerts/WindowsBootWarning'
+import { getPlatform } from '../../get-platform'
 
 const CenteredLayout = () => (
     <Layout title="Welcome" className="px-8">
@@ -29,7 +31,8 @@ const CenteredLayout = () => (
 )
 
 export const Welcome = () => {
-    const { data: piers, isIdle, isLoading } = useQuery(pierKey(), async () => await send('get-piers'))
+    const { data: piers, isIdle, isLoading } = useQuery(pierKey(), async () => await send('get-piers'));
+    const disableBoot = getPlatform() === 'win' && !!piers?.find(s => s.status === 'running' && s.type !== 'remote'); 
 
     if (isIdle || isLoading) {
         return <Layout title="Welcome">
@@ -51,10 +54,12 @@ export const Welcome = () => {
                     </header>
                     <nav className="flex flex-col items-end min-w-48 pl-16 space-y-4 text-sm text-gray-500 dark:text-gray-400">
                         <DropdownMenu.Root>
-                            <DropdownMenu.Trigger className="button text-sm">
-                                <ChevronDown className="mr-3 w-5 h-5" primary="fill-current" />
-                                Boot Menu
-                            </DropdownMenu.Trigger>
+                            <WindowsBootWarning show={disableBoot}>
+                                <DropdownMenu.Trigger className="button text-sm" disabled={disableBoot}>
+                                    <ChevronDown className="mr-3 w-5 h-5" primary="fill-current" />
+                                    Boot Menu
+                                </DropdownMenu.Trigger>
+                            </WindowsBootWarning>
                             <DropdownMenu.Content as="ul" align="end" sideOffset={-30} className="min-w-52 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-900 rounded shadow-lg">
                                 { routes.map(route => (
                                     <li key={route.path} className="border-gray-300 dark:border-gray-700">
