@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react'
 
 type ButtonProps = {
     className?: string;
-} & React.DOMAttributes<HTMLButtonElement>;
+} & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export const Button: FunctionComponent<ButtonProps> = ({ className = '', children, ...props }) => {
 
