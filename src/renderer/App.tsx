@@ -16,7 +16,7 @@ import { PlanetDetails } from './details/pages/PlanetDetails';
 import { routeMap } from './routes';
 import create from 'zustand';
 import { pierKey } from './query-keys';
-import { listen, send } from './client/ipc';
+import { listen, muteHandler, send } from './client/ipc';
 import { Star } from './details/pages/Star';
 import { ipcRenderer } from 'electron';
 import { Settings } from '../background/db';
@@ -84,6 +84,11 @@ const App = () => {
             })
         }
     });
+
+    useEffect(() => {
+        muteHandler('get-piers');
+        muteHandler('check-pier');
+    }, [])
 
     useEffect(() => {
         const listener = (event, args) => {
