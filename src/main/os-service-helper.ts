@@ -50,7 +50,7 @@ export async function toggleDevTools(mainWindow: BrowserWindow, bgWindow?: Brows
 }
 
 async function createView(mainWindow: BrowserWindow, createNewWindow, onNewWindow, data: ViewData) {
-    const { url, ship, code } = data;
+    const { url, ship, code, openLink } = data;
     let view = views.get(url);
     const newView = !view;
 
@@ -127,6 +127,10 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, onNewWindo
     }
 
     mainWindow.addBrowserView(view);
+
+    if (openLink) {
+        mainWindow.webContents.loadURL(openLink);
+    }
 
     //this is all hacks just to get zoomfactor to update correctly 🙄
     mainWindow.webContents.zoomFactor = mainWindow.webContents.zoomFactor + 0;

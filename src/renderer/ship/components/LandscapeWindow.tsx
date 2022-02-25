@@ -6,6 +6,7 @@ import { Link, useHistory } from 'react-router-dom'
 import { Spinner } from '../../shared/Spinner'
 import { LeftArrow } from '../../icons/LeftArrow'
 import { useQuery } from 'react-query'
+import { useStore } from '../../App'
 
 interface LandscapeWindowProps {
     pier: Pier;
@@ -14,6 +15,7 @@ interface LandscapeWindowProps {
 
 export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading }) => {
     const history = useHistory();
+    const protocolLink = useStore(s => s.protocolLink);
     const landscapeRef = useRef<HTMLDivElement>(null);
     const [status, setStatus] = useState('initial');
     const url = getUrl(pier);
@@ -46,9 +48,11 @@ export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading 
                     url,
                     ship: pier.shipName || pier.slug,
                     code: data?.code,
-                    bounds: getBounds(landscapeRef.current)
+                    bounds: getBounds(landscapeRef.current),
+                    openLink: protocolLink
                 })
                 setStatus('loaded')
+                useStore.setState({ protocolLink: null });
                 await send('refresh-settings');
             } catch (err) {
                 setStatus('errored')
@@ -59,7 +63,7 @@ export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading 
             setStatus('loading')
             createView();    
         }
-    }, [landscapeRef.current, url, data])
+    }, [landscapeRef.current, url, data, protocolLink])
 
     useEffect(() => {
         const unlisten = history.listen(() => {

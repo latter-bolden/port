@@ -4,10 +4,11 @@ import { useHistory } from 'react-router-dom'
 import { send } from '../client/ipc';
 import { Bug } from '../icons/Bug';
 import { isOSX } from '../../main/helpers';
-import { UpdateNotifier } from './UpdateNotifier';
+import { UpdateNotifier } from '../alerts/UpdateNotifier';
 import { useStore } from '../App';
-import { M1Warning } from './M1Warning';
-import { GridFeaturesPopup } from './GridFeaturesPopup';
+import { M1Warning } from '../alerts/M1Warning';
+import { GridFeaturesPopup } from '../alerts/GridFeaturesPopup';
+import { AttemptedLink } from '../alerts/AttemptedLink';
 
 interface LayoutProps {
     title: string;
@@ -55,6 +56,7 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, center
             <main className={`grid ${center ? 'justify-center content-center' : ''} ${isOSX() ? 'mt-7' : ''} ${className}`}>
                 <M1Warning />
                 <GridFeaturesPopup />
+                <AttemptedLink />
                 { children }
             </main>
             <footer className="flex items-center h-8 py-2 z-20">

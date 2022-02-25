@@ -120,11 +120,17 @@ interface onNavigationParameters {
 
 export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewWindow, mainWindow }: onNavigationParameters) {
   const url = new URL(currentUrl);
-  const targetUrl = new URL(urlTarget);
+  let targetUrl = new URL(urlTarget);
+  const isProtocolLink = targetUrl.protocol.startsWith(URBIT_PROTOCOL);
+
+  if (isProtocolLink) {
+    // fix protocol link being incorrectly parsed
+    targetUrl = new URL(`${URBIT_PROTOCOL}://${url.host}/${targetUrl.host}${targetUrl.pathname}`)
+  }
+
   const sameHost = targetUrl.hostname === url.hostname;
   const sameApp = sameHost && targetUrl.pathname.startsWith(url.pathname);
   isDev && console.log('navigating', url.pathname, targetUrl.pathname)
-  const isProtocolLink = targetUrl.protocol.startsWith(URBIT_PROTOCOL);
 
   if ((!sameHost || sameApp) && !isProtocolLink) {
       return;
@@ -136,6 +142,7 @@ export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewW
       return url.host === viewUrl.host;
     });
     const urbitUrl = createUrbitUrl(url, urlTarget);
+    console.log('redirecting to', urbitUrl)
 
     preventDefault();
     if (view) {

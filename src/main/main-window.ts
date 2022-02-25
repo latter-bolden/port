@@ -1,4 +1,4 @@
-import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents, nativeTheme } from 'electron';
+import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents, nativeTheme, app } from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import isDev from 'electron-is-dev';
 
@@ -6,12 +6,14 @@ import {
   isOSX,
   nativeTabsSupported,
   onNavigation,
-  onNewWindowHelper
+  onNewWindowHelper,
+  URBIT_PROTOCOL
 } from './helpers';
 import { initContextMenu } from './context-menu';
 import { start as osHelperStart, views } from './os-service-helper'
 import { start as settingsHelperStart } from './setting-service-helper'
 import { start as terminalServiceStart } from './terminal-service';
+import { Settings } from '../background/db';
 
 declare const LANDSCAPE_PRELOAD_WEBPACK_ENTRY: string;
 const ZOOM_INTERVAL = 0.1;
@@ -233,6 +235,24 @@ export function createMainWindow(
     );
   };
 
+  const handleProtocolLink = (url: string) => {
+    const view = mainWindow.getBrowserViews()[0];
+    if (!view) {
+      mainWindow.webContents.send('protocol-link', url);
+      return;
+    }
+
+    const currentUrl = view.webContents.getURL();
+    console.log('deeplink', url, currentUrl);
+    onNavigation({
+      preventDefault: () => {}, //eslint-disable-line @typescript-eslint/no-empty-function
+      urlTarget: url,
+      currentUrl,
+      mainWindow,
+      createNewWindow
+    })
+  }
+
   const menuOptions = {
     appQuit: onAppQuit,
     zoomIn: onZoomIn,
@@ -244,7 +264,8 @@ export function createMainWindow(
     getCurrentUrl,
     clearAppData,
     mainWindow,
-    bgWindow
+    bgWindow,
+    settings: {} as Record<Settings, string>
   };
 
   initContextMenu(
@@ -281,7 +302,7 @@ export function createMainWindow(
   // });
   // mainWindow.webContents.session.clearCache();
   osHelperStart(mainWindow, createNewWindow, onNewWindow, bgWindow)
-  settingsHelperStart(mainWindow, menuOptions);
+  settingsHelperStart({ mainWindow, menuOptions });
   terminalServiceStart();
   isDev && mainWindow.webContents.openDevTools();
   mainWindow.loadURL(mainUrl);
@@ -300,6 +321,33 @@ export function createMainWindow(
     }
     hideOrCloseWindow(mainWindow, bgWindow, event);
   });
+  
+  // Force single application instance
+  const gotTheLock = app.requestSingleInstanceLock();
+  
+  if (!gotTheLock) {
+    app.quit();
+    return;
+  } else {
+    app.on('second-instance', (e, argv) => {
+      if (process.platform !== 'darwin') {
+        console.log('handling protocol link');
+        handleProtocolLink(argv.find((arg) => arg.startsWith(`${URBIT_PROTOCOL}://`)))
+      }
+  
+      if (mainWindow) {
+        if (mainWindow.isMinimized()) {
+          mainWindow.restore();
+        }
+        mainWindow.focus();
+      }
+    });
+  }
+
+  app.on('open-url', (event, url) => {
+    console.log('handling protocol link', url);
+    handleProtocolLink(url);
+  })
 
   return mainWindow;
 }

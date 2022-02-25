@@ -21,6 +21,7 @@ import { Star } from './details/pages/Star';
 import { ipcRenderer } from 'electron';
 import { Settings } from '../background/db';
 import { Settings as SettingsPage } from './pages/Settings';
+import { Pier } from '../background/services/pier-service';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -30,12 +31,28 @@ const queryClient = new QueryClient({
     }
 });
 
-export const useStore = create(() => ({
+interface PortStore {
+    piers: Pier[];
+    architectureUnsupported: string;
+    archCheckOpen: boolean;
+    protocolLink: string;
+    settings: Record<Settings, string>;
+    updateStatus: string;
+    zoomLevels: {
+        main: number;
+        views: string;
+    }
+}
+
+export const useStore = create<PortStore>(() => ({
     piers: [],
     architectureUnsupported: null,
     archCheckOpen: true,
+    protocolLink: null,
     settings: {
         'seen-grid-update-modal': 'true',
+        'global-leap': 'true',
+        'protocol-handling': 'true',
     },
     updateStatus: 'initial',
     zoomLevels: {
@@ -101,7 +118,7 @@ const App = () => {
         const listeners = [
             listen('arch-unsupported', (architectureUnsupported) => {
                 console.log({ architectureUnsupported })
-                useStore.setState({ architectureUnsupported })
+                useStore.setState({ architectureUnsupported: architectureUnsupported as string })
             })
         ]
 
