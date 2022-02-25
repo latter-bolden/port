@@ -12,7 +12,9 @@ jobs:
         with:
           node-version: 14
       - name: Install Packages
-        run: yarn install
+        run: |
+          yarn config set network-timeout 600000
+          yarn install
       - name: Rebuild Native Modules
         run: npx electron-rebuild
       - name: Get Urbit Binaries
