@@ -1,4 +1,3 @@
-import path from 'path';
 import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents, nativeTheme, app } from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import isDev from 'electron-is-dev';
@@ -14,7 +13,7 @@ import { initContextMenu } from './context-menu';
 import { start as osHelperStart, views } from './os-service-helper'
 import { start as settingsHelperStart } from './setting-service-helper'
 import { start as terminalServiceStart } from './terminal-service';
-import { getPlatform } from '../get-platform';
+import { Settings } from '../background/db';
 
 declare const LANDSCAPE_PRELOAD_WEBPACK_ENTRY: string;
 const ZOOM_INTERVAL = 0.1;
@@ -239,6 +238,7 @@ export function createMainWindow(
   const handleProtocolLink = (url: string) => {
     const view = mainWindow.getBrowserViews()[0];
     if (!view) {
+      mainWindow.webContents.send('protocol-link', url);
       return;
     }
 
@@ -264,7 +264,8 @@ export function createMainWindow(
     getCurrentUrl,
     clearAppData,
     mainWindow,
-    bgWindow
+    bgWindow,
+    settings: {} as Record<Settings, string>
   };
 
   initContextMenu(
@@ -301,7 +302,7 @@ export function createMainWindow(
   // });
   // mainWindow.webContents.session.clearCache();
   osHelperStart(mainWindow, createNewWindow, onNewWindow, bgWindow)
-  settingsHelperStart(mainWindow, menuOptions);
+  settingsHelperStart({ mainWindow, menuOptions });
   terminalServiceStart();
   isDev && mainWindow.webContents.openDevTools();
   mainWindow.loadURL(mainUrl);
@@ -320,13 +321,6 @@ export function createMainWindow(
     }
     hideOrCloseWindow(mainWindow, bgWindow, event);
   });
-
-  if (getPlatform() === 'mac') {
-    app.setAsDefaultProtocolClient(URBIT_PROTOCOL);
-} else {
-    const args = process.argv[1] ? [path.resolve(process.argv[1])] : [];
-    app.setAsDefaultProtocolClient(URBIT_PROTOCOL, process.execPath, args);
-} 
   
   // Force single application instance
   const gotTheLock = app.requestSingleInstanceLock();

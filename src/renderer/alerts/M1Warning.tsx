@@ -2,8 +2,8 @@ import React from 'react';
 import { useStore } from '../App';
 import { send } from '../client/ipc';
 import { Close } from '../icons/Close';
-import { Dialog, DialogClose, DialogContent } from './Dialog';
-import { Button } from './Button';
+import { Dialog, DialogClose, DialogContent } from '../shared/Dialog';
+import { Button } from '../shared/Button';
 
 export const M1Warning = () => {
   const {

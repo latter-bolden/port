@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
 import { useStore } from '../App';
 import { send } from '../client/ipc';
-import { Spinner } from './Spinner';
+import { Spinner } from '../shared/Spinner';
 import * as Popover from '@radix-ui/react-popover';
 import { Close } from '../icons/Close';
-import { Button } from './Button';
+import { Button } from '../shared/Button';
 import { ipcRenderer } from 'electron';
 import { useHistory, useRouteMatch } from 'react-router';
 
