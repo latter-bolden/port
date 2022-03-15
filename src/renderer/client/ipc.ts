@@ -45,7 +45,7 @@ export async function connectSocket(name: string): Promise<void> {
 
 function onMessage(data: string): void {
     const msg: ClientMessage = JSON.parse(data)
-    console.log(Date.now(), 'client received:', msg);
+    //console.log(Date.now(), 'client received:', msg);
 
     if (msg.type === 'error' || msg.type === 'reply') {
         handleResponse(msg);
@@ -112,7 +112,7 @@ export function send<T extends keyof Handlers>(name: T, ...args: Parameters<Hand
         
         if (socketClient && serverConnected) {
             socketClient.emit('message', stringMsg)
-            console.log(Date.now(), 'client sending:', msg);
+            //console.log(Date.now(), 'client sending:', msg);
         } else {
             messageQueue.push(stringMsg)
         }

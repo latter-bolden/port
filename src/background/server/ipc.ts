@@ -70,7 +70,7 @@ function serve<T extends HandlerMap<T>>(handlers: HandlerMap<T>) {
         const msg = JSON.parse(data)
         const handler = handlers[msg.name];
 
-        console.log(Date.now(), 'server received:', msg);
+        //console.log(Date.now(), 'server received:', msg);
 
         if (!handler)
             return noHandle(msg, socket);
@@ -88,7 +88,7 @@ export function send(name: string, ...args: unknown[]): void {
     }
     
     ipc.server.broadcast('message', JSON.stringify(msg))
-    isDev && console.log(Date.now(), 'server sending:', msg);
+    //isDev && console.log(Date.now(), 'server sending:', msg);
 }
 
 async function flushSendQueue() {
