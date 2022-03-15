@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useQueryClient } from 'react-query';
 import { useStore } from '../App';
 import { send } from '../client/ipc';
-import { Dialog, DialogContent } from './Dialog';
+import { Dialog, DialogContent } from '../shared/Dialog';
 
 export const GridFeaturesPopup = () => {
   const queryClient = useQueryClient();

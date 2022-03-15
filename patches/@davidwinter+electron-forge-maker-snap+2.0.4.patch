@@ -1,0 +1,51 @@
+diff --git a/node_modules/@davidwinter/electron-forge-maker-snap/snap-packager.js b/node_modules/@davidwinter/electron-forge-maker-snap/snap-packager.js
+index 79752f1..66946df 100644
+--- a/node_modules/@davidwinter/electron-forge-maker-snap/snap-packager.js
++++ b/node_modules/@davidwinter/electron-forge-maker-snap/snap-packager.js
+@@ -24,14 +24,19 @@ module.exports = class SnapPackager {
+ 	}
+ 
+ 	generateDesktopFile() {
++		const flags = this.values.execFlags ? ` ${this.values.execFlags}` : '';
+ 		const data = {
+ 			Name: this.values.applicationName,
+-			Exec: this.values.executableName,
++			Exec: this.values.executableName + flags,
+ 			Icon: `\${SNAP}/meta/gui/${this.values.executableName}.png`,
+ 			Type: 'Application',
+ 			Encoding: 'UTF-8'
+ 		};
+ 
++		if (this.values.mimeTypes) {
++			data.MimeType = this.values.mimeTypes;
++		}
++
+ 		return ini.encode(data, {section: 'Desktop Entry'});
+ 	}
+ 
+diff --git a/node_modules/@davidwinter/electron-forge-maker-snap/snap-values.js b/node_modules/@davidwinter/electron-forge-maker-snap/snap-values.js
+index 1134385..3427933 100644
+--- a/node_modules/@davidwinter/electron-forge-maker-snap/snap-values.js
++++ b/node_modules/@davidwinter/electron-forge-maker-snap/snap-values.js
+@@ -23,6 +23,10 @@ class SnapValues {
+ 		return this._sanatizeExecutableName(this.makerOptions.executableName || this.makeOptions.appName);
+ 	}
+ 
++	get execFlags() {
++		return this.makerOptions.execFlags;
++	}
++
+ 	get packagedExecutableName() {
+ 		const linuxApp = new LinuxApp.App({
+ 			name: this.makeOptions.appName
+@@ -117,6 +121,10 @@ class SnapValues {
+ 		return this.makerOptions.layout;
+ 	}
+ 
++	get mimeTypes() {
++		return this.makerOptions.mimeTypes;
++	}
++
+ 	_sanatizeExecutableName(name) {
+ 		const execName = name.toLowerCase().replace(/ /g, '-');
+ 		return execName.replace(/[^a-z\d\\-]/g, '');

@@ -25,7 +25,9 @@ module.exports = {
   },
   variants: {
     extend: {
-      textColor: ['group-focus', 'disabled']
+      textColor: ['group-focus', 'disabled'],
+      borderColor: ['disabled'],
+      cursor: ['disabled']
     },
   },
   plugins: [],

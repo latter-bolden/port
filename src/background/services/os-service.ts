@@ -103,6 +103,7 @@ export interface ViewData {
     url: string;
     ship: string;
     code: string;
+    openLink?: string;
     bounds: {
         x: number;
         y: number;

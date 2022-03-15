@@ -4,7 +4,7 @@ import { Menu, clipboard, shell, MenuItemConstructorOptions, BrowserWindow } fro
 import { leap, showWindow } from './helpers';
 import { Settings } from '../background/db';
 
-interface MenuOptions {
+export interface MenuOptions {
   settings: Record<Settings, string>;
   [ref: string]: any;
 }

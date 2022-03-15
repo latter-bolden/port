@@ -6,12 +6,16 @@ import { send } from '../client/ipc';
 import { LeftArrow } from '../icons/LeftArrow';
 import { Layout } from '../shared/Layout';
 import { Toggle } from '../shared/Toggle';
+import { Settings as SettingsType } from '../../background/db';
 
 export const Settings = () => {
   const queryClient = useQueryClient();
   const settings = useStore(s => s.settings);
   const leapGlobally = settings['global-leap'] === 'true';
-  const { mutate: setGlobalLeap } = useMutation((on: boolean) => send('set-setting', 'global-leap', on.toString()), {
+  const protocolHandling = settings['protocol-handling'] === 'true';
+  const { mutate: setSetting } = useMutation(({ setting, on }: { setting: SettingsType, on: boolean }) => {
+      return send('set-setting', setting, on.toString())
+    }, {
     onSuccess: () => {
       queryClient.invalidateQueries('settings');
     }
@@ -31,16 +35,29 @@ export const Settings = () => {
       <section className="w-full max-w-xl mr-6">
         <h1 className="mb-6 font-semibold text-lg text-black dark:text-white">Settings</h1>
         <h2 className="mb-3 text-black dark:text-white">Leap</h2>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center mb-6 space-x-4">
           <Toggle 
             pressed={leapGlobally}
-            onPressedChange={setGlobalLeap}
+            onPressedChange={(on) => setSetting({ setting: 'global-leap', on })}
             className="text-blue-500" 
             toggleClass="w-9 h-6"
           />
           <div className="w-96">
             {leapGlobally && <p>Allow access to Leap globally on my computer</p>}
             {!leapGlobally && <p>Only allow Leap while Port is focused</p>}
+          </div>
+        </div>
+        <h2 className="mb-3 text-black dark:text-white">Leap</h2>
+        <div className="flex items-center space-x-4">
+          <Toggle 
+            pressed={protocolHandling}
+            onPressedChange={(on) => setSetting({ setting: 'protocol-handling', on })}
+            className="text-blue-500" 
+            toggleClass="w-9 h-6"
+          />
+          <div className="w-96">
+            {protocolHandling && <p>Allow Port to handle any and all <strong className='font-mono'>web+urbitgraph</strong> links</p>}
+            {!protocolHandling && <p><strong className='font-mono'>web+urbitgraph</strong> link handling disabled</p>}
           </div>
         </div>
       </section>

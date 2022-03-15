@@ -1,9 +1,9 @@
-name: Publish Windows
+name: Make Windows
 on:
-  push:
+  pull_request:
     branches: [ main ]
 jobs:
-  publish:
+  make:
     runs-on: windows-2019
     steps:
       - uses: actions/checkout@v2
@@ -20,8 +20,6 @@ jobs:
       - name: Get Urbit Binaries
         run: get-urbit
         shell: cmd
-      - name: Build & Publish
+      - name: Build
         run: |
-          yarn run publish
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          yarn run make:win

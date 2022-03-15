@@ -2,7 +2,7 @@ import { app, autoUpdater, BrowserWindow } from 'electron';
 import path from 'path';
 import findOpenSocket from '../renderer/client/find-open-socket'
 import isDev from 'electron-is-dev'
-import { isOSX } from './helpers';
+import { isOSX, onNavigation } from './helpers';
 import { createMainWindow } from './main-window';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const BACKGROUND_WINDOW_WEBPACK_ENTRY: string;

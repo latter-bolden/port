@@ -18,12 +18,12 @@ module.exports = {
       {
         name: "Urbit Port",
         schemes: ["urbit-port"]
+      },
+      {
+        name: "Urbit Links",
+        protocol: "web+urbitgraph",
+        schemes: ["web+urbitgraph"]
       }
-//      {
-//        name: "Urbit Links",
-//        protocol: "web+urbitgraph",
-//        schemes: ["web+urbitgraph"]
-//      }
     ],
     extendInfo: {
       NSMicrophoneUsageDescription: "We need access to your microphone for Urbit apps",
@@ -80,7 +80,7 @@ module.exports = {
     {
       name: "@electron-forge/maker-deb",
       config: {
-        mimeType: ["x-scheme-handler/urbit-port"],
+        mimeType: ["x-scheme-handler/urbit-port", "x-scheme-handler/web+urbitgraph"],
         options: {
           icon: "icons/urbit-logo.png",
           depends: [
@@ -92,6 +92,9 @@ module.exports = {
     {
       name: "@davidwinter/electron-forge-maker-snap",
       config: {
+        grade: process.env.DEV ? 'devel' : 'stable',
+        execFlags: '%u',
+        mimeTypes: 'x-scheme-handler/web+urbitgraph',
         stagePackages: ['default', 'libx11-xcb1', 'fonts-noto', 'fonts-noto-color-emoji'],
         categories: 'Utility',
         description: "This app allows you to spin up, access, and manage your Urbit ships whether they are comets, planets or potentially stars. It gives people the ability to immediately download and run Urbit without any knowledge of the command line.",

@@ -8,7 +8,10 @@ export type Listener<Result = unknown> = (...args: unknown[]) => Result
 interface ReplyHandler {
     resolve: (value?: unknown) => void;
     reject: (reason?: unknown) => void;
+    mute?: boolean;
 }
+
+const mutedHandlers = [];
 
 // Init
 export async function init(): Promise<void> {
@@ -45,22 +48,26 @@ export async function connectSocket(name: string): Promise<void> {
 
 function onMessage(data: string): void {
     const msg: ClientMessage = JSON.parse(data)
-    //console.log(Date.now(), 'client received:', msg);
 
     if (msg.type === 'error' || msg.type === 'reply') {
-        handleResponse(msg);
+        const handler = replyHandlers.get(msg.id)
+        handleResponse(handler, msg);
+
+        if (!handler?.mute) {
+            console.log(Date.now(), 'client received:', msg);
+        }
     } else if (msg.type === 'push') {
         const listens = listeners.get(msg.name)
         if (listens) {
             listens.forEach(listener => listener(...msg.args))
         }
+        console.log(Date.now(), 'client received:', msg);
     } else {
         throw new Error('Unknown message type: ' + JSON.stringify(msg))
     }
 }
 
-function handleResponse(msg: Reply | Error): void {
-    const handler = replyHandlers.get(msg.id)
+function handleResponse(handler: ReplyHandler, msg: Reply | Error): void {
     if (!handler)
         return;
 
@@ -106,13 +113,16 @@ export function send<T extends keyof Handlers>(name: T, ...args: Parameters<Hand
         const id = v4()
         const msg: ServerMessage<Handlers> = { id, name, args };
         const stringMsg = JSON.stringify(msg);
-
+        const mute = mutedHandlers.includes(name)
         
-        replyHandlers.set(id, { resolve, reject })
+        replyHandlers.set(id, { resolve, reject, mute })
         
         if (socketClient && serverConnected) {
             socketClient.emit('message', stringMsg)
-            //console.log(Date.now(), 'client sending:', msg);
+
+            if (!mute) {
+                console.log(Date.now(), 'client sending:', msg);    
+            }
         } else {
             messageQueue.push(stringMsg)
         }
@@ -133,4 +143,8 @@ export function listen(name: string, listener: Listener): () => void {
 
 export function unlisten(name: string): void {
     listeners.set(name, [])
+}
+
+export function muteHandler<T extends keyof Handlers>(key: T): void {
+    mutedHandlers.push(key)
 }
