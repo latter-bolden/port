@@ -13,6 +13,7 @@ export const Settings = () => {
   const settings = useStore(s => s.settings);
   const leapGlobally = settings['global-leap'] === 'true';
   const protocolHandling = settings['protocol-handling'] === 'true';
+  const shipNameInTitle = settings['ship-name-in-title'] === 'true';
   const { mutate: setSetting } = useMutation(({ setting, on }: { setting: SettingsType, on: boolean }) => {
       return send('set-setting', setting, on.toString())
     }, {
@@ -48,7 +49,7 @@ export const Settings = () => {
           </div>
         </div>
         <h2 className="mb-3 text-black dark:text-white">Leap</h2>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center mb-6 space-x-4">
           <Toggle 
             pressed={protocolHandling}
             onPressedChange={(on) => setSetting({ setting: 'protocol-handling', on })}
@@ -58,6 +59,19 @@ export const Settings = () => {
           <div className="w-96">
             {protocolHandling && <p>Allow Port to handle any and all <strong className='font-mono'>web+urbitgraph</strong> links</p>}
             {!protocolHandling && <p><strong className='font-mono'>web+urbitgraph</strong> link handling disabled</p>}
+          </div>
+        </div>
+        <h2 className="mb-3 text-black dark:text-white">Show Ship</h2>
+        <div className="flex items-center space-x-4">
+          <Toggle
+            pressed={shipNameInTitle}
+            onPressedChange={(on) => setSetting({ setting: 'ship-name-in-title', on })}
+            className="text-blue-500"
+            toggleClass="w-9 h-6"
+          />
+          <div className="w-96">
+            {shipNameInTitle && <p>Ship name will be displayed in the title of app windows</p>}
+            {!shipNameInTitle && <p>Ship name will not be displayed in the title of app windows</p>}
           </div>
         </div>
       </section>
