@@ -494,6 +494,11 @@ export class PierService {
             args.push('-t')
         }
 
+        if (pier.amesPort) {
+            args.push('-p')
+            args.push(pier.amesPort)
+        }
+
         if (pier.type === 'comet' && unbooted) {
             args.push('-c')
         } else if (['star', 'planet', 'moon'].includes(pier.type) && unbooted) {
@@ -652,12 +657,13 @@ export interface Pier {
     keyFile?: string;
     webPort?: number;
     loopbackPort?: number;
+    amesPort?: number;
     directoryAsPierPath?: boolean;
     bootProcessId?: number;
     bootProcessDisconnected?: boolean;
 }
 
-export type AddPier = Pick<Pier, 'name' | 'type' | 'shipName' | 'keyFile'> & {
+export type AddPier = Pick<Pier, 'name' | 'type' | 'shipName' | 'amesPort' | 'keyFile'> & {
     status?: ShipStatus;
     directory?: string;
     directoryAsPierPath?: boolean;
