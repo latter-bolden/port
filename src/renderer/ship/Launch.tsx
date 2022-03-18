@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
+import { ipcRenderer } from 'electron'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { Link, useParams } from 'react-router-dom'
 import { Pier } from '../../background/services/pier-service'
 import { send } from '../client/ipc'
+import { getCometShortName } from '../shared/urbit-utils'
 import { LeftArrow } from '../icons/LeftArrow'
 import { pierKey } from '../query-keys'
 import { Button } from '../shared/Button'
@@ -68,6 +70,18 @@ export const Launch = () => {
             mutate()
         }
     }, [pierLoaded])
+
+    useEffect(() => {
+        const handle =  () => {
+            ipcRenderer.send('current-ship', getCometShortName(pier.shipName))
+        }
+
+        ipcRenderer.on('current-ship', handle)
+
+        return () => {
+            ipcRenderer.removeListener('current-ship', handle)
+        }
+    }, [pier]);
 
     return (
         <Layout 

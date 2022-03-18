@@ -1,4 +1,4 @@
-import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents, nativeTheme, app } from 'electron';
+import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents, nativeTheme, app, ipcMain } from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import isDev from 'electron-is-dev';
 
@@ -179,19 +179,35 @@ export function createMainWindow(
     window.webContents.on('new-window', onNewWindow(url));
     window.webContents.on('will-navigate', (e, url) => onWillNavigate(e, window.webContents, url));
     window.webContents.on('did-finish-load', () => {
+      configureWindowTitle(window)
       console.log('finished load')
-      try {
-        const view = mainWindow.getBrowserView();
-        const currentTitle = window.webContents.getTitle();
-        const title = `${currentTitle} | ${view.webContents.getTitle()}`;
-        console.log('setting title to', title)
-        window.setTitle(title)
-      } catch {
-        console.error('no view')
-      }
     })
     window.webContents.loadURL(url);
     return window;
+  };
+
+  const configureWindowTitle = (window: BrowserWindow) => {
+    mainWindow.webContents.send('current-ship')
+    ipcMain.on('current-ship', (_, rawShipName: string) => {
+      ipcMain.removeAllListeners('current-ship')
+
+      const formattedShipName = rawShipName.trim()
+      const titlePrefix = ` (${formattedShipName})`
+      window.setTitle(`${window.webContents.getTitle()}${titlePrefix}`)
+
+      // webContents cannot detect in-page navigations (which may change the title), so we inject that behavior
+      const setTitleScript = `
+        new MutationObserver( () => {
+            if (!document.title.includes("${formattedShipName}")) {
+              document.title = document.title + "${titlePrefix}"
+            }
+        }).observe(
+            document.querySelector('title'),
+            { subtree: true, characterData: true, childList: true }
+        );
+      `
+      window.webContents.executeJavaScript(setTitleScript)
+    })
   };
 
   const createAboutBlankWindow = (): BrowserWindow => {
