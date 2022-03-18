@@ -26,3 +26,8 @@ a:not([class]) {
 *::-webkit-resizer {
     @apply hidden;
 }
+
+*::-webkit-outer-spin-button,
+*::-webkit-inner-spin-button {
+    @apply hidden;
+}
