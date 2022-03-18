@@ -89,13 +89,9 @@ export function onNewWindowHelper(
   onBlockedExternalUrl: (url: string) => void,
   mainWindow: BrowserWindow
 ): void {
-  if (!linkIsInternal(targetUrl, urlToGo)) {
+  if (!linkIsInternal(targetUrl, urlToGo) && blockExternal) {
     preventDefault();
-    if (blockExternal) {
-      onBlockedExternalUrl(urlToGo);
-    } else {
-      openExternal(urlToGo);
-    }
+    onBlockedExternalUrl(urlToGo);
   } else if (urlToGo === 'about:blank') {
     const newWindow = createAboutBlankWindow();
     preventDefault(newWindow);
@@ -129,7 +125,7 @@ export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewW
   }
 
   const sameHost = targetUrl.hostname === url.hostname;
-  const sameApp = sameHost && targetUrl.pathname.startsWith(url.pathname);
+  const sameApp = sameHost && targetUrl.pathname.split('/')[1] === url.pathname.split('/')[1];
   isDev && console.log('navigating', url.pathname, targetUrl.pathname)
 
   if ((!sameHost || sameApp) && !isProtocolLink) {
@@ -154,19 +150,23 @@ export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewW
   }
 
   const targetWindow = BrowserWindow.getAllWindows().find(b => {
+    const portPathSegment = targetUrl.port ? `:${targetUrl.port}` : ''
     const path = b.webContents.getURL()
-      .replace(`${targetUrl.protocol}//${targetUrl.hostname}`, '');
+      .replace(`${targetUrl.protocol}//${targetUrl.hostname}${portPathSegment}`, '');
     return path.startsWith(targetUrl.pathname);
   })
 
-  if (!sameApp && targetWindow) {
-    preventDefault();
-    targetWindow.focus();
+  if (targetWindow) {
+    const targetWindowPort = (new URL(targetWindow.webContents.getURL())).port;
+    if (!sameApp && targetWindowPort === targetUrl.port) {
+      preventDefault();
+      targetWindow.focus();
 
-    if (targetUrl.searchParams.has('grid-note') || targetUrl.searchParams.has('grid-link')) {
-      targetWindow.webContents.loadURL(targetUrl.toString());
+      if (targetUrl.searchParams.has('grid-note') || targetUrl.searchParams.has('grid-link')) {
+        targetWindow.webContents.loadURL(targetUrl.toString());
+      }
+      return;
     }
-    return;
   }
 
   if (createNewWindow) {
