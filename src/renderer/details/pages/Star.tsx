@@ -4,6 +4,7 @@ import { DetailsContainer } from '../components/DetailsContainer'
 import { KeyfileField } from '../components/KeyfileField'
 import { NameField } from '../components/NameField'
 import { ShipNameField } from '../components/ShipNameField'
+import { AdvancedOptions } from '../components/AdvancedOptions'
 import { useAddPier } from '../useAddPier'
 
 export const Star: React.FC = () => {
@@ -31,6 +32,9 @@ export const Star: React.FC = () => {
             <div>
                 <label htmlFor="directory">Key File</label>
                 <KeyfileField form={form} rules={{ required: true }} />
+            </div>
+            <div>
+                <AdvancedOptions form={form}/>
             </div>
         </DetailsContainer>
     )

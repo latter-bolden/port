@@ -5,6 +5,9 @@ import { send } from '../../client/ipc'
 import { DetailsContainer } from '../components/DetailsContainer'
 import { NameField } from '../components/NameField'
 import { useAddPier } from '../useAddPier'
+import { Dropdown } from '../components/Dropdown'
+import { PortField } from '../components/PortField'
+import { AdvancedOptions } from '../components/AdvancedOptions'
 
 export const ExistingShipDetails = () => {
     const {
@@ -73,6 +76,9 @@ export const ExistingShipDetails = () => {
             <div className="flex items-center text-gray-500 dark:text-gray-400">
                 <input id="keep-in-place" type="checkbox" name="shipStays" ref={form.register} className="mr-2"/>
                 <label htmlFor="keep-in-place">Keep pier in current directory</label>
+            </div>
+            <div className="mt-6">
+                <AdvancedOptions form={form}/>
             </div>
         </DetailsContainer>
     )
