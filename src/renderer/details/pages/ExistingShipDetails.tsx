@@ -5,8 +5,6 @@ import { send } from '../../client/ipc'
 import { DetailsContainer } from '../components/DetailsContainer'
 import { NameField } from '../components/NameField'
 import { useAddPier } from '../useAddPier'
-import { Dropdown } from '../components/Dropdown'
-import { PortField } from '../components/PortField'
 import { AdvancedOptions } from '../components/AdvancedOptions'
 
 export const ExistingShipDetails = () => {
