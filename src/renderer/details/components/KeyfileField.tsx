@@ -2,9 +2,11 @@ import React from 'react'
 import { Controller } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { UseControllerOptions, UseFormMethods, Validate, ValidateResult } from 'react-hook-form/dist/types'
+import * as Tooltip from '@radix-ui/react-tooltip'
 import { send } from '../../client/ipc'
 import { AddPier } from '../../../background/services/pier-service'
 import { Dialog, DialogContent } from '../../shared/Dialog'
+import { Question } from '../../icons/Question'
 
 interface KeyfileFieldProps {
     form: UseFormMethods<AddPier>
@@ -56,6 +58,15 @@ export const KeyfileField: React.FC<KeyfileFieldProps> = ({ form, rules, childre
                             <button type="button" className="input flex-none flex justify-center items-center hover:border-black focus:border-black dark:hover:border-white dark:focus:border-white default-ring rounded-l-none" onClick={() => setWarningOpen(true)}>
                                 Choose Key File
                             </button>
+                            <Tooltip.Root>
+                                <Tooltip.Trigger>
+                                    <Question className="h-5 w-5 ml-3 fill-current opacity-25 cursor-help" />
+                                </Tooltip.Trigger>
+                                <Tooltip.Content side="top" className="px-3 py-2 max-w-md text-sm bg-gray-100 dark:bg-gray-800 rounded">
+                                    You can find your key file inside your Passport. If you don't have a key file, you can download it from Bridge.
+                                    <Tooltip.Arrow className="fill-current text-gray-100 dark:text-gray-800"/>
+                                </Tooltip.Content>
+                            </Tooltip.Root>
                             <Dialog open={warningOpen} onOpenChange={setWarningOpen}>
                                 <DialogContent showCloseIcon onOpenAutoFocus={e => e.preventDefault()}>
                                     <h2 className="font-semibold">Key File Warning</h2>
