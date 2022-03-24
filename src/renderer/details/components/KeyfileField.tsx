@@ -58,16 +58,16 @@ export const KeyfileField: React.FC<KeyfileFieldProps> = ({ form, rules, childre
                             </button>
                             <Dialog open={warningOpen} onOpenChange={setWarningOpen}>
                                 <DialogContent showCloseIcon onOpenAutoFocus={e => e.preventDefault()}>
-                                    <h2 className="font-semibold">Keyfile Warning</h2>
+                                    <h2 className="font-semibold">Key File Warning</h2>
                                     <p className="mt-4">
-                                        Starting a ship with it's keyfile should only be done once. Doing so repeatedly will
+                                        Starting a ship with it's key file should only be done once. Doing so repeatedly will
                                         break your ship and require a factory reset.
                                     </p>
                                     <p className="mt-4">
-                                        If your keyfile has already been used, export your pier folder and <Link to="/boot/existing">boot as an existing ship</Link> instead.
+                                        If your key file has already been used, export your pier folder and <Link to="/boot/existing">boot as an existing ship</Link> instead.
                                     </p>
                                     <div className="mt-8 flex justify-center">
-                                        <button className="button text-black bg-yellow-300 hover:bg-yellow-400 dark:bg-transparent dark:border-yellow-200 dark:text-yellow-200 dark:hover:bg-transparent dark:hover:border-yellow-400 dark:hover:text-yellow-400" onClick={async () => bypassWarning(onChange)}>Continue, this keyfile has not been used</button>
+                                        <button className="button text-black bg-yellow-300 hover:bg-yellow-400 dark:bg-transparent dark:border-yellow-200 dark:text-yellow-200 dark:hover:bg-transparent dark:hover:border-yellow-400 dark:hover:text-yellow-400" onClick={async () => bypassWarning(onChange)}>Continue, this key file has not been used</button>
                                     </div>
                                 </DialogContent>
                             </Dialog>
