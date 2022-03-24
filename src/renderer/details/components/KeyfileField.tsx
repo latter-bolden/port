@@ -63,7 +63,7 @@ export const KeyfileField: React.FC<KeyfileFieldProps> = ({ form, rules, childre
                                     <Question className="h-5 w-5 ml-3 fill-current opacity-25 cursor-help" />
                                 </Tooltip.Trigger>
                                 <Tooltip.Content side="top" className="px-3 py-2 max-w-md text-sm bg-gray-100 dark:bg-gray-800 rounded">
-                                    You can find your key file inside your Passport. If you don't have a key file, you can download it from Bridge.
+                                    You can find your key file inside your Passport. If you don't have one or are using another login option, you can download it from Bridge.
                                     <Tooltip.Arrow className="fill-current text-gray-100 dark:text-gray-800"/>
                                 </Tooltip.Content>
                             </Tooltip.Root>
