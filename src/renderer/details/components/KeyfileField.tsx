@@ -1,8 +1,10 @@
 import React from 'react'
 import { Controller } from 'react-hook-form'
+import { Link } from 'react-router-dom'
 import { UseControllerOptions, UseFormMethods, Validate, ValidateResult } from 'react-hook-form/dist/types'
 import { send } from '../../client/ipc'
 import { AddPier } from '../../../background/services/pier-service'
+import { Dialog, DialogContent } from '../../shared/Dialog'
 
 interface KeyfileFieldProps {
     form: UseFormMethods<AddPier>
@@ -11,8 +13,10 @@ interface KeyfileFieldProps {
 }
 
 export const KeyfileField: React.FC<KeyfileFieldProps> = ({ form, rules, children }) => {
+    const [warningOpen, setWarningOpen] = React.useState(false)
 
-    async function setFile(onChange) {
+    async function bypassWarning(onChange) {
+        setWarningOpen(false)
         const file = await send('get-file')
         onChange(file);
     }
@@ -46,12 +50,27 @@ export const KeyfileField: React.FC<KeyfileFieldProps> = ({ form, rules, childre
                                 className="input flex-1 border border-r-0 rounded-r-none" 
                                 placeholder="/Users/my-user/sampel-palnet.key"
                                 readOnly={true}
-                                onClick={async () => await setFile(onChange)}
+                                onClick={() => setWarningOpen(true)}
                                 aria-invalid={!!form.errors?.keyFile} 
                             />
-                            <button type="button" className="input flex-none flex justify-center items-center hover:border-black focus:border-black dark:hover:border-white dark:focus:border-white default-ring rounded-l-none" onClick={async () => await setFile(onChange)}>
+                            <button type="button" className="input flex-none flex justify-center items-center hover:border-black focus:border-black dark:hover:border-white dark:focus:border-white default-ring rounded-l-none" onClick={() => setWarningOpen(true)}>
                                 Choose Key File
                             </button>
+                            <Dialog open={warningOpen} onOpenChange={setWarningOpen}>
+                                <DialogContent showCloseIcon onOpenAutoFocus={e => e.preventDefault()}>
+                                    <h2 className="font-semibold">Keyfile Warning</h2>
+                                    <p className="mt-4">
+                                        Starting a ship with it's keyfile should only be done once. Doing so repeatedly will
+                                        break your ship and require a factory reset.
+                                    </p>
+                                    <p className="mt-4">
+                                        If your keyfile has already been used, export your pier folder and <Link to="/boot/existing">boot as an existing ship</Link> instead.
+                                    </p>
+                                    <div className="mt-8 flex justify-center">
+                                        <button className="button border-yellow-200 text-yellow-200 hover:border-yellow-400 hover:text-yellow-400" onClick={async () => bypassWarning(onChange)}>Continue, this keyfile has not been used</button>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
                         </>
                     )}
                 />
