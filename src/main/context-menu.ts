@@ -1,10 +1,11 @@
 import { shell } from 'electron';
+import isDev from 'electron-is-dev'
 import contextMenu from 'electron-context-menu';
 
 //Taken from https://github.com/nativefier/nativefier/blob/master/app/src/components/contextMenu.ts
 export function initContextMenu(createNewWindow, createNewTab, mainUrl, window?): void {
   const options: contextMenu.Options = {
-    showInspectElement: false,
+    showInspectElement: isDev,
     prepend: (actions, params) => {
       const items = [];
       const showOpenLink = !params.pageURL.startsWith(mainUrl)
