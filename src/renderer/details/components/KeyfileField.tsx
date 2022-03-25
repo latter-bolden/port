@@ -77,8 +77,9 @@ export const KeyfileField: React.FC<KeyfileFieldProps> = ({ form, rules, childre
                                     <p className="mt-4">
                                         If your key file has already been used, export your pier folder and <Link to="/boot/existing">boot as an existing ship</Link> instead.
                                     </p>
-                                    <div className="mt-8 flex justify-center">
+                                    <div className="mt-8 flex flex-col justify-between items-center">
                                         <button className="button text-black bg-yellow-300 hover:bg-yellow-400 dark:bg-transparent dark:border-yellow-200 dark:text-yellow-200 dark:hover:bg-transparent dark:hover:border-yellow-400 dark:hover:text-yellow-400" onClick={async () => bypassWarning(onChange)}>Continue, this key file has not been used</button>
+                                        <button className="mt-2 hover:opacity-60" onClick={() => setWarningOpen(false)}>cancel</button>
                                     </div>
                                 </DialogContent>
                             </Dialog>
