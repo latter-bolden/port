@@ -69,7 +69,7 @@ export const KeyfileField: React.FC<KeyfileFieldProps> = ({ form, rules, childre
                             </Tooltip.Root>
                             <Dialog open={warningOpen} onOpenChange={setWarningOpen}>
                                 <DialogContent showCloseIcon onOpenAutoFocus={e => e.preventDefault()}>
-                                    <h2 className="font-semibold">Key File Warning</h2>
+                                    <h2 className="font-semibold">Warning</h2>
                                     <p className="mt-4">
                                         Starting a ship with its key file should only be done once. Doing so repeatedly will
                                         break your ship and require a factory reset.
