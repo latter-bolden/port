@@ -2,6 +2,7 @@ import React from 'react'
 import { send } from '../../client/ipc'
 import { DetailsContainer } from '../components/DetailsContainer'
 import { NameField } from '../components/NameField'
+import { AdvancedOptions } from '../components/AdvancedOptions'
 import { useAddPier } from '../useAddPier'
 
 export const CometDetails: React.FC = () => {
@@ -23,6 +24,7 @@ export const CometDetails: React.FC = () => {
                 <label htmlFor="name">Name <span className="text-gray-300 dark:text-gray-700">(local only)</span></label>
                 <NameField form={form} />
             </div>
+            <AdvancedOptions form={form} />
         </DetailsContainer>
     )
 }

@@ -9,6 +9,7 @@ import { DetailsContainer } from '../components/DetailsContainer'
 import { NameField } from '../components/NameField'
 import { ShipNameField } from '../components/ShipNameField'
 import { KeyfileField } from '../components/KeyfileField'
+import { AdvancedOptions } from '../components/AdvancedOptions'
 
 export const MoonDetails: React.FC = () => {
     const [tab, setTab] = useState('manual')
@@ -83,6 +84,9 @@ export const MoonDetails: React.FC = () => {
                     <div>
                         <label htmlFor="directory">Key File</label>
                         <KeyfileField form={form} rules={{ validate: { tabOff: manualValidate }}} />
+                    </div>
+                    <div>
+                        <AdvancedOptions form={form}/>
                     </div>
                 </Tabs.Panel>
             </Tabs.Root>
