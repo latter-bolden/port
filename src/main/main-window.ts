@@ -153,15 +153,6 @@ export function createMainWindow(
   const getCurrentUrl = (): string =>
     withFocusedView((contents) => contents.getURL());
 
-  const onBlockedExternalUrl = (url: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    dialog.showMessageBox(mainWindow, {
-      message: `Cannot navigate to external URL: ${url}`,
-      type: 'error',
-      title: 'Navigation blocked',
-    });
-  };
-
   const onWillNavigate = (event: Event, webContents: WebContents, urlTarget: string): void => {
     isDev && console.log('will-navigate', urlTarget)
     onNavigation({
@@ -242,14 +233,10 @@ export function createMainWindow(
     };
     onNewWindowHelper(
       urlToGo,
-      disposition,
       targetUrl,
       preventDefault,
-      shell.openExternal.bind(this),
       createAboutBlankWindow,
       createNewWindow,
-      false,
-      onBlockedExternalUrl,
       mainWindow
     );
   };
