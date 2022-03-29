@@ -182,7 +182,7 @@ export function createMainWindow(
     ipcMain.on('current-ship', (_, { displayShipName, shipName }: { displayShipName: boolean, shipName: string}) => {
       ipcMain.removeAllListeners('current-ship')
 
-      if (!displayShipName) {
+      if (!displayShipName || !shipName) {
         return
       }
 
