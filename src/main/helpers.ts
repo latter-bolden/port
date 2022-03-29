@@ -76,10 +76,9 @@ export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewW
   }
 
   const sameHost = targetUrl.hostname === url.hostname;
-  const sameApp = sameHost && targetUrl.pathname.split('/')[1] === url.pathname.split('/')[1];
   isDev && console.log('navigating', url.pathname, targetUrl.pathname)
 
-  if ((!sameHost || sameApp) && !isProtocolLink) {
+  if ((!sameHost) && !isProtocolLink) {
       return;
   }
 
@@ -101,23 +100,19 @@ export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewW
   }
 
   const targetWindow = BrowserWindow.getAllWindows().find(b => {
-    const portPathSegment = targetUrl.port ? `:${targetUrl.port}` : ''
     const path = b.webContents.getURL()
-      .replace(`${targetUrl.protocol}//${targetUrl.hostname}${portPathSegment}`, '');
+      .replace(`${targetUrl.protocol}//${targetUrl.host}`, '');
     return path.startsWith(targetUrl.pathname);
   })
 
   if (targetWindow) {
-    const targetWindowPort = (new URL(targetWindow.webContents.getURL())).port;
-    if (!sameApp && targetWindowPort === targetUrl.port) {
-      preventDefault();
-      targetWindow.focus();
+    preventDefault();
+    targetWindow.focus();
 
-      if (targetUrl.searchParams.has('grid-note') || targetUrl.searchParams.has('grid-link')) {
-        targetWindow.webContents.loadURL(targetUrl.toString());
-      }
-      return;
+    if (targetUrl.searchParams.has('grid-note') || targetUrl.searchParams.has('grid-link')) {
+      targetWindow.webContents.loadURL(targetUrl.toString());
     }
+    return;
   }
 
   if (createNewWindow) {
