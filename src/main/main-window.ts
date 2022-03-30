@@ -179,20 +179,20 @@ export function createMainWindow(
 
   const configureWindowTitle = (window: BrowserWindow) => {
     mainWindow.webContents.send('current-ship')
-    ipcMain.on('current-ship', (_, { displayShipName, shipName }: { displayShipName: boolean, shipName: string}) => {
+    ipcMain.on('current-ship', (_, { shouldDisplay, displayName }: { shouldDisplay: boolean, displayName: string}) => {
       ipcMain.removeAllListeners('current-ship')
 
-      if (!displayShipName || !shipName) {
+      if (!shouldDisplay || !displayName) {
         return
       }
 
-      const titlePrefix = ` (${shipName})`
+      const titlePrefix = ` (${displayName})`
       window.setTitle(`${window.webContents.getTitle()}${titlePrefix}`)
 
       // webContents cannot detect in-page navigations (which may change the title), so we inject that behavior
       const setTitleScript = `
         new MutationObserver( () => {
-            if (!document.title.includes("${shipName}")) {
+            if (!document.title.includes("${displayName}")) {
               document.title = document.title + "${titlePrefix}"
             }
         }).observe(

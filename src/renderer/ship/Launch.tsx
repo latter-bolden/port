@@ -76,8 +76,8 @@ export const Launch = () => {
     useEffect(() => {
         const handle =  () => {
             ipcRenderer.send('current-ship', {
-                displayShipName: settings['ship-name-in-title'] === 'true',
-                shipName: getCometShortName(pier.shipName).trim()
+                shouldDisplay: settings['ship-name-in-title'] === 'true',
+                displayName: pier.shipName ? getCometShortName(pier.shipName).trim() : pier.name.trim(),
             })
         }
 
