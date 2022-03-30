@@ -53,6 +53,7 @@ export const useStore = create<PortStore>(() => ({
         'seen-grid-update-modal': 'true',
         'global-leap': 'true',
         'protocol-handling': 'true',
+        'ship-name-in-title': 'false',
     },
     updateStatus: 'initial',
     zoomLevels: {

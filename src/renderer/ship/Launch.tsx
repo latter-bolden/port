@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react'
+import { ipcRenderer } from 'electron'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { Link, useParams } from 'react-router-dom'
 import { Pier } from '../../background/services/pier-service'
 import { send } from '../client/ipc'
+import { getCometShortName } from '../shared/urbit-utils'
+import { useStore } from '../App';
 import { LeftArrow } from '../icons/LeftArrow'
 import { pierKey } from '../query-keys'
 import { Button } from '../shared/Button'
@@ -53,6 +56,7 @@ const LaunchFooter: React.FC<{ pier: Pier }> = ({ pier }) => {
 export const Launch = () => {
     const { slug } = useParams<{ slug: string }>()
     const [pier, setPier] = useState<Pier>();
+    const settings = useStore(s => s.settings);
     const { data: initialPier } = useQuery(pierKey(slug), () => send('get-pier', slug))
     const pierLoaded = initialPier?.slug;
     const { mutate, isIdle, isLoading } = useMutation(() => send('resume-pier', initialPier), 
@@ -68,6 +72,21 @@ export const Launch = () => {
             mutate()
         }
     }, [pierLoaded])
+
+    useEffect(() => {
+        const handle =  () => {
+            ipcRenderer.send('current-ship', {
+                shouldDisplay: settings['ship-name-in-title'] === 'true',
+                displayName: pier.shipName ? getCometShortName(pier.shipName).trim() : pier.name.trim(),
+            })
+        }
+
+        ipcRenderer.on('current-ship', handle)
+
+        return () => {
+            ipcRenderer.removeListener('current-ship', handle)
+        }
+    }, [pier]);
 
     return (
         <Layout 

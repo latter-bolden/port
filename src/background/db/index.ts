@@ -9,7 +9,8 @@ console.log('db location:', userData)
 export type Settings =
     | 'seen-grid-update-modal'
     | 'global-leap'
-    | 'protocol-handling';
+    | 'protocol-handling'
+    | 'ship-name-in-title';
 
 export interface SettingsDocument {
     name: Settings;

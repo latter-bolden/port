@@ -35,68 +35,15 @@ export function showWindow(window: BrowserWindow): void {
   });
 }
 
-export function linkIsInternal(
-  currentUrl: string,
-  newUrl: string,
-  internalUrlRegex?: string | RegExp,
-): boolean {
-  if (newUrl === 'about:blank') {
-    return true;
-  }
-
-  if (internalUrlRegex) {
-    const regex = RegExp(internalUrlRegex);
-    return regex.test(newUrl);
-  }
-
-  if (newUrl.startsWith(URBIT_PROTOCOL)) {
-    return true;
-  } 
-
-  try {
-    // Consider as "same domain-ish", without TLD/SLD list:
-    // 1. app.foo.com and foo.com
-    // 2. www.foo.com and foo.com
-    // 3. www.foo.com and app.foo.com
-    const currentDomain = new URL(currentUrl).hostname.replace(/^www\./, '');
-    const newDomain = new URL(newUrl).hostname.replace(/^www./, '');
-    const [longerDomain, shorterDomain] =
-      currentDomain.length > newDomain.length
-        ? [currentDomain, newDomain]
-        : [newDomain, currentDomain];
-    return longerDomain.endsWith(shorterDomain);
-  } catch (err) {
-    console.warn(
-      'Failed to parse domains as determining if link is internal. From:',
-      currentUrl,
-      'To:',
-      newUrl,
-      err,
-    );
-    return false;
-  }
-}
-
 export function onNewWindowHelper(
   urlToGo: string,
-  disposition: string,
   targetUrl: string,
   preventDefault,
-  openExternal,
   createAboutBlankWindow,
   createNewWindow,
-  blockExternal: boolean,
-  onBlockedExternalUrl: (url: string) => void,
   mainWindow: BrowserWindow
 ): void {
-  if (!linkIsInternal(targetUrl, urlToGo)) {
-    preventDefault();
-    if (blockExternal) {
-      onBlockedExternalUrl(urlToGo);
-    } else {
-      openExternal(urlToGo);
-    }
-  } else if (urlToGo === 'about:blank') {
+  if (urlToGo === 'about:blank') {
     const newWindow = createAboutBlankWindow();
     preventDefault(newWindow);
   } else {
@@ -129,10 +76,9 @@ export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewW
   }
 
   const sameHost = targetUrl.hostname === url.hostname;
-  const sameApp = sameHost && targetUrl.pathname.startsWith(url.pathname);
   isDev && console.log('navigating', url.pathname, targetUrl.pathname)
 
-  if ((!sameHost || sameApp) && !isProtocolLink) {
+  if ((!sameHost) && !isProtocolLink) {
       return;
   }
 
@@ -155,11 +101,11 @@ export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewW
 
   const targetWindow = BrowserWindow.getAllWindows().find(b => {
     const path = b.webContents.getURL()
-      .replace(`${targetUrl.protocol}//${targetUrl.hostname}`, '');
+      .replace(`${targetUrl.protocol}//${targetUrl.host}`, '');
     return path.startsWith(targetUrl.pathname);
   })
 
-  if (!sameApp && targetWindow) {
+  if (targetWindow) {
     preventDefault();
     targetWindow.focus();
 

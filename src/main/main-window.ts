@@ -1,4 +1,4 @@
-import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents, nativeTheme, app } from 'electron';
+import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents, nativeTheme, app, ipcMain } from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import isDev from 'electron-is-dev';
 
@@ -153,15 +153,6 @@ export function createMainWindow(
   const getCurrentUrl = (): string =>
     withFocusedView((contents) => contents.getURL());
 
-  const onBlockedExternalUrl = (url: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    dialog.showMessageBox(mainWindow, {
-      message: `Cannot navigate to external URL: ${url}`,
-      type: 'error',
-      title: 'Navigation blocked',
-    });
-  };
-
   const onWillNavigate = (event: Event, webContents: WebContents, urlTarget: string): void => {
     isDev && console.log('will-navigate', urlTarget)
     onNavigation({
@@ -179,19 +170,38 @@ export function createMainWindow(
     window.webContents.on('new-window', onNewWindow(url));
     window.webContents.on('will-navigate', (e, url) => onWillNavigate(e, window.webContents, url));
     window.webContents.on('did-finish-load', () => {
+      configureWindowTitle(window)
       console.log('finished load')
-      try {
-        const view = mainWindow.getBrowserView();
-        const currentTitle = window.webContents.getTitle();
-        const title = `${currentTitle} | ${view.webContents.getTitle()}`;
-        console.log('setting title to', title)
-        window.setTitle(title)
-      } catch {
-        console.error('no view')
-      }
     })
     window.webContents.loadURL(url);
     return window;
+  };
+
+  const configureWindowTitle = (window: BrowserWindow) => {
+    mainWindow.webContents.send('current-ship')
+    ipcMain.on('current-ship', (_, { shouldDisplay, displayName }: { shouldDisplay: boolean, displayName: string}) => {
+      ipcMain.removeAllListeners('current-ship')
+
+      if (!shouldDisplay || !displayName) {
+        return
+      }
+
+      const titlePrefix = ` (${displayName})`
+      window.setTitle(`${window.webContents.getTitle()}${titlePrefix}`)
+
+      // webContents cannot detect in-page navigations (which may change the title), so we inject that behavior
+      const setTitleScript = `
+        new MutationObserver( () => {
+            if (!document.title.includes("${displayName}")) {
+              document.title = document.title + "${titlePrefix}"
+            }
+        }).observe(
+            document.querySelector('title'),
+            { subtree: true, characterData: true, childList: true }
+        );
+      `
+      window.webContents.executeJavaScript(setTitleScript)
+    })
   };
 
   const createAboutBlankWindow = (): BrowserWindow => {
@@ -223,14 +233,10 @@ export function createMainWindow(
     };
     onNewWindowHelper(
       urlToGo,
-      disposition,
       targetUrl,
       preventDefault,
-      shell.openExternal.bind(this),
       createAboutBlankWindow,
       createNewWindow,
-      false,
-      onBlockedExternalUrl,
       mainWindow
     );
   };

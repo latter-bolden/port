@@ -12,7 +12,8 @@ export interface SettingsHandlers {
 const defaultSettings: SettingsDocument[] = [
   { name: 'seen-grid-update-modal', value: 'false' },
   { name: 'global-leap', value: 'true' },
-  { name: 'protocol-handling', value: 'true' }
+  { name: 'protocol-handling', value: 'true' },
+  { name: 'ship-name-in-title', value: 'false'}
 ]
 
 export class SettingsService {
