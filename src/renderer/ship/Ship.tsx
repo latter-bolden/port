@@ -100,7 +100,7 @@ export const Ship: React.FC = () => {
                                             <div className="font-medium text-gray-600 dark:text-gray-300">{ ship.type === 'comet' ? getCometShortName(ship.shipName || '') : ship.shipName }</div>
                                         </>
                                     ): (
-                                        <div className="font-normal text-gray-500 dark:text-gray-500">Remote ship</div>
+                                        <div className="font-normal text-gray-600 dark:text-gray-400">Remote ship</div>
                                     )}
                                 </div>
                             <div className="flex items-center">
