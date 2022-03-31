@@ -91,8 +91,18 @@ export const Ship: React.FC = () => {
                         <div className="mr-6">
                             <h1 className="font-semibold mb-1">
                                 <EditableShipName ship={ship} />
-                                <div className="mb-4 mt-2 whitespace-nowrap">{ ship.type === 'comet' ? getCometShortName(ship.shipName || '') : ship.shipName }</div>
                             </h1>
+                                <div className="mb-4 mt-2 whitespace-nowrap flex flex-row">
+                                    { ship.type !== 'remote'
+                                    ? (
+                                        <>
+                                            <div className="mr-2 capitalize font-semibold text-gray-400 dark:text-gray-500">{ship.type}</div>
+                                            <div className="font-medium text-gray-600 dark:text-gray-300">{ ship.type === 'comet' ? getCometShortName(ship.shipName || '') : ship.shipName }</div>
+                                        </>
+                                    ): (
+                                        <div className="font-normal text-gray-600 dark:text-gray-400">Remote ship</div>
+                                    )}
+                                </div>
                             <div className="flex items-center">
                                 <ShipStatus ship={ship} />
                                 {ship.status === 'running' && ship.type !== 'remote' && <button className="px-1 ml-3 font-semibold text-gray-300 dark:text-gray-700 hover:text-red-800 focus:text-red-800 hover:border-red-900 focus:border-red-900 rounded default-ring border border-gray-300 dark:border-gray-700 transition-colors" onClick={() => stopShip()}>Stop</button>}
