@@ -1,7 +1,7 @@
-import { app, autoUpdater, BrowserWindow } from 'electron';
+import { app, autoUpdater, BrowserWindow, ipcMain } from 'electron';
 import findOpenSocket from '../renderer/client/find-open-socket'
 import isDev from 'electron-is-dev'
-import { isOSX, onNavigation } from './helpers';
+import { isOSX } from './helpers';
 import { createMainWindow } from './main-window';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const BACKGROUND_WINDOW_WEBPACK_ENTRY: string;
@@ -12,6 +12,18 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 }
 
 let mainWindow: BrowserWindow;
+
+ipcMain.on('app-name', (event) => {
+  event.returnValue = app.getName();
+});
+
+ipcMain.on('user-data-path', (event) => {
+  event.returnValue = app.getPath('userData');
+});
+
+ipcMain.on('is-dev', (event) => {
+  event.returnValue = isDev;
+})
 
 if (!isDev) {
   const server = 'https://update.electronjs.org'
@@ -54,7 +66,6 @@ function createBackgroundWindow(socketName: string) {
     height: 500,
     show: isDev,
     webPreferences: {
-      enableRemoteModule: true,
       nodeIntegration: true,
       webSecurity: false,
       contextIsolation: false

@@ -1,8 +1,7 @@
 import { join as joinPath } from 'path';
 import process from 'process';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
-import { shell, remote, ipcRenderer } from 'electron';
-import isDev from 'electron-is-dev';
+import { shell, ipcRenderer } from 'electron';
 import axios from 'axios'
 import { DB } from '../db'
 import { HandlerEntry } from '../server/ipc'; 
@@ -16,6 +15,8 @@ import mv from 'mv'
 import { each } from 'async';
 import find from 'find-process';
 
+
+const isDev = ipcRenderer.sendSync('is-dev');
 const IS_PROD = !isDev;
 const platform = getPlatform();
 
@@ -29,6 +30,8 @@ const binariesPath =
   IS_PROD // the path to a bundled electron app.
     ? joinPath(root, ...getPlatformPathSegments(platform), 'resources', platform)
     : joinPath(appRootDir.get(), 'resources', platform);
+
+const userData = ipcRenderer.sendSync('user-data-path');
 
 console.log({ root, IS_PROD, binariesPath })
 
@@ -102,7 +105,7 @@ export class PierService {
             await asyncMkdir(this.pierDirectory, { recursive: true })
         } catch (err) {
             console.log('Error creating piers directory:', err, 'Reverting to userData folder')
-            this.pierDirectory = remote.app.getPath('userData')
+            this.pierDirectory = userData;
         }
     }
 
@@ -620,10 +623,10 @@ export class PierService {
 
     private getPierDirectory() {
         if (process.platform === 'linux' && process.env.SNAP) {
-            return joinPath(process.env.SNAP_USER_COMMON, '.config', remote.app.getName());
+            return joinPath(process.env.SNAP_USER_COMMON, '.config', ipcRenderer.sendSync('app-name'));
         }
 
-        return joinPath(remote.app.getPath('userData'), 'piers')
+        return joinPath(userData, 'piers')
     }
 
     private async recoverBootingShips() {

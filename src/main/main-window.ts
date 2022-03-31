@@ -68,10 +68,7 @@ export function createMainWindow(
     webPreferences: {
       javascript: true,
       plugins: true,
-      nodeIntegration: false, // `true` is *insecure*, and cause trouble with messenger.com
-      webSecurity: true,
       zoomFactor: 1,
-      contextIsolation: false,
       preload: LANDSCAPE_PRELOAD_WEBPACK_ENTRY
     },
   };
@@ -85,7 +82,7 @@ export function createMainWindow(
     //icon: getAppIcon(),
     webPreferences: {
       nodeIntegration: true,
-      enableRemoteModule: true
+      contextIsolation: false
     }
   });
 
@@ -331,7 +328,7 @@ export function createMainWindow(
   // Force single application instance
   const gotTheLock = app.requestSingleInstanceLock();
   
-  if (!gotTheLock) {
+  if (!gotTheLock && !isDev) {
     app.quit();
     return;
   } else {

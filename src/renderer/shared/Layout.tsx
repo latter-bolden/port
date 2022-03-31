@@ -1,14 +1,17 @@
+import { ipcRenderer } from 'electron';
 import React, { FunctionComponent, useEffect, useState } from 'react'
-import isDev from 'electron-is-dev'
 import { useHistory } from 'react-router-dom'
 import { send } from '../client/ipc';
 import { Bug } from '../icons/Bug';
-import { isOSX } from '../../main/helpers';
 import { UpdateNotifier } from '../alerts/UpdateNotifier';
 import { useStore } from '../App';
 import { M1Warning } from '../alerts/M1Warning';
 import { GridFeaturesPopup } from '../alerts/GridFeaturesPopup';
 import { AttemptedLink } from '../alerts/AttemptedLink';
+import { getPlatform } from '../../get-platform';
+
+const isDev = ipcRenderer.sendSync('is-dev');
+const isOSX = getPlatform() === 'mac';
 
 interface LayoutProps {
     title: string;
@@ -48,12 +51,12 @@ export const Layout: FunctionComponent<LayoutProps> = ({ children, title, center
 
     return (
         <div className="grid grid-cols-1 body-rows min-h-screen">
-            { isOSX() &&
+            { isOSX &&
                 <header className="fixed window-drag top-0 left-0 w-full h-7 p-2">
                     <h1 className="text-center text-sm leading-none font-medium tracking-tighter text-gray-300 dark:text-gray-700">{title}</h1>
                 </header>
             }
-            <main className={`grid ${center ? 'justify-center content-center' : ''} ${isOSX() ? 'mt-7' : ''} ${className}`}>
+            <main className={`grid ${center ? 'justify-center content-center' : ''} ${isOSX ? 'mt-7' : ''} ${className}`}>
                 <M1Warning />
                 <GridFeaturesPopup />
                 <AttemptedLink />

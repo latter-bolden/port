@@ -1,6 +1,5 @@
 import { URL } from 'url'
-import { app, BrowserWindow, WebContents } from "electron";
-import { InputEvent } from 'electron/main';
+import { app, BrowserWindow, WebContents, InputEvent } from "electron";
 import isDev from 'electron-is-dev';
 import { getPlatform } from "../get-platform";
 
@@ -43,6 +42,16 @@ export function onNewWindowHelper(
   createNewWindow,
   mainWindow: BrowserWindow
 ): void {
+  const hosts = mainWindow.getBrowserViews().map(view => (new URL(view.webContents.getURL()).host));
+  const current = new URL(targetUrl).host;
+
+  console.log(targetUrl, urlToGo, hosts, current)
+
+  if (!hosts.includes(current)) {
+    preventDefault();
+    return;
+  }
+
   if (urlToGo === 'about:blank') {
     const newWindow = createAboutBlankWindow();
     preventDefault(newWindow);
@@ -58,7 +67,7 @@ export function onNewWindowHelper(
 }
 
 interface onNavigationParameters {
-  preventDefault: () => void;
+  preventDefault: (newWindow?: BrowserWindow) => void;
   currentUrl: string; 
   urlTarget: string;
   createNewWindow?: (url: string) => BrowserWindow;
@@ -90,12 +99,14 @@ export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewW
     const urbitUrl = createUrbitUrl(url, urlTarget);
     console.log('redirecting to', urbitUrl)
 
-    preventDefault();
     if (view) {
+      preventDefault();
       showWindow(mainWindow);
       return view.webContents.loadURL(urbitUrl);
     } else {
-      return createNewWindow(urbitUrl);
+      const newWindow = createNewWindow(urbitUrl);
+      preventDefault(newWindow);
+      return newWindow
     }
   }
 
@@ -116,8 +127,8 @@ export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewW
   }
 
   if (createNewWindow) {
-    preventDefault();
-    createNewWindow(urlTarget)
+    const newWindow = createNewWindow(urlTarget)
+    preventDefault(newWindow);
   }
 }
 
