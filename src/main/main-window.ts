@@ -14,9 +14,16 @@ import { start as osHelperStart, views } from './os-service-helper'
 import { start as settingsHelperStart } from './setting-service-helper'
 import { start as terminalServiceStart } from './terminal-service';
 import { Settings } from '../background/db';
+import { Pier } from '../background/services/pier-service';
 
 declare const LANDSCAPE_PRELOAD_WEBPACK_ENTRY: string;
 const ZOOM_INTERVAL = 0.1;
+
+let piers: Pier[];
+
+ipcMain.handle('piers', (event, data) => {
+  piers = data;
+})
 
 function getWindowOrViewContents(focusedWindow: BrowserWindow): WebContents {
   const view = focusedWindow.getBrowserView();
@@ -162,9 +169,10 @@ export function createMainWindow(
   };
 
   const createNewWindow: (url: string) => BrowserWindow = (url: string) => {
+    isDev && console.log('creating new window', url);
     const window = new BrowserWindow(DEFAULT_WINDOW_OPTIONS);
 
-    window.webContents.on('new-window', onNewWindow(url));
+    window.webContents.setWindowOpenHandler(onNewWindow(url));
     window.webContents.on('will-navigate', (e, url) => onWillNavigate(e, window.webContents, url));
     window.webContents.on('did-finish-load', () => {
       configureWindowTitle(window)
@@ -214,27 +222,20 @@ export function createMainWindow(
     return window;
   };
 
-  const onNewWindow = (targetUrl: string) =>
-  (
-    event: Event & { newGuest?: any },
-    urlToGo: string,
-    frameName: string,
-    disposition,
-  ): void => {
-    isDev && console.log('creating new window', targetUrl, urlToGo, frameName, disposition);
-    const preventDefault = (newGuest: any): void => {
-      event.preventDefault();
-      if (newGuest) {
-        event.newGuest = newGuest;
-      }
-    };
-    onNewWindowHelper(
-      urlToGo,
-      targetUrl,
-      preventDefault,
+  const onNewWindow = (windowURL: string) =>
+  ({
+    url,
+    frameName,
+    disposition
+  }: Electron.HandlerDetails) => {
+    isDev && console.log('on new window', windowURL, url, frameName, disposition);
+    return onNewWindowHelper(
+      url,
+      windowURL,
       createAboutBlankWindow,
       createNewWindow,
-      mainWindow
+      mainWindow,
+      piers
     );
   };
 
@@ -277,7 +278,7 @@ export function createMainWindow(
     mainUrl
   );
 
-  mainWindow.webContents.on('new-window', onNewWindow(mainUrl));
+  mainWindow.webContents.setWindowOpenHandler(onNewWindow(mainUrl));
   mainWindow.webContents.on('will-navigate', (e, url) => onWillNavigate(e, mainWindow.webContents, url));
   mainWindow.webContents.on('did-start-loading', () => {
     const loadingUrl = mainWindow.webContents.getURL().split('#')[0]

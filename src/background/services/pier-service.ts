@@ -66,6 +66,13 @@ export class PierService {
         this.urbitPath = joinPath(binariesPath, 'urbit');
         this.resumesInProgress = new Map();
         this.recoverBootingShips();
+        
+        this.getPiers().then(piers => {
+            ipcRenderer.invoke('piers', piers);
+        })
+        setInterval(async () => {
+            ipcRenderer.invoke('piers', await this.getPiers());
+        }, 3000);
     }
 
     handlers(): HandlerEntry<PierHandlers>[] {

@@ -113,7 +113,7 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, onNewWindo
                 mainWindow
             })
         });
-        view.webContents.on('new-window', onNewWindow(url));
+        view.webContents.setWindowOpenHandler(onNewWindow(url));
 
         views.set(url, view);
         viewQueue.push(url);

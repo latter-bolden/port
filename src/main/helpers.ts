@@ -1,7 +1,8 @@
 import { URL } from 'url'
-import { app, BrowserWindow, WebContents, InputEvent } from "electron";
+import { app, BrowserWindow, WebContents, InputEvent, BrowserWindowConstructorOptions } from "electron";
 import isDev from 'electron-is-dev';
 import { getPlatform } from "../get-platform";
+import { Pier } from '../background/services/pier-service';
 
 //Taken from https://github.com/nativefier/nativefier/blob/master/app/src/helpers/helpers.ts
 export function isOSX(): boolean {
@@ -34,35 +35,51 @@ export function showWindow(window: BrowserWindow): void {
   });
 }
 
+type OnNewWindowReturn = { action: 'deny' } | { action: 'allow', overrideBrowserWindowOptions?: BrowserWindowConstructorOptions };
+
 export function onNewWindowHelper(
   urlToGo: string,
-  targetUrl: string,
-  preventDefault,
+  currentUrl: string,
   createAboutBlankWindow,
   createNewWindow,
-  mainWindow: BrowserWindow
-): void {
+  mainWindow: BrowserWindow,
+  piers: Pier[]
+): OnNewWindowReturn {
   const hosts = mainWindow.getBrowserViews().map(view => (new URL(view.webContents.getURL()).host));
-  const current = new URL(targetUrl).host;
+  const current = new URL(currentUrl).host;
+  const target = new URL(urlToGo).host;
 
-  console.log(targetUrl, urlToGo, hosts, current)
+  const pierHosts = piers.map(pier => {
+    if (pier.type === 'remote') {
+      return new URL(pier.directory).host;
+    } else if (pier.webPort) {
+      return new URL(`http://localhost:${pier.webPort}`).host;
+    } else {
+      return null;
+    }
+  });
 
-  if (!hosts.includes(current)) {
-    preventDefault();
-    return;
-  }
+  isDev && console.log(currentUrl, urlToGo, hosts, current, pierHosts, target)
 
   if (urlToGo === 'about:blank') {
-    const newWindow = createAboutBlankWindow();
-    preventDefault(newWindow);
+    createAboutBlankWindow();
+    return { action: 'deny' };
+  } else if (!hosts.includes(current) && pierHosts.includes(target)) {
+    return { action: 'deny' };
   } else {
+    let action: 'allow' | 'deny' = 'allow';
     onNavigation({
-      preventDefault,
+      preventDefault: () => {
+        action = 'deny'
+      },
       urlTarget: urlToGo,
-      currentUrl: targetUrl,
+      currentUrl: currentUrl,
       createNewWindow,
       mainWindow
     })
+
+    isDev && console.log('onNavigation', action);
+    return { action };
   }
 }
 
@@ -84,20 +101,15 @@ export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewW
     targetUrl = new URL(`${URBIT_PROTOCOL}://${url.host}/${targetUrl.host}${targetUrl.pathname}`)
   }
 
-  const sameHost = targetUrl.hostname === url.hostname;
   isDev && console.log('navigating', url.pathname, targetUrl.pathname)
 
-  if ((!sameHost) && !isProtocolLink) {
-      return;
-  }
-
-  if (isProtocolLink) {
+  if (isProtocolLink) {    
     const view = mainWindow.getBrowserViews().find(v => {
       const viewUrl = new URL(v.webContents.getURL());
       return url.host === viewUrl.host;
     });
     const urbitUrl = createUrbitUrl(url, urlTarget);
-    console.log('redirecting to', urbitUrl)
+    isDev && console.log(targetUrl, 'is protocol link, redirecting to', urbitUrl);
 
     if (view) {
       preventDefault();
@@ -106,7 +118,7 @@ export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewW
     } else {
       const newWindow = createNewWindow(urbitUrl);
       preventDefault(newWindow);
-      return newWindow
+      return newWindow;
     }
   }
 
@@ -117,6 +129,7 @@ export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewW
   })
 
   if (targetWindow) {
+    isDev && console.log(urlTarget, 'have window, focusing');
     preventDefault();
     targetWindow.focus();
 
@@ -127,6 +140,7 @@ export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewW
   }
 
   if (createNewWindow) {
+    isDev && console.log(urlTarget, 'window doesn\'t exist, creating');
     const newWindow = createNewWindow(urlTarget)
     preventDefault(newWindow);
   }
