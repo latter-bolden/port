@@ -18,7 +18,7 @@ export const ShipNameField: React.FC<ShipNameFieldProps> = ({ form, validator, p
     const shipnameContainsInvalidCharacters = form.errors.shipName?.type === 'pattern';
 
     function getMatchingPier(shipName: string): Pier | undefined {
-        return piers.find(pier => pier.shipName.trim().toLowerCase() === shipName.toLowerCase())
+        return piers.find(pier => pier.shipName?.trim().toLowerCase() === shipName.toLowerCase())
     }
     const shipNameValidator = (value: string) => !getMatchingPier(value)
 
