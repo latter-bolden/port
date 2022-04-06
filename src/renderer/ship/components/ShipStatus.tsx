@@ -1,6 +1,5 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
 import React from 'react'
-import Case from 'case';
 import { Pier } from '../../../background/services/pier-service'
 
 const statusColors: Record<'running' | 'booting' | 'errored' | 'default', string> = {
@@ -10,33 +9,38 @@ const statusColors: Record<'running' | 'booting' | 'errored' | 'default', string
     default: 'bg-gray-300 dark:bg-gray-700'
 }
 
+const PortDisplay = ({ ship }: { ship: Pier }) => (
+    <>
+        <p className="mt-2 font-medium text-gray-600 dark:text-gray-400">Ports</p>
+        <div className="flex">
+            <span className="mr-3">Interface:</span>
+            <span className="font-mono ml-auto">{ ship.webPort }</span>
+        </div>
+        <div className="flex">
+            <span className="mr-3">Loopback:</span>
+            <span className="font-mono ml-auto">{ ship.loopbackPort }</span>
+        </div>
+    </>
+)
+
 export const ShipStatus = ({ ship }: { ship: Pier }) => {
     const isRemote = ship.type === 'remote';
-    let shipStatus = Case.capital(ship.status);
-
-    if (isRemote) {
-        shipStatus = 'Connected'
-    }
-
+    const isRunning = ship.status === 'running'
     return (
         <Tooltip.Root>
-            <Tooltip.Trigger className="default-ring cursor-default" disabled={isRemote}>
+            <Tooltip.Trigger className="default-ring cursor-default">
                 <span className="inline-flex items-center">
                     <span className={`inline-flex w-2 h-2 mr-1 rounded-full ${statusColors[ship.status] || statusColors.default}`}></span>
-                    <span className="text-gray-400 dark:text-gray-500">{shipStatus}</span>          
+                    <span className="capitalize text-gray-400 dark:text-gray-500">{ isRemote ? 'Connected' : ship.status }</span>
                 </span>
             </Tooltip.Trigger>
-            <Tooltip.Content side="top" className="px-3 py-2 text-sm bg-gray-100 dark:bg-gray-800 rounded">
-                <strong className="inline-block mb-1 font-bold">Ports</strong>
-                <div className="flex">
-                    <span className="mr-3">Interface:</span> 
-                    <span className="font-mono ml-auto">{ ship.webPort }</span>
-                </div>
-                <div className="flex">
-                    <span className="mr-3">Loopback:</span>
-                    <span className="font-mono ml-auto">{ ship.loopbackPort }</span>
-                </div>
-                <Tooltip.Arrow className="fill-current text-gray-100 dark:text-gray-800"/>
+            <Tooltip.Content side="top" className="px-3 py-2 text-sm bg-gray-200 dark:bg-gray-800 rounded">
+                <strong> { isRemote
+                    ? <span className="font-normal"> Remote ship </span>
+                    : <span className={isRunning ? 'capitalize font-semibold' : 'capitalize font-normal'}>{ship.type}</span>}
+                </strong>
+                { !isRemote && isRunning && <PortDisplay ship={ship} /> }
+                <Tooltip.Arrow className="fill-current text-gray-200 dark:text-gray-800"/>
             </Tooltip.Content>
         </Tooltip.Root>
     )

@@ -86,7 +86,6 @@
     "app-root-dir": "^1.0.2",
     "async": "^3.2.0",
     "axios": "^0.21.1",
-    "case": "^1.6.3",
     "classnames": "^2.3.1",
     "date-fns": "^2.19.0",
     "electron-context-menu": "^2.5.0",
