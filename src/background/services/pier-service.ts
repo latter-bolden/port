@@ -1,8 +1,7 @@
 import { join as joinPath } from 'path';
 import process from 'process';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
-import { shell, remote, ipcRenderer } from 'electron';
-import isDev from 'electron-is-dev';
+import { shell, ipcRenderer } from 'electron';
 import axios from 'axios'
 import { DB } from '../db'
 import { HandlerEntry } from '../server/ipc'; 
@@ -16,6 +15,8 @@ import mv from 'mv'
 import { each } from 'async';
 import find from 'find-process';
 
+
+const isDev = ipcRenderer.sendSync('is-dev');
 const IS_PROD = !isDev;
 const platform = getPlatform();
 
@@ -29,6 +30,8 @@ const binariesPath =
   IS_PROD // the path to a bundled electron app.
     ? joinPath(root, ...getPlatformPathSegments(platform), 'resources', platform)
     : joinPath(appRootDir.get(), 'resources', platform);
+
+const userData = ipcRenderer.sendSync('user-data-path');
 
 console.log({ root, IS_PROD, binariesPath })
 
@@ -63,6 +66,10 @@ export class PierService {
         this.urbitPath = joinPath(binariesPath, 'urbit');
         this.resumesInProgress = new Map();
         this.recoverBootingShips();
+        
+        this.getPiers().then(piers => {
+            ipcRenderer.invoke('piers', piers);
+        });
     }
 
     handlers(): HandlerEntry<PierHandlers>[] {
@@ -102,12 +109,12 @@ export class PierService {
             await asyncMkdir(this.pierDirectory, { recursive: true })
         } catch (err) {
             console.log('Error creating piers directory:', err, 'Reverting to userData folder')
-            this.pierDirectory = remote.app.getPath('userData')
+            this.pierDirectory = userData;
         }
     }
 
     async addPier(data: AddPier): Promise<Pier | null> {
-        return await this.db.piers.asyncInsert({
+        const pier = await this.db.piers.asyncInsert({
             directory: this.pierDirectory,
             slug: pierSlugify(data.name),
             lastUsed: (new Date()).toISOString(),
@@ -115,6 +122,9 @@ export class PierService {
             directoryAsPierPath: false,
             ...data,
         })
+        
+        ipcRenderer.invoke('piers', await this.getPiers());
+        return pier;
     }
 
     async getPier(slug: string): Promise<Pier | null> {
@@ -133,6 +143,7 @@ export class PierService {
         const currentPier = await this.getPier(slug);
         const completePier = { ...currentPier, ...newPier };
         await this.db.piers.asyncUpdate({ slug }, completePier);
+        ipcRenderer.invoke('piers', await this.getPiers());
         return completePier;
     }
 
@@ -620,10 +631,10 @@ export class PierService {
 
     private getPierDirectory() {
         if (process.platform === 'linux' && process.env.SNAP) {
-            return joinPath(process.env.SNAP_USER_COMMON, '.config', remote.app.getName());
+            return joinPath(process.env.SNAP_USER_COMMON, '.config', ipcRenderer.sendSync('app-name'));
         }
 
-        return joinPath(remote.app.getPath('userData'), 'piers')
+        return joinPath(userData, 'piers')
     }
 
     private async recoverBootingShips() {

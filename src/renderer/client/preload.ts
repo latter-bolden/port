@@ -1,8 +1,8 @@
 import { ipcRenderer } from 'electron'
-import isDev from 'electron-is-dev'
 import ipc from 'node-ipc'
 import { init } from './ipc'
 
+const isDev = ipcRenderer.sendSync('is-dev');
 window.IS_DEV = isDev
 
 let resolveSocketPromise: (value?: string) => void

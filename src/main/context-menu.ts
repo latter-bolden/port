@@ -1,12 +1,14 @@
-import { shell } from 'electron';
+import { BrowserView, BrowserWindow, shell } from 'electron';
 import isDev from 'electron-is-dev'
 import contextMenu from 'electron-context-menu';
 
 //Taken from https://github.com/nativefier/nativefier/blob/master/app/src/components/contextMenu.ts
 export function initContextMenu(createNewWindow, createNewTab, mainUrl, window?): void {
   const options: contextMenu.Options = {
+    showInspectElement: false,
+    prepend: (actions, params, window) => {
     showInspectElement: isDev,
-    prepend: (actions, params) => {
+    prepend: (actions, params, window) => {
       const items = [];
       const showOpenLink = !params.pageURL.startsWith(mainUrl)
 
@@ -20,7 +22,7 @@ export function initContextMenu(createNewWindow, createNewTab, mainUrl, window?)
         items.push({
           label: 'Open Link in New Window',
           click: () => {
-            createNewWindow(params.linkURL);
+            createNewWindow(params.linkURL, (window as BrowserWindow | BrowserView).webContents.session);
           },
         });
         if (createNewTab) {

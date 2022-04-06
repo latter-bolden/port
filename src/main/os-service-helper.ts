@@ -56,9 +56,10 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, onNewWindo
 
     if (newView) {
         console.log(Date.now(), 'creating view', url);
+        const partition = `persist:${ship}`;
         view = new BrowserView({
             webPreferences: {
-                partition: `persist:${ship}`,
+                partition,
                 devTools: true,
                 preload: LANDSCAPE_PRELOAD_WEBPACK_ENTRY
             }
@@ -105,15 +106,16 @@ async function createView(mainWindow: BrowserWindow, createNewWindow, onNewWindo
         }
 
         view.webContents.on('will-navigate', (event, urlTarget) => {
+            isDev && console.log('attempting navigation', view.webContents.getURL(), urlTarget)
             onNavigation({
                 preventDefault: event.preventDefault,
                 currentUrl: view.webContents.getURL(),
                 urlTarget,
-                createNewWindow,
-                mainWindow
+                mainWindow,
+                partition
             })
         });
-        view.webContents.on('new-window', onNewWindow(url));
+        view.webContents.setWindowOpenHandler(onNewWindow(url, partition));
 
         views.set(url, view);
         viewQueue.push(url);

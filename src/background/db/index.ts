@@ -1,8 +1,8 @@
 import path from 'path';
 import { AsyncNedb } from 'nedb-async'
-import { remote } from 'electron';
 import { BootMessage, Pier } from '../services/pier-service';
-const userData = remote.app.getPath('userData');
+import { ipcRenderer } from 'electron';
+const userData = ipcRenderer.sendSync('user-data-path');
 
 console.log('db location:', userData)
 
