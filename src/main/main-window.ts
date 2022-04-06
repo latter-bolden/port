@@ -1,4 +1,4 @@
-import { BrowserWindow, shell, dialog, Event, BrowserWindowConstructorOptions, WebContents, nativeTheme, app, ipcMain } from 'electron';
+import { BrowserWindow, dialog, Event, BrowserWindowConstructorOptions, WebContents, nativeTheme, app, ipcMain, Session } from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import isDev from 'electron-is-dev';
 
@@ -163,16 +163,23 @@ export function createMainWindow(
       preventDefault: event.preventDefault,
       currentUrl: webContents.getURL(),
       urlTarget,
-      createNewWindow,
       mainWindow
     })
   };
 
-  const createNewWindow: (url: string) => BrowserWindow = (url: string) => {
-    isDev && console.log('creating new window', url);
-    const window = new BrowserWindow(DEFAULT_WINDOW_OPTIONS);
+  const createNewWindow = (url: string, partition?: string | Session): BrowserWindow => {
+    isDev && console.log('creating new window', url, partition);
+    const isSession = typeof partition === 'object';
+    const window = new BrowserWindow({
+      ...DEFAULT_WINDOW_OPTIONS,
+      webPreferences: {
+        ...DEFAULT_WINDOW_OPTIONS.webPreferences,
+        partition: isSession ? undefined : partition,
+        session: isSession ? partition : undefined
+      }
+    });
 
-    window.webContents.setWindowOpenHandler(onNewWindow(url));
+    window.webContents.setWindowOpenHandler(onNewWindow(url, partition));
     window.webContents.on('will-navigate', (e, url) => onWillNavigate(e, window.webContents, url));
     window.webContents.on('did-finish-load', () => {
       configureWindowTitle(window)
@@ -222,7 +229,7 @@ export function createMainWindow(
     return window;
   };
 
-  const onNewWindow = (windowURL: string) =>
+  const onNewWindow = (windowURL: string, partition?: string | Session) =>
   ({
     url,
     frameName,
@@ -235,7 +242,8 @@ export function createMainWindow(
       createAboutBlankWindow,
       createNewWindow,
       mainWindow,
-      piers
+      piers,
+      partition,
     );
   };
 

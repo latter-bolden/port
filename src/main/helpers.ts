@@ -1,5 +1,5 @@
 import { URL } from 'url'
-import { app, BrowserWindow, WebContents, InputEvent, BrowserWindowConstructorOptions } from "electron";
+import { app, BrowserWindow, WebContents, InputEvent, BrowserWindowConstructorOptions, BrowserView, Session } from "electron";
 import isDev from 'electron-is-dev';
 import { getPlatform } from "../get-platform";
 import { Pier } from '../background/services/pier-service';
@@ -43,7 +43,8 @@ export function onNewWindowHelper(
   createAboutBlankWindow,
   createNewWindow,
   mainWindow: BrowserWindow,
-  piers: Pier[]
+  piers: Pier[],
+  partition?: string | Session,
 ): OnNewWindowReturn {
   const hosts = mainWindow.getBrowserViews().map(view => (new URL(view.webContents.getURL()).host));
   const current = new URL(currentUrl).host;
@@ -75,7 +76,8 @@ export function onNewWindowHelper(
       urlTarget: urlToGo,
       currentUrl: currentUrl,
       createNewWindow,
-      mainWindow
+      mainWindow,
+      partition
     })
 
     isDev && console.log('onNavigation', action);
@@ -87,11 +89,19 @@ interface onNavigationParameters {
   preventDefault: (newWindow?: BrowserWindow) => void;
   currentUrl: string; 
   urlTarget: string;
-  createNewWindow?: (url: string) => BrowserWindow;
+  createNewWindow?: (url: string, partition?: string | Session) => BrowserWindow;
   mainWindow: BrowserWindow;
+  partition?: string | Session;
 }
 
-export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewWindow, mainWindow }: onNavigationParameters) {
+function matchView(view: BrowserWindow | BrowserView, targetUrl: URL) {
+  const path = view.webContents.getURL()
+      .replace(`${targetUrl.protocol}//${targetUrl.host}`, '');
+  isDev && console.log('attempting match', path, targetUrl.pathname)
+  return targetUrl.pathname.startsWith(path) || path.startsWith(targetUrl.pathname);
+}
+
+export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewWindow, mainWindow, partition }: onNavigationParameters) {
   const url = new URL(currentUrl);
   let targetUrl = new URL(urlTarget);
   const isProtocolLink = targetUrl.protocol.startsWith(URBIT_PROTOCOL);
@@ -123,25 +133,21 @@ export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewW
   }
 
   const targetWindow = BrowserWindow.getAllWindows().find(b => {
-    const path = b.webContents.getURL()
-      .replace(`${targetUrl.protocol}//${targetUrl.host}`, '');
-    return path.startsWith(targetUrl.pathname);
-  })
+    return matchView(b, targetUrl)
+  });
+  const targetView = mainWindow.getBrowserViews().find(b => matchView(b, targetUrl));
 
-  if (targetWindow) {
+  if (targetWindow || targetView) {
     isDev && console.log(urlTarget, 'have window, focusing');
     preventDefault();
-    targetWindow.focus();
-
-    if (targetUrl.searchParams.has('grid-note') || targetUrl.searchParams.has('grid-link')) {
-      targetWindow.webContents.loadURL(targetUrl.toString());
-    }
+    (targetWindow || mainWindow).focus();
+    (targetWindow || targetView).webContents.loadURL(targetUrl.toString());
     return;
   }
 
   if (createNewWindow) {
     isDev && console.log(urlTarget, 'window doesn\'t exist, creating');
-    const newWindow = createNewWindow(urlTarget)
+    const newWindow = createNewWindow(urlTarget, partition)
     preventDefault(newWindow);
   }
 }

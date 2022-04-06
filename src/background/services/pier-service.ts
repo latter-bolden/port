@@ -69,10 +69,7 @@ export class PierService {
         
         this.getPiers().then(piers => {
             ipcRenderer.invoke('piers', piers);
-        })
-        setInterval(async () => {
-            ipcRenderer.invoke('piers', await this.getPiers());
-        }, 3000);
+        });
     }
 
     handlers(): HandlerEntry<PierHandlers>[] {
@@ -117,7 +114,7 @@ export class PierService {
     }
 
     async addPier(data: AddPier): Promise<Pier | null> {
-        return await this.db.piers.asyncInsert({
+        const pier = await this.db.piers.asyncInsert({
             directory: this.pierDirectory,
             slug: pierSlugify(data.name),
             lastUsed: (new Date()).toISOString(),
@@ -125,6 +122,9 @@ export class PierService {
             directoryAsPierPath: false,
             ...data,
         })
+        
+        ipcRenderer.invoke('piers', await this.getPiers());
+        return pier;
     }
 
     async getPier(slug: string): Promise<Pier | null> {
@@ -143,6 +143,7 @@ export class PierService {
         const currentPier = await this.getPier(slug);
         const completePier = { ...currentPier, ...newPier };
         await this.db.piers.asyncUpdate({ slug }, completePier);
+        ipcRenderer.invoke('piers', await this.getPiers());
         return completePier;
     }
 
