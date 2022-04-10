@@ -5,8 +5,6 @@ import contextMenu from 'electron-context-menu';
 //Taken from https://github.com/nativefier/nativefier/blob/master/app/src/components/contextMenu.ts
 export function initContextMenu(createNewWindow, createNewTab, mainUrl, window?): void {
   const options: contextMenu.Options = {
-    showInspectElement: false,
-    prepend: (actions, params, window) => {
     showInspectElement: isDev,
     prepend: (actions, params, window) => {
       const items = [];
