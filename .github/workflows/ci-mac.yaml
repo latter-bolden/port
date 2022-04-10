@@ -25,6 +25,7 @@ jobs:
       - name: Build
         run: |
           yarn run make:mac
+          yarn run make:mac-arm
         env:
           APPLE_ID: ${{secrets.APPLE_ID}}
           APPLE_ID_PASSWORD: ${{secrets.APPLE_ID_PASSWORD}}
