@@ -6,11 +6,11 @@ jobs:
   make:
     runs-on: windows-2019
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js 14
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16
+        uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 16
       - name: Install Packages
         run: |
           yarn config set network-timeout 600000
