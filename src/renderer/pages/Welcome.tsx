@@ -57,7 +57,7 @@ export const Welcome = () => {
                             <WindowsBootWarning show={disableBoot}>
                                 <DropdownMenu.Trigger className="button text-sm" disabled={disableBoot}>
                                     <ChevronDown className="mr-3 w-5 h-5" primary="fill-current" />
-                                    Boot Menu
+                                    Add Ship
                                 </DropdownMenu.Trigger>
                             </WindowsBootWarning>
                             <DropdownMenu.Content as="ul" align="end" sideOffset={-30} className="min-w-52 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-900 rounded shadow-lg">

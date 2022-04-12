@@ -110,11 +110,11 @@ export const Boot: React.FC = () => {
                 {shipSettled.current && ship.status === 'running' &&
                     <div className="flex flex-col justify-center items-center space-y-6">
                         <div>
-                            <h1 className="font-semibold">Your Ship is Ready</h1>
-                            <div className="text-gray-300 dark:text-gray-600">Enjoy the Landscape</div>
+                            <h1 className="font-semibold">Your ship is ready</h1>
+                            <div className="text-gray-300 dark:text-gray-600">Enjoy!</div>
                         </div>
                         <Link to={`/pier/${slug}/launch`} className="button">
-                            Launch Ship into Urbit
+                            Launch Landscape
                             <RightArrow className="ml-1 w-7 h-7" primary="fill-current text-transparent" secondary="fill-current" />
                         </Link>                            
                     </div>

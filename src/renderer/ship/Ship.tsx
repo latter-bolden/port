@@ -150,10 +150,10 @@ export const Ship: React.FC = () => {
                                 </Dialog>
                                 <button className="button" onClick={async () => await ejectShip()}>
                                     {!isLoading && <>
-                                        <Upload className="w-5 h-5 mr-2" primary="fill-current opacity-50" secondary="fill-current" /> Eject
+                                        <Upload className="w-5 h-5 mr-2" primary="fill-current opacity-50" secondary="fill-current" /> Export
                                     </>}
                                     {isLoading && <>
-                                        <Spinner className="w-4 h-4 mr-2" /> Ejecting
+                                        <Spinner className="w-4 h-4 mr-2" /> Exporting
                                     </>}
                                 </button>
                             </>
