@@ -6363,7 +6363,7 @@ node-abi@^2.19.2:
   dependencies:
     semver "^5.4.1"
 
-node-abi@^3.0.0:
+node-abi@^3.0.0, node-abi@^3.8.0:
   version "3.8.0"
   resolved "https://registry.yarnpkg.com/node-abi/-/node-abi-3.8.0.tgz#679957dc8e7aa47b0a02589dbfde4f77b29ccb32"
   integrity sha512-tzua9qWWi7iW4I42vUPKM+SfaF0vQSLAm4yO5J83mSwB7GeoWrDKC/K+8YCnYNwqP5duwazbw2X9l4m8SC2cUw==
