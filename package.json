@@ -116,5 +116,7 @@
     "xterm-for-react": "^1.0.4",
     "zustand": "^3.3.1"
   },
-  "resolutions": {  "**/node-abi": "^3.8.0" }
+  "resolutions": {
+    "**/node-abi": "^3.8.0"
+  }
 }
