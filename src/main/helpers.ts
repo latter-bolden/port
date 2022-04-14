@@ -98,7 +98,7 @@ function matchView(view: BrowserWindow | BrowserView, targetUrl: URL) {
   const path = view.webContents.getURL()
       .replace(`${targetUrl.protocol}//${targetUrl.host}`, '');
   isDev && console.log('attempting match', path, targetUrl.pathname)
-  return targetUrl.pathname.startsWith(path) || path.startsWith(targetUrl.pathname);
+  return targetUrl.pathname === path;
 }
 
 export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewWindow, mainWindow, partition }: onNavigationParameters) {
