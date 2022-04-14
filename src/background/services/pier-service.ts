@@ -216,8 +216,9 @@ export class PierService {
         const check = await this.dojo(loopback, 'our')
         const webLive = await this.checkUrlAccessible(`http://localhost:${ports.web}`);
 
-        if (check && !pier.shipName) {
-            await this.updatePier(pier.slug, { shipName: check });
+        if (check && pier.shipName && check.trim() !== pier.shipName.trim()) {
+            // a different ship is running on this port
+            return null
         }
 
         if (check || webLive) {
