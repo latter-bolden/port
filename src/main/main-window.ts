@@ -15,6 +15,7 @@ import { start as settingsHelperStart } from './setting-service-helper'
 import { start as terminalServiceStart } from './terminal-service';
 import { Settings } from '../background/db';
 import { Pier } from '../background/services/pier-service';
+import { getPlatform } from '../get-platform';
 
 declare const LANDSCAPE_PRELOAD_WEBPACK_ENTRY: string;
 const ZOOM_INTERVAL = 0.1;
@@ -57,6 +58,14 @@ function adjustZoom(mainWindow: BrowserWindow, adjuster: (contents: WebContents)
     adjuster(focusedWindow.webContents);
 }
 
+function getTitleBarOverlay() {
+  return getPlatform() === 'win' ? {
+    color: nativeTheme.shouldUseDarkColors ? '#000000' : '#FFFFFF',
+    symbolColor: nativeTheme.shouldUseDarkColors ? '#FFFFFF' : '#000000',
+    height: 28
+  } : undefined;
+}
+
 export function createMainWindow(
   mainUrl: string,
   socketName: string,
@@ -85,6 +94,7 @@ export function createMainWindow(
     width: mainWindowState.width,
     height: mainWindowState.height,
     titleBarStyle: 'hidden',
+    titleBarOverlay: getTitleBarOverlay(),
     backgroundColor: nativeTheme.shouldUseDarkColors ? '#000000' : '#FFFFFF',
     //icon: getAppIcon(),
     webPreferences: {
@@ -92,6 +102,10 @@ export function createMainWindow(
       contextIsolation: false
     }
   });
+
+  nativeTheme.on('updated', () => {
+    mainWindow.setTitleBarOverlay(getTitleBarOverlay())
+  })
 
   mainWindowState.manage(mainWindow);
 
