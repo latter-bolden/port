@@ -38,7 +38,8 @@ class TerminalProcess {
       width: 800,
       backgroundColor: "#000000",
       webPreferences: {
-        nodeIntegration: true
+        nodeIntegration: true,
+        contextIsolation: false
       }
     });
 
