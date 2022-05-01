@@ -11,7 +11,7 @@ import { AttemptedLink } from '../alerts/AttemptedLink';
 import { getPlatform } from '../../get-platform';
 
 const isDev = ipcRenderer.sendSync('is-dev');
-const showTitle = getPlatform() === 'mac' || getPlatform() === 'win';
+const showTitle = getPlatform() === 'mac';
 
 interface LayoutProps {
     title: string;
