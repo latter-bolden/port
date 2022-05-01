@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [ main ]
 jobs:
-  publish:
+  make:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v3

@@ -24,7 +24,8 @@ jobs:
           CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
       - name: Build & Publish
         run: |
-          yarn run publish
+          yarn run publish --arch x64
+          yarn run publish --arch arm64
         env:
           APPLE_ID: ${{secrets.APPLE_ID}}
           APPLE_ID_PASSWORD: ${{secrets.APPLE_ID_PASSWORD}}
