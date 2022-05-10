@@ -31,7 +31,9 @@ const CenteredLayout = () => (
 )
 
 export const Welcome = () => {
-    const { data: piers, isIdle, isLoading } = useQuery(pierKey(), async () => await send('get-piers'));
+    const { data: piers, isIdle, isLoading } = useQuery(pierKey(), async () => await send('get-piers'), {
+        refetchInterval: 3000
+    });
     const disableBoot = getPlatform() === 'win' && !!piers?.find(s => s.status === 'running' && s.type !== 'remote'); 
 
     if (isIdle || isLoading) {
