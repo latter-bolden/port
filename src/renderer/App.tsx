@@ -54,6 +54,7 @@ export const useStore = create<PortStore>(() => ({
         'global-leap': 'true',
         'protocol-handling': 'true',
         'ship-name-in-title': 'false',
+        'keep-ships-running': 'true'
     },
     updateStatus: 'initial',
     zoomLevels: {
