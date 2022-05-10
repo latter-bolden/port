@@ -15,6 +15,7 @@ import { start as settingsHelperStart } from './setting-service-helper'
 import { start as terminalServiceStart } from './terminal-service';
 import { Settings } from '../background/db';
 import { Pier } from '../background/services/pier-service';
+import { getPlatform } from '../get-platform';
 
 declare const LANDSCAPE_PRELOAD_WEBPACK_ENTRY: string;
 const ZOOM_INTERVAL = 0.1;
@@ -84,7 +85,7 @@ export function createMainWindow(
     ...DEFAULT_WINDOW_OPTIONS,
     width: mainWindowState.width,
     height: mainWindowState.height,
-    titleBarStyle: 'hidden',
+    titleBarStyle: getPlatform() === 'mac' ? 'hidden' : null,
     backgroundColor: nativeTheme.shouldUseDarkColors ? '#000000' : '#FFFFFF',
     //icon: getAppIcon(),
     webPreferences: {
