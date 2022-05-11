@@ -72,8 +72,12 @@ export class PierService {
         });
 
         ipcRenderer.on('cleanup', async () => {
-            isDev && console.log('cleaning up pier-service');
-            await this.cleanup();
+            console.log('cleaning up pier-service');
+            try {
+                await this.cleanup();
+            } catch (e) {
+                console.error('failed to clean up pier-service')
+            }
             ipcRenderer.send('cleanup-done');
         });
     }
@@ -120,12 +124,17 @@ export class PierService {
     }
 
     async cleanup() {
+        const runDetached = await this.db.settings.asyncFindOne({ name: 'keep-ships-running' })
+        if (runDetached?.value === 'true') {
+            return;
+        }
+
         const runningShips = await this.db.piers.asyncFind({ status: 'running' })
 
-        const KILL_SOFTLY = true;
+        const killWithSignal = true;
         const stops = []
         for (let ship of runningShips) {
-            stops.push(this.stopPier(ship, KILL_SOFTLY))
+            stops.push(this.stopPier(ship, killWithSignal))
         }
 
         return Promise.all(stops)
@@ -304,7 +313,6 @@ export class PierService {
             }
 
             const runDetached = await this.db.settings.asyncFindOne({ name: 'keep-ships-running' })
-            console.log(`detached: ${runDetached.value}`)
             const urbit = this.spawnUrbit(this.getSpawnArgs(accuratePier), runDetached?.value === 'true');
             const ports = await this.handleUrbitProcess(urbit, accuratePier);
 
@@ -372,7 +380,6 @@ export class PierService {
     private async boot(pier: Pier, args: string[]) {
         try {
             const runDetached = await this.db.settings.asyncFindOne({ name: 'keep-ships-running' })
-            console.log(`detached: ${runDetached}`)
             const urbit = this.spawnUrbit(args, runDetached?.value === 'true');
             const ports = await this.handleUrbitProcess(urbit, pier, true);
             const updatedPier = await this.handlePostBoot(pier, ports);
@@ -473,22 +480,16 @@ export class PierService {
     }
 
     private async stopUrbit(ship: Pier, stopWithSignal:boolean = false): Promise<void> {
-        if (ship.status === 'booting' && typeof ship.bootProcessId !== 'undefined') {
+        if (stopWithSignal || (ship.status === 'booting' && typeof ship.pid !== 'undefined')) {
             try {
-                process.kill(ship.bootProcessId);
+                process.kill(ship.pid);
             } catch (err) {
-                if (err.message.toUpperCase().includes('ESRCH')) {
-                    // process doesn't exist, so must already be dead
-                    return;
+                // if process doesn't exist, we expect the error. Otherwise, throw
+                if (!err.message.toUpperCase().includes('ESRCH')) {
+                    throw err;
                 }
-                throw err;
             }
             return;
-        }
-
-        if (stopWithSignal) {
-            ship.pid && process.kill(ship.pid)
-            return
         }
 
         const url = `http://localhost:${ship.loopbackPort}`
@@ -587,7 +588,7 @@ export class PierService {
 
     private handleUrbitProcess(urbit: ChildProcessWithoutNullStreams, pier: Pier, persist = false): Promise<PortSet | null> {
         if (pier.status === 'booting') {
-            this.updatePier(pier.slug, { bootProcessId: urbit.pid, pid: urbit.pid })
+            this.updatePier(pier.slug, { pid: urbit.pid })
         }
 
         return new Promise((resolve, reject) => {
@@ -691,7 +692,7 @@ export class PierService {
 
     private async recoverBootingShips() {
         const bootingShips = await this.db.piers.asyncFind({ 
-            $and: [{ status: 'booting' }, { bootProcessId: { $exists: true }}] 
+            $and: [{ status: 'booting' }, { pid: { $exists: true }}]
         });
 
         await each(bootingShips, async ship => {
@@ -702,7 +703,7 @@ export class PierService {
                 return;
             }
 
-            const processes = await find('pid', ship.bootProcessId);
+            const processes = await find('pid', ship.pid);
             if (processes.length) {
                 // ship is still booting, but we're disconnected
                 console.log(`${ship.name} is still booting but we're disconnected`)
@@ -733,7 +734,6 @@ export interface Pier {
     loopbackPort?: number;
     amesPort?: number;
     directoryAsPierPath?: boolean;
-    bootProcessId?: number;
     pid?: number;
     bootProcessDisconnected?: boolean;
 }
