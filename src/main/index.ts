@@ -12,6 +12,7 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 }
 
 let mainWindow: BrowserWindow;
+let bgWindow: BrowserWindow;
 
 ipcMain.on('app-name', (event) => {
   event.returnValue = app.getName();
@@ -89,7 +90,6 @@ function createBackgroundWindow(socketName: string) {
 
 async function start(bootBg: boolean) {
   const serverSocket = await findOpenSocket()
-  let bgWindow;
 
   isDev && console.log('server socket', serverSocket)
   if (bootBg) {
@@ -122,14 +122,35 @@ app.on('window-all-closed', () => {
   }
 });
 
-function exitBeforeQuit() {
+let pierServiceDoneExiting = false;
+let cleanupInitialized = false;
+function beforeQuit(e) {
+  if (!pierServiceDoneExiting) {
+    if (cleanupInitialized) {
+      return;
+    }
+
+    cleanupInitialized = true;
+    e.preventDefault();
+
+    mainWindow.webContents.send('cleanup')
+    mainWindow.focus()
+    bgWindow.webContents.send('cleanup')
+    ipcMain.on('cleanup-done', (e) => {
+      pierServiceDoneExiting = true;
+      app.quit();
+    })
+
+    return;
+  }
+
   if (isOSX()) {
     app.exit(0);
   }
 }
 
-app.on('before-quit', exitBeforeQuit);
-autoUpdater.on('before-quit-for-update', exitBeforeQuit);
+app.on('before-quit', beforeQuit);
+autoUpdater.on('before-quit-for-update', beforeQuit);
 
 app.on('activate', (event, hasVisibleWindows) => {
   if (isOSX()) {

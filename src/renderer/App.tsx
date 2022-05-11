@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { HashRouter, Route, Switch } from 'react-router-dom'
+import { HashRouter, Route, Switch, useHistory } from 'react-router-dom'
 import { hot } from 'react-hot-loader';
-import { Welcome } from './pages/Welcome'
+import { Welcome } from './pages/Welcome';
+import { Cleanup } from './pages/Cleanup';
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from 'react-query';
 import { Launch } from './ship/Launch';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -74,6 +75,7 @@ const AppWrapped = () => (
 )
 
 const App = () => {
+    const history = useHistory();
     const queryClient = useQueryClient();
     useQuery('settings', () => send('get-settings'), {
         onSuccess: (settings) => {
@@ -122,6 +124,17 @@ const App = () => {
     }, [])
 
     useEffect(() => {
+        const listener = () => {
+            history.push('/cleanup')
+        }
+        ipcRenderer.on('cleanup', listener)
+
+        return () => {
+            ipcRenderer.removeListener('cleanup', listener)
+        }
+    })
+
+    useEffect(() => {
         const listeners = [
             listen('arch-unsupported', (architectureUnsupported) => {
                 console.log({ architectureUnsupported })
@@ -147,6 +160,7 @@ const App = () => {
             <Route path="/pier/:slug" component={Ship} />
             <Route path="/settings" component={SettingsPage} />
             <Route exact path="/" component={Welcome} />
+            <Route exact path="/cleanup" component={Cleanup} />
         </Switch>    
     );
 }

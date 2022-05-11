@@ -70,6 +70,12 @@ export class PierService {
         this.getPiers().then(piers => {
             ipcRenderer.invoke('piers', piers);
         });
+
+        ipcRenderer.on('cleanup', async () => {
+            isDev && console.log('cleaning up pier-service');
+            await this.cleanup();
+            ipcRenderer.send('cleanup-done');
+        });
     }
 
     handlers(): HandlerEntry<PierHandlers>[] {
@@ -111,6 +117,18 @@ export class PierService {
             console.log('Error creating piers directory:', err, 'Reverting to userData folder')
             this.pierDirectory = userData;
         }
+    }
+
+    async cleanup() {
+        const runningShips = await this.db.piers.asyncFind({ status: 'running' })
+
+        const KILL_SOFTLY = true;
+        const stops = []
+        for (let ship of runningShips) {
+            stops.push(this.stopPier(ship, KILL_SOFTLY))
+        }
+
+        return Promise.all(stops)
     }
 
     async addPier(data: AddPier): Promise<Pier | null> {
@@ -294,7 +312,8 @@ export class PierService {
                 lastUsed: (new Date()).toISOString(),
                 webPort: ports.web,
                 loopbackPort: ports.loopback,
-                status: 'running' as ShipStatus
+                status: 'running' as ShipStatus,
+                pid: urbit.pid
             } as Partial<Pier>
 
             if (!pier.shipName) {
@@ -411,14 +430,14 @@ export class PierService {
         }, 5000)
     }
 
-    async stopPier(pier: Pier): Promise<Pier> {
+    async stopPier(pier: Pier, stopWithSignal: boolean = false): Promise<Pier> {
         const updatedPier = await this.checkPier(pier);
 
         if (updatedPier.status !== 'running' && updatedPier.status !== 'booting') {
             return updatedPier;
         }
 
-        await this.stopUrbit(updatedPier);
+        await this.stopUrbit(updatedPier, );
 
         return await this.updatePier(updatedPier.slug, { status: 'stopped' });
     }
@@ -453,10 +472,10 @@ export class PierService {
         await this.db.piers.asyncRemove({ slug: pier.slug })  
     }
 
-    private async stopUrbit(ship: Pier): Promise<void> {
+    private async stopUrbit(ship: Pier, stopWithSignal:boolean = false): Promise<void> {
         if (ship.status === 'booting' && typeof ship.bootProcessId !== 'undefined') {
             try {
-                process.kill(ship.bootProcessId, 'SIGTERM');
+                process.kill(ship.bootProcessId);
             } catch (err) {
                 if (err.message.toUpperCase().includes('ESRCH')) {
                     // process doesn't exist, so must already be dead
@@ -465,6 +484,11 @@ export class PierService {
                 throw err;
             }
             return;
+        }
+
+        if (stopWithSignal) {
+            ship.pid && process.kill(ship.pid)
+            return
         }
 
         const url = `http://localhost:${ship.loopbackPort}`
@@ -563,7 +587,7 @@ export class PierService {
 
     private handleUrbitProcess(urbit: ChildProcessWithoutNullStreams, pier: Pier, persist = false): Promise<PortSet | null> {
         if (pier.status === 'booting') {
-            this.updatePier(pier.slug, { bootProcessId: urbit.pid })
+            this.updatePier(pier.slug, { bootProcessId: urbit.pid, pid: urbit.pid })
         }
 
         return new Promise((resolve, reject) => {
@@ -671,7 +695,7 @@ export class PierService {
         });
 
         await each(bootingShips, async ship => {
-            console.log(`trying to recover: ${ship.name}...`)
+            isDev && console.log(`trying to recover: ${ship.name}...`)
             const pier = await this.checkBoot(ship.slug)
             if (pier.status === 'running') {
                 console.log(`${ship.name} is running.`)
@@ -710,6 +734,7 @@ export interface Pier {
     amesPort?: number;
     directoryAsPierPath?: boolean;
     bootProcessId?: number;
+    pid?: number;
     bootProcessDisconnected?: boolean;
 }
 
