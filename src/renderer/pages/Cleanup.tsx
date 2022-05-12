@@ -8,10 +8,14 @@ export const Cleanup = () => {
         <Layout 
             title="Quit"
             center={false}
+            className="relative flex justify-center items-center min-content-area-height"
         >
-            <div className="grid h-full w-full justify-center items-center">
-                <h1 className="text-2xl mt-8 text-center">Cleaning up...</h1>
-                <Spinner className="h-24 w-24" />
+            <div className="flex items-center">
+                <Spinner className="h-24 w-24 mr-6" />
+                <div className="flex-1">
+                    <h1 className="font-semibold">Cleaning up...</h1>
+                    <div className="text-gray-300 dark:text-gray-600">This may take a bit.</div>
+                </div>
             </div>
         </Layout>
     )

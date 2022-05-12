@@ -2,11 +2,24 @@ import * as Tooltip from '@radix-ui/react-tooltip';
 import React from 'react'
 import { Pier } from '../../../background/services/pier-service'
 
-const statusColors: Record<'running' | 'booting' | 'errored' | 'default', string> = {
+const statusColors: Record<'running' | 'starting' | 'booting' | 'bootErrored' | 'bootRecovery' | 'errored' | 'default', string> = {
     running: 'bg-green-400',
+    starting: 'bg-yellow-200',
     booting: 'bg-yellow-500',
+    bootRecovery: 'bg-yellow-400',
+    bootErrored: 'bg-red-600',
     errored: 'bg-red-600',
     default: 'bg-gray-300 dark:bg-gray-700'
+}
+
+const getDisplayStatus = (status) => {
+    if (status === 'bootRecovery')
+        return 'Boot Recovery';
+
+    if (status === 'bootErrored')
+        return 'Errored';
+
+    return status;
 }
 
 const PortDisplay = ({ ship }: { ship: Pier }) => (
@@ -31,7 +44,7 @@ export const ShipStatus = ({ ship }: { ship: Pier }) => {
             <Tooltip.Trigger className="default-ring cursor-default">
                 <span className="inline-flex items-center">
                     <span className={`inline-flex w-2 h-2 mr-1 rounded-full ${statusColors[ship.status] || statusColors.default}`}></span>
-                    <span className="capitalize text-gray-400 dark:text-gray-500">{ isRemote ? 'Connected' : ship.status }</span>
+                    <span className="capitalize text-gray-400 dark:text-gray-500">{ isRemote ? 'Connected' : getDisplayStatus(ship.status) }</span>
                 </span>
             </Tooltip.Trigger>
             <Tooltip.Content side="top" className="px-3 py-2 text-sm bg-gray-200 dark:bg-gray-800 rounded">

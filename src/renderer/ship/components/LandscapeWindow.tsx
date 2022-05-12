@@ -42,6 +42,12 @@ export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading 
     });
 
     useEffect(() => {
+        if (pier?.status === 'errored') {
+            setStatus('errored');
+        }
+    }, [pier])
+
+    useEffect(() => {
         async function createView() {
             try {
                 await send('create-view', {

@@ -16,8 +16,11 @@ type LaunchButtonProps = {
 
 const buttonLabels: Record<ShipStatus, string> = {
     running: 'Open',
+    starting: 'Open',
     stopped: 'Launch',
     booted: 'Launch',
+    bootErrored: 'Check Error',
+    bootRecovery: 'Launch',
     booting: 'Check Progress',
     unbooted: 'Boot',
     errored: 'Check Error'
@@ -26,7 +29,7 @@ const buttonLabels: Record<ShipStatus, string> = {
 export const LaunchButton: React.FC<LaunchButtonProps> = ({ ship, loadData, className = '' }) => {
     const { data: ships } = useQuery(pierKey(), () => send('get-piers'));
     const buttonClass = `button min-w-22 py-1 pr-1 font-semibold text-sm ${className}`
-    const path = ship.status === 'running' || ship.status === 'stopped' ? `/pier/${ship.slug}/launch` : `/boot/new/${ship.slug}`;
+    const path = ['starting', 'running', 'stopped', 'bootRecovery', 'errored'].includes(ship.status) ? `/pier/${ship.slug}/launch` : `/boot/new/${ship.slug}`;
     const otherShipsRunning = ships?.find(s => s.status === 'running' && s.type !== 'remote' && s.slug !== ship.slug);
 
     if (getPlatform() === 'win' && otherShipsRunning && ship.type !== 'remote') {

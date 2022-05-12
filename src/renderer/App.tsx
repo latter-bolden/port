@@ -96,7 +96,7 @@ const App = () => {
 
         return send('get-piers')
     }, {
-        refetchInterval: 60 * 1000,
+        refetchInterval: 60 * 1000, // once per minute
         refetchIntervalInBackground: true,
         refetchOnWindowFocus: true,
         onSuccess: (piers) => {
