@@ -3,6 +3,8 @@ import findOpenSocket from '../renderer/client/find-open-socket'
 import isDev from 'electron-is-dev'
 import { isOSX } from './helpers';
 import { createMainWindow } from './main-window';
+import { Cleanup } from './cleanup';
+
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const BACKGROUND_WINDOW_WEBPACK_ENTRY: string;
 
@@ -13,6 +15,7 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 
 let mainWindow: BrowserWindow;
 let bgWindow: BrowserWindow;
+let cleanup = new Cleanup();
 
 ipcMain.on('app-name', (event) => {
   event.returnValue = app.getName();
@@ -97,7 +100,8 @@ async function start(bootBg: boolean) {
   }
 
   mainWindow = createMainWindow(MAIN_WINDOW_WEBPACK_ENTRY, serverSocket, app.quit.bind(this), bgWindow)
-
+  
+  cleanup.setWindows(mainWindow, bgWindow);
 
   if (!isDev) {
     autoUpdater.checkForUpdates()
@@ -122,27 +126,10 @@ app.on('window-all-closed', () => {
   }
 });
 
-let pierServiceDoneExiting = false;
-let cleanupInitialized = false;
 function beforeQuit(e) {
-  if (!pierServiceDoneExiting) {
-    if (cleanupInitialized) {
-      return;
-    }
-
-    cleanupInitialized = true;
-    e.preventDefault();
-
-    mainWindow.webContents.send('cleanup')
-    mainWindow.focus()
-    bgWindow.webContents.send('cleanup')
-    ipcMain.on('cleanup-done', (e) => {
-      pierServiceDoneExiting = true;
-      app.quit();
-    })
-
+  const doneCleaning = cleanup.handleEvent(e);
+  if (!doneCleaning)
     return;
-  }
 
   if (isOSX()) {
     app.exit(0);
