@@ -689,7 +689,7 @@ export class PierService {
 
     private async recoverShips() {
         const bootingShips = await this.db.piers.asyncFind({ 
-            $and: [ { $or: [{ status: 'booting' }, { status: 'resuming' }]}, { pid: { $exists: true }}]
+            $and: [ { $or: [{ status: 'booting' }, { status: 'starting' }]}, { pid: { $exists: true }}]
         });
 
         await each(bootingShips, async ship => {
