@@ -106,6 +106,11 @@ export function onNavigation({ urlTarget, currentUrl, preventDefault, createNewW
   let targetUrl = new URL(urlTarget);
   const isProtocolLink = targetUrl.protocol.startsWith(URBIT_PROTOCOL);
 
+  if (url.href === targetUrl.href) {
+    // could be a POST/PUT, don't interfere
+    return;
+  }
+
   if (isProtocolLink) {
     // fix protocol link being incorrectly parsed
     targetUrl = new URL(`${URBIT_PROTOCOL}://${url.host}/${targetUrl.host}${targetUrl.pathname}`)
