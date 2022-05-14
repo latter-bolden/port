@@ -54,7 +54,7 @@ export const Boot: React.FC = () => {
             history.push('/')
         }
     })
-    shipSettled.current = ship && (ship.status === 'running' || ship.status === 'bootErrored');
+    shipSettled.current = ship && (ship.status === 'running' || ship.status === 'errored');
 
     useEffect(() => {
         if (!slug)
@@ -119,7 +119,7 @@ export const Boot: React.FC = () => {
                         </Link>                            
                     </div>
                 }
-                {shipSettled.current && ship.status === 'bootErrored' &&
+                {shipSettled.current && ship.status === 'errored' &&
                     <div>
                         <h1 className="font-semibold mb-2">{title} Failed</h1>
                         <p className="mb-6 text-gray-300 dark:text-gray-600">Last seen messages:</p>                            

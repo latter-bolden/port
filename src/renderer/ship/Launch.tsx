@@ -60,7 +60,7 @@ export const Launch = () => {
     const queryClient = useQueryClient();
     const { data: initialPier } = useQuery(pierKey(slug), () => send('get-pier', slug));
     const pierLoaded = initialPier?.slug;
-    const { mutate, isIdle, isLoading } = useMutation(() => send('resume-pier', initialPier), 
+    const { mutate, isIdle, isLoading } = useMutation(() => send('boot-pier', initialPier), 
         {
             onSuccess: (data: Pier) => {
                 setPier(data)

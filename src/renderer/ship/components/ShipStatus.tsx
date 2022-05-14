@@ -1,15 +1,19 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
 import React from 'react'
-import { Pier } from '../../../background/services/pier-service'
+import { Pier, BootStatus } from '../../../background/services/pier-service'
 
-const statusColors: Record<'running' | 'starting' | 'booting' | 'bootErrored' | 'bootRecovery' | 'errored' | 'default', string> = {
+const statusColors: Record<string, string> = {
+    stopped: 'bg-gray-300 dark:bg-gray-700',
+    booting: 'bg-yellow-200',
+    bootingForFirstTime: 'bg-yellow-500',
     running: 'bg-green-400',
-    starting: 'bg-yellow-200',
-    booting: 'bg-yellow-500',
-    bootRecovery: 'bg-yellow-400',
-    bootErrored: 'bg-red-600',
-    errored: 'bg-red-600',
-    default: 'bg-gray-300 dark:bg-gray-700'
+    errored: 'bg-red-600'
+}
+const getStatusColor = (ship: Pier) => {
+    if (ship.status === 'booting' && ship.startupPhase !== 'complete')
+        return statusColors.bootingForFirstTime
+
+    return statusColors[ship.status]
 }
 
 const getDisplayStatus = (status) => {

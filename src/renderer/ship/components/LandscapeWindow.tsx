@@ -82,10 +82,10 @@ export const LandscapeWindow: React.FC<LandscapeWindowProps> = ({ pier, loading 
 
     return (
         <div ref={landscapeRef} id="landscape" className="grid h-full w-full justify-center items-center">
-            { (loading || status === 'loading' || pier?.status !== 'running') &&
+            { (loading || status === 'loading' || pier?.status === 'booting') &&
                 <Spinner className="h-24 w-24" />
             }
-            { status === 'errored' &&
+            { status === 'errored' && pier?.type === 'remote' &&
                 <div className="mx-auto max-w-xs space-y-3">
                     <h1>
                         <span className="font-semibold text-red-500">Unable to connect to:</span>
