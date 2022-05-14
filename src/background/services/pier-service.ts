@@ -332,6 +332,7 @@ export class PierService {
     private async internalBootPier(pier: Pier): Promise<Pier | null> {
         try {
             const urbit = await this.spawnUrbit(pier);
+
             const updates: Partial<Pier> = { status: 'booting', bootProcessDisconnected: false }
             pier.startupPhase !== 'complete'
                 ? await this.updatePier(pier.slug, { ...updates, startupPhase: 'initialized' })
