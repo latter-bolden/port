@@ -339,7 +339,7 @@ export class PierService {
             const ports = await this.handleUrbitProcess(urbit, pier, true);
             const updatedPier: Pier = pier.startupPhase !== 'complete'
                 ? await this.handlePostInitialBoot(pier, ports)
-                : await this.handlePostResume(pier, ports);
+                : await this.handlePostBoot(pier, ports);
 
             this.bootingPiers.delete(updatedPier.slug);
             return updatedPier;
@@ -351,7 +351,7 @@ export class PierService {
         }
     }
 
-    private async handlePostResume(pier: Pier, ports: PortSet) {
+    private async handlePostBoot(pier: Pier, ports: PortSet) {
         const pierUpdates = {
             lastUsed: (new Date()).toISOString(),
             webPort: ports.web,
@@ -368,7 +368,7 @@ export class PierService {
         if (ports) {    
             return pier.startupPhase !== 'complete'            
                 ? await this.handlePostInitialBoot(pier, ports)
-                : await this.handlePostResume(pier, ports);
+                : await this.handlePostBoot(pier, ports);
         }
 
         return pier;
