@@ -122,8 +122,8 @@ export class PierService {
     }
 
     async cleanup() {
-        const runDetached = await this.db.settings.asyncFindOne({ name: 'keep-ships-running' })
-        if (runDetached?.value === 'true') {
+        const keepShipsRunning = await this.db.settings.asyncFindOne({ name: 'keep-ships-running' })
+        if (keepShipsRunning?.value === 'true') {
             return;
         }
 
