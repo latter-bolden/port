@@ -65,7 +65,6 @@ export class PierService {
         this.urbitPath = joinPath(binariesPath, 'urbit');
         this.bootingPiers = new Map();
         this.recoverShips();
-        this.blub();
         
         this.getPiers().then(piers => {
             ipcRenderer.invoke('piers', piers);
@@ -655,16 +654,6 @@ export class PierService {
         }
 
         return joinPath(userData, 'piers')
-    }
-
-    private async blub () {
-        let piers = await this.getPiers();
-        // let validStatuses = ['stopped', 'booting', 'running', 'errored']
-        piers.forEach(async (pier) => {
-            if (typeof pier.startupPhase === 'undefined') {
-                await this.updatePier(pier.slug, { startupPhase: 'complete' })
-            }
-        })
     }
 
     private async recoverShips() {
