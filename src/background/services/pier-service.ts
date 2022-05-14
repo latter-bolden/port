@@ -132,7 +132,8 @@ export class PierService {
         const killWithSignal = true;
         const stops = []
         for (let ship of runningShips) {
-            stops.push(this.stopPier(ship, killWithSignal))
+            if (ship.type !== 'remote')
+                stops.push(this.stopPier(ship, killWithSignal))
         }
 
         return Promise.all(stops)
@@ -660,7 +661,7 @@ export class PierService {
 
     private async recoverShips() {
         const bootingShips = await this.db.piers.asyncFind({ 
-            $and: [ { $or: [{ status: 'booting' }, { status: 'starting' }]}, { pid: { $exists: true }}]
+            $and: [ { status: 'booting' }, { pid: { $exists: true }}]
         });
 
         await each(bootingShips, async ship => {
