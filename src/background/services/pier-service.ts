@@ -332,14 +332,15 @@ export class PierService {
     private async internalBootPier(pier: Pier): Promise<Pier | null> {
         try {
             const urbit = await this.spawnUrbit(pier);
+            const updates: Partial<Pier> = { status: 'booting', bootProcessDisconnected: false }
             pier.startupPhase !== 'complete'
-                ? await this.updatePier(pier.slug, { status: 'booting', startupPhase: 'initialized' })
-                : await this.updatePier(pier.slug, { status: 'booting' })
+                ? await this.updatePier(pier.slug, { ...updates, startupPhase: 'initialized' })
+                : await this.updatePier(pier.slug, updates)
 
-            const ports = await this.handleUrbitProcess(urbit, pier, true);
+            const ports = await this.handleUrbitProcess(urbit, pier, true)
             const updatedPier: Pier = pier.startupPhase !== 'complete'
                 ? await this.handlePostInitialBoot(pier, ports)
-                : await this.handlePostBoot(pier, ports);
+                : await this.handlePostBoot(pier, ports)
 
             this.bootingPiers.delete(updatedPier.slug);
             return updatedPier;
@@ -347,7 +348,7 @@ export class PierService {
         } catch (err) {
             console.error(err);
             this.bootingPiers.delete(pier.slug);
-            return await this.updatePier(pier.slug, { status: 'errored' });
+            return await this.updatePier(pier.slug, { status: 'errored', lastUsed: (new Date()).toISOString() });
         }
     }
 

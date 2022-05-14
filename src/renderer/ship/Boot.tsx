@@ -11,13 +11,7 @@ import { Button } from '../shared/Button'
 import { Layout } from '../shared/Layout'
 import { MessageLogger } from '../shared/MessageLogger'
 import { Spinner } from '../shared/Spinner'
-
-const BootFooter = ({ queryClient }) => (
-    <Link to="/" className="inline-flex items-center ml-2 mr-8 text-xs text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white focus:text-black dark:focus:text-white transition-colors" onMouseOver={() => queryClient.prefetchQuery(pierKey())}>
-        <LeftArrow className="w-5 h-5 mr-2" primary="fill-current text-transparent" secondary="fill-current" />
-        Home
-    </Link>
-)
+import { HomeFooter } from '../shared/HomeFooter'
 
 export const Boot: React.FC = () => {
     const history = useHistory();
@@ -90,7 +84,7 @@ export const Boot: React.FC = () => {
     return (
         <Layout 
             title={title}
-            footer={<BootFooter queryClient={queryClient} />}
+            footer={<HomeFooter queryClient={queryClient} />}
             className="relative flex justify-center items-center min-content-area-height"
         >            
             <section className="max-w-xl">                   

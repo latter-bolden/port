@@ -11,10 +11,9 @@ function formatMsg(msg: BootMessage) {
 export const MessageLogger: React.FC<{ ship: Pier, showErrors?: boolean }> = ({ ship, showErrors = false }) => {
     const slug = ship?.slug;
     const { data } = useQuery(['messages', slug], () => send('get-messages', { slug }), {
-        enabled: ship?.status === 'booting' || ship?.status === 'running',
-        refetchInterval: 500
+        enabled: ship?.status === 'booting' || ship?.status === 'running' || ship?.status === 'errored',
+        refetchInterval: ship?.status === 'errored' ? undefined : 500
     })
-    const disconnected = !!ship?.bootProcessDisconnected;
     const messages = (data || []).sort((a, b) => b.time.localeCompare(a.time));
     
     return (
@@ -25,7 +24,7 @@ export const MessageLogger: React.FC<{ ship: Pier, showErrors?: boolean }> = ({ 
                     <div key={index + msg.text} className={showErrors && msg.type === 'error' ? 'text-red-600' : ''}>{formatMsg(msg)}</div>
                 ))}
             </pre>
-            {disconnected && 
+            {ship?.bootProcessDisconnected && 
                 <div className="flex items-center mt-2 -ml-3 text-gray-300">
                     <span className="inline-flex w-2 h-2 mr-1 rounded-full bg-red-800"></span>
                     <span>disconnected from boot logs</span>

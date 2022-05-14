@@ -23,6 +23,7 @@ import { ipcRenderer } from 'electron';
 import { Settings } from '../background/db';
 import { Settings as SettingsPage } from './pages/Settings';
 import { Pier } from '../background/services/pier-service';
+import { ShipError } from './ship/ShipError';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -157,6 +158,7 @@ const App = () => {
             <Route exact path={routeMap.star.path} component={Star} />
             <Route path="/boot/new/:slug" component={Boot} />
             <Route exact path="/pier/:slug/launch" component={Launch} />
+            <Route path="/pier/:slug/error" component={ShipError} />
             <Route path="/pier/:slug" component={Ship} />
             <Route path="/settings" component={SettingsPage} />
             <Route exact path="/" component={Welcome} />

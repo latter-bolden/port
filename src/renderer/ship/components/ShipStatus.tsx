@@ -4,7 +4,7 @@ import { Pier, BootStatus } from '../../../background/services/pier-service'
 
 const statusColors: Record<string, string> = {
     stopped: 'bg-gray-300 dark:bg-gray-700',
-    booting: 'bg-yellow-200',
+    booting: 'bg-yellow-300',
     bootingForFirstTime: 'bg-yellow-500',
     running: 'bg-green-400',
     errored: 'bg-red-600'
