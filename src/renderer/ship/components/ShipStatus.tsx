@@ -16,16 +16,6 @@ const getStatusColor = (ship: Pier) => {
     return statusColors[ship.status]
 }
 
-const getDisplayStatus = (status) => {
-    if (status === 'bootRecovery')
-        return 'Boot Recovery';
-
-    if (status === 'bootErrored')
-        return 'Errored';
-
-    return status;
-}
-
 const PortDisplay = ({ ship }: { ship: Pier }) => (
     <>
         <p className="mt-2 font-medium text-gray-600 dark:text-gray-400">Ports</p>
@@ -47,8 +37,8 @@ export const ShipStatus = ({ ship }: { ship: Pier }) => {
         <Tooltip.Root>
             <Tooltip.Trigger className="default-ring cursor-default">
                 <span className="inline-flex items-center">
-                    <span className={`inline-flex w-2 h-2 mr-1 rounded-full ${statusColors[ship.status] || statusColors.default}`}></span>
-                    <span className="capitalize text-gray-400 dark:text-gray-500">{ isRemote ? 'Connected' : getDisplayStatus(ship.status) }</span>
+                    <span className={`inline-flex w-2 h-2 mr-1 rounded-full ${getStatusColor(ship)}`}></span>
+                    <span className="capitalize text-gray-400 dark:text-gray-500">{ isRemote ? 'Connected' : ship.status }</span>
                 </span>
             </Tooltip.Trigger>
             <Tooltip.Content side="top" className="px-3 py-2 text-sm bg-gray-200 dark:bg-gray-800 rounded">

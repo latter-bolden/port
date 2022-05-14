@@ -15,11 +15,9 @@ type LaunchButtonProps = {
 }
 
 const buttonLabels: Record<BootStatus, string> = {
-    running: 'Open',
-    booting: 'Open',
     stopped: 'Boot',
-    // booting: 'Check Progress',
-    // unbooted: 'Boot',
+    booting: 'Open',
+    running: 'Open',
     errored: 'Check Error'
 }
 
