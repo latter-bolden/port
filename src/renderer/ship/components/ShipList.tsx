@@ -5,6 +5,7 @@ import { pierKey } from '../../query-keys'
 import { Pier } from '../../../background/services/pier-service'
 import { LaunchButton } from './LaunchButton'
 import { ShipStatus } from './ShipStatus'
+import { FirstBootTooltip, RecoveryTooltip } from '../../shared/WarningTooltips'
 
 export const ShipList = ({ piers }: { piers: Pier[]}) => {
     const queryClient = useQueryClient();
@@ -18,7 +19,11 @@ export const ShipList = ({ piers }: { piers: Pier[]}) => {
             {piers.sort((a,b) => b.lastUsed.localeCompare(a.lastUsed)).map(pier => (
                 <li key={pier.slug} className="flex items-center p-2 bg-gray-100 dark:bg-gray-900 rounded">
                     <div>
-                        <div className="leading-tight">{ pier.name }</div>
+                        <div className="leading-tight flex flex-row">
+                            { pier.name }
+                            { pier.status === 'booting' && pier.startupPhase === 'initialized' && <FirstBootTooltip /> }
+                            { pier.startupPhase === 'recovery' && <RecoveryTooltip />}
+                        </div>
                         <div className="mt-1 text-sm">
                             <ShipStatus ship={pier} />
                         </div>
