@@ -34,7 +34,7 @@ async function start() {
       architectureSupportCheck();
     })
 
-    pierService.setPierDirectory();
+    await pierService.start();
 
     console.log('initializing background process')
 }

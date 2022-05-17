@@ -64,11 +64,6 @@ export class PierService {
         this.db = db;
         this.urbitPath = joinPath(binariesPath, 'urbit');
         this.bootingPiers = new Map();
-        this.recoverShips();
-        
-        this.getPiers().then(piers => {
-            ipcRenderer.invoke('piers', piers);
-        });
 
         ipcRenderer.on('cleanup', async () => {
             console.log('cleaning up pier-service');
@@ -100,6 +95,45 @@ export class PierService {
             { name: 'eject-pier', handler: this.ejectPier.bind(this) },
             { name: 'validate-key-file', handler: this.validateKeyfile.bind(this) }
         ]
+    }
+
+    async start(): Promise<void> {
+        await this.setPierDirectory();
+        await this.migrate();
+        await this.recoverShips();
+        await this.getPiers().then(piers => {
+            ipcRenderer.invoke('piers', piers);
+        });
+    }
+
+    async migrate(): Promise<void> {
+        let piers = await this.getPiers();
+        let migrationNeeded = piers.some(pier => {
+            const hasInvalidStatus = !['stopped', 'booting', 'running', 'errored'].includes(pier.status);
+            const missingStartupPhase = typeof pier.startupPhase === 'undefined';
+            return hasInvalidStatus || missingStartupPhase;
+        });
+
+        if (migrationNeeded) {
+            console.log('pier service attempting migration')
+            await each(piers, async (pier) => {
+                if (pier.type === 'remote' || ['booted', 'stopped'].includes(pier.status))
+                    return await this.updatePier(pier.slug, { startupPhase: 'complete' });
+
+                if (pier.status as any === 'unbooted')
+                    return await this.updatePier(pier.slug, { status: 'stopped', startupPhase: 'never-booted' });
+
+                if (['booting', 'errored'].includes(pier.status))
+                    return await this.updatePier(pier.slug, { startupPhase: 'initialized' });
+
+                if (pier.status === 'running') {
+                    await this.stopPier(pier);
+                    return await this.updatePier(pier.slug, { startupPhase: 'complete' });
+                }
+            });
+
+            console.log('pier service migrated successfully');
+        }
     }
     
     async setPierDirectory(): Promise<void> {
@@ -674,17 +708,14 @@ export class PierService {
             if (pier.status === 'running')
                 return;
 
-            if (await processExists(pier.pid)) {
-                this.updatePier(ship.slug, { bootProcessDisconnected: true })
+            if (pier.pid && await processExists(pier.pid)) {
+                return this.updatePier(ship.slug, { bootProcessDisconnected: true })
             } else {
-                let updates: Partial<Pier> = { status: 'stopped' };
-                if (pier.startupPhase !== 'complete')
-                    updates.startupPhase = 'recovery';
-                
-                this.updatePier(ship.slug, updates)
+                return pier.startupPhase !== 'complete'
+                    ? await this.updatePier(ship.slug, { status: 'stopped', startupPhase: 'recovery'})
+                    : await this.updatePier(ship.slug, { status: 'stopped'})
             }
         })
-
     }
 }
 
