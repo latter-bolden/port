@@ -17,6 +17,7 @@ import { Dialog, DialogClose, DialogContent, DialogTrigger } from '../shared/Dia
 import { Button } from '../shared/Button'
 import { WindowsBootWarning } from '../alerts/WindowsBootWarning'
 import { getPlatform } from '../../get-platform'
+import { FirstBootTooltip, RecoveryTooltip } from '../shared/WarningTooltips'
 
 
 export const Ship: React.FC = () => {
@@ -93,6 +94,8 @@ export const Ship: React.FC = () => {
                                 <EditableShipName ship={ship} />
                             </h1>
                                 <div className="mb-4 mt-2 whitespace-nowrap flex flex-row">
+                                    { ship.status === 'booting' && ship.startupPhase === 'initialized' && <FirstBootTooltip className="mr-2" />}
+                                    { ship.startupPhase === 'recovery' && <RecoveryTooltip className="mr-2" />}
                                     { ship.type !== 'remote'
                                     ? (
                                         <>

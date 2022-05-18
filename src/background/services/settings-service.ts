@@ -13,7 +13,8 @@ const defaultSettings: SettingsDocument[] = [
   { name: 'seen-grid-update-modal', value: 'false' },
   { name: 'global-leap', value: 'true' },
   { name: 'protocol-handling', value: 'true' },
-  { name: 'ship-name-in-title', value: 'false'}
+  { name: 'ship-name-in-title', value: 'false'},
+  { name: 'keep-ships-running', value: 'true'}
 ]
 
 export class SettingsService {

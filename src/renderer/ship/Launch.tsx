@@ -54,22 +54,24 @@ const LaunchFooter: React.FC<{ pier: Pier }> = ({ pier }) => {
 }
 
 export const Launch = () => {
-    const { slug } = useParams<{ slug: string }>()
+    const { slug } = useParams<{ slug: string }>();
     const [pier, setPier] = useState<Pier>();
     const settings = useStore(s => s.settings);
-    const { data: initialPier } = useQuery(pierKey(slug), () => send('get-pier', slug))
+    const queryClient = useQueryClient();
+    const { data: initialPier } = useQuery(pierKey(slug), () => send('get-pier', slug));
     const pierLoaded = initialPier?.slug;
-    const { mutate, isIdle, isLoading } = useMutation(() => send('resume-pier', initialPier), 
+    const { mutate, isIdle, isLoading } = useMutation(() => send('boot-pier', initialPier), 
         {
             onSuccess: (data: Pier) => {
                 setPier(data)
+                queryClient.setQueryData(pierKey(data.slug), data)
             }
         }
     )
 
     useEffect(() => {
         if (pierLoaded) {
-            mutate()
+            mutate();
         }
     }, [pierLoaded])
 
@@ -81,10 +83,10 @@ export const Launch = () => {
             })
         }
 
-        ipcRenderer.on('current-ship', handle)
+        ipcRenderer.on('current-ship', handle);
 
         return () => {
-            ipcRenderer.removeListener('current-ship', handle)
+            ipcRenderer.removeListener('current-ship', handle);
         }
     }, [pier]);
 

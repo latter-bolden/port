@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { HashRouter, Route, Switch } from 'react-router-dom'
+import { HashRouter, Route, Switch, useHistory } from 'react-router-dom'
 import { hot } from 'react-hot-loader';
-import { Welcome } from './pages/Welcome'
+import { Welcome } from './pages/Welcome';
+import { Cleanup } from './pages/Cleanup';
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from 'react-query';
 import { Launch } from './ship/Launch';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -22,6 +23,7 @@ import { ipcRenderer } from 'electron';
 import { Settings } from '../background/db';
 import { Settings as SettingsPage } from './pages/Settings';
 import { Pier } from '../background/services/pier-service';
+import { ShipError } from './ship/ShipError';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -54,6 +56,7 @@ export const useStore = create<PortStore>(() => ({
         'global-leap': 'true',
         'protocol-handling': 'true',
         'ship-name-in-title': 'false',
+        'keep-ships-running': 'true'
     },
     updateStatus: 'initial',
     zoomLevels: {
@@ -73,6 +76,7 @@ const AppWrapped = () => (
 )
 
 const App = () => {
+    const history = useHistory();
     const queryClient = useQueryClient();
     useQuery('settings', () => send('get-settings'), {
         onSuccess: (settings) => {
@@ -93,7 +97,7 @@ const App = () => {
 
         return send('get-piers')
     }, {
-        refetchInterval: 60 * 1000,
+        refetchInterval: 60 * 1000, // once per minute
         refetchIntervalInBackground: true,
         refetchOnWindowFocus: true,
         onSuccess: (piers) => {
@@ -121,6 +125,17 @@ const App = () => {
     }, [])
 
     useEffect(() => {
+        const listener = () => {
+            history.push('/cleanup')
+        }
+        ipcRenderer.on('cleanup', listener)
+
+        return () => {
+            ipcRenderer.removeListener('cleanup', listener)
+        }
+    })
+
+    useEffect(() => {
         const listeners = [
             listen('arch-unsupported', (architectureUnsupported) => {
                 console.log({ architectureUnsupported })
@@ -143,9 +158,11 @@ const App = () => {
             <Route exact path={routeMap.star.path} component={Star} />
             <Route path="/boot/new/:slug" component={Boot} />
             <Route exact path="/pier/:slug/launch" component={Launch} />
+            <Route path="/pier/:slug/error" component={ShipError} />
             <Route path="/pier/:slug" component={Ship} />
             <Route path="/settings" component={SettingsPage} />
             <Route exact path="/" component={Welcome} />
+            <Route exact path="/cleanup" component={Cleanup} />
         </Switch>    
     );
 }

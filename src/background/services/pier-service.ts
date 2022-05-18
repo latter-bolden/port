@@ -1,5 +1,6 @@
 import { join as joinPath } from 'path';
 import process from 'process';
+import { processExists } from 'process-exists';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { shell, ipcRenderer } from 'electron';
 import axios from 'axios'
@@ -13,7 +14,6 @@ import { promisify } from 'util'
 import ADMZip from 'adm-zip'
 import mv from 'mv'
 import { each } from 'async';
-import find from 'find-process';
 
 
 const isDev = ipcRenderer.sendSync('is-dev');
@@ -44,7 +44,6 @@ export interface PierHandlers {
     'update-pier': PierService["updatePier"]
     'collect-existing-pier': PierService["collectExistingPier"]
     'boot-pier': PierService["bootPier"]
-    'resume-pier': PierService["resumePier"]
     'spawn-in-terminal': PierService["spawnInTerminal"]
     'check-pier': PierService["checkPier"]
     'check-boot': PierService["checkBoot"]
@@ -58,17 +57,22 @@ export interface PierHandlers {
 export class PierService {
     private readonly db: DB;
     private readonly urbitPath: string;
-    private readonly resumesInProgress: Map<string, Promise<Pier | null>>;
+    private readonly bootingPiers: Map<string, Promise<Pier | null>>;
     private pierDirectory: string;
 
     constructor(db: DB) {
         this.db = db;
         this.urbitPath = joinPath(binariesPath, 'urbit');
-        this.resumesInProgress = new Map();
-        this.recoverBootingShips();
-        
-        this.getPiers().then(piers => {
-            ipcRenderer.invoke('piers', piers);
+        this.bootingPiers = new Map();
+
+        ipcRenderer.on('cleanup', async () => {
+            console.log('cleaning up pier-service');
+            try {
+                await this.cleanup();
+            } catch (e) {
+                console.error('failed to clean up pier-service')
+            }
+            ipcRenderer.send('cleanup-done');
         });
     }
 
@@ -82,7 +86,6 @@ export class PierService {
             { name: 'update-pier', handler: this.updatePier.bind(this) },
             { name: 'collect-existing-pier', handler: this.collectExistingPier.bind(this) },
             { name: 'boot-pier', handler: this.bootPier.bind(this) },
-            { name: 'resume-pier', handler: this.resumePier.bind(this) },
             { name: 'spawn-in-terminal', handler: this.spawnInTerminal.bind(this) },
             { name: 'check-pier', handler: this.checkPier.bind(this) },
             { name: 'check-url', handler: this.checkUrlAccessible.bind(this) },
@@ -92,6 +95,45 @@ export class PierService {
             { name: 'eject-pier', handler: this.ejectPier.bind(this) },
             { name: 'validate-key-file', handler: this.validateKeyfile.bind(this) }
         ]
+    }
+
+    async start(): Promise<void> {
+        await this.setPierDirectory();
+        await this.migrate();
+        await this.recoverShips();
+        await this.getPiers().then(piers => {
+            ipcRenderer.invoke('piers', piers);
+        });
+    }
+
+    async migrate(): Promise<void> {
+        let piers = await this.getPiers();
+        let migrationNeeded = piers.some(pier => {
+            const hasInvalidStatus = !['stopped', 'booting', 'running', 'errored'].includes(pier.status);
+            const missingStartupPhase = typeof pier.startupPhase === 'undefined';
+            return hasInvalidStatus || missingStartupPhase;
+        });
+
+        if (migrationNeeded) {
+            console.log('pier service attempting migration')
+            await each(piers, async (pier) => {
+                if (pier.type === 'remote' || ['booted', 'stopped'].includes(pier.status))
+                    return await this.updatePier(pier.slug, { startupPhase: 'complete' });
+
+                if (pier.status as any === 'unbooted')
+                    return await this.updatePier(pier.slug, { status: 'stopped', startupPhase: 'never-booted' });
+
+                if (['booting', 'errored'].includes(pier.status))
+                    return await this.updatePier(pier.slug, { startupPhase: 'initialized' });
+
+                if (pier.status === 'running') {
+                    await this.stopPier(pier);
+                    return await this.updatePier(pier.slug, { startupPhase: 'complete' });
+                }
+            });
+
+            console.log('pier service migrated successfully');
+        }
     }
     
     async setPierDirectory(): Promise<void> {
@@ -113,14 +155,35 @@ export class PierService {
         }
     }
 
-    async addPier(data: AddPier): Promise<Pier | null> {
+    async cleanup() {
+        const keepShipsRunning = await this.db.settings.asyncFindOne({ name: 'keep-ships-running' })
+        if (keepShipsRunning?.value === 'true') {
+            return;
+        }
+
+        const runningShips = await this.db.piers.asyncFind({ status: 'running' })
+
+        const killWithSignal = true;
+        const stops = []
+        for (let ship of runningShips) {
+            if (ship.type !== 'remote')
+                stops.push(this.stopPier(ship, killWithSignal))
+        }
+
+        return Promise.all(stops)
+    }
+
+    async addPier(pierData: AddPier): Promise<Pier | null> {
         const pier = await this.db.piers.asyncInsert({
             directory: this.pierDirectory,
-            slug: pierSlugify(data.name),
+            slug: pierSlugify(pierData.name),
             lastUsed: (new Date()).toISOString(),
-            status: 'unbooted',
+            status: 'stopped',
+            startupPhase: typeof pierData.startupPhase !== 'undefined' 
+                ? pierData.startupPhase
+                : 'never-booted',
             directoryAsPierPath: false,
-            ...data,
+            ...pierData,
         })
         
         ipcRenderer.invoke('piers', await this.getPiers());
@@ -193,16 +256,20 @@ export class PierService {
     }
 
     async checkPier(pier: Pier): Promise<Pier> {
-        const dontUpdate: ShipStatus[] = ['unbooted', 'booting', 'errored'];
-        if (pier.type === 'remote' || dontUpdate.includes(pier.status))
+        if (pier.type === 'remote' || pier.startupPhase !== 'complete' || pier.status !== 'stopped')
             return pier
 
-        const dojoCheck = await this.runningCheck(pier);
-        return await this.updatePier(pier.slug, {
-            webPort: dojoCheck?.web,
-            loopbackPort: dojoCheck?.loopback,
-            status: dojoCheck ? 'running' : 'stopped' 
-        });
+        const ports = await this.runningCheck(pier);
+
+        if (ports) {
+            return await this.updatePier(pier.slug, {
+                webPort: ports.web,
+                loopbackPort: ports.loopback,
+                status: 'running'
+            });
+        }
+
+        return pier;
     }
 
     private async runningCheck(pier: Pier): Promise<PortSet | null> {
@@ -218,7 +285,7 @@ export class PierService {
 
         if (check && pier.shipName && check.trim() !== pier.shipName.trim()) {
             // a different ship is running on this port
-            return null
+            return null;
         }
 
         if (check || webLive) {
@@ -266,45 +333,8 @@ export class PierService {
         return false;
     }
 
-    async resumePier(pier: Pier): Promise<Pier | null> {
-        let resuming = this.resumesInProgress.get(pier.slug);
-        if (resuming) {
-            return resuming;
-        }
-
-        resuming = this.internalResumePier(pier);
-        this.resumesInProgress.set(pier.slug, resuming);
-        return resuming;
-    }
-
-    private async internalResumePier(pier: Pier): Promise<Pier | null> {
-        try {
-            const accuratePier = await this.checkPier(pier)
-            if (accuratePier.status === 'running') {
-                this.resumesInProgress.delete(accuratePier.slug);
-                return await this.updatePier(accuratePier.slug, { lastUsed: (new Date()).toISOString() });
-            }
-
-            const urbit = this.spawnUrbit(this.getSpawnArgs(accuratePier));
-            const ports = await this.handleUrbitProcess(urbit, accuratePier);
-            const updatedPier: Pier = await this.updatePier(pier.slug, {
-                lastUsed: (new Date()).toISOString(),
-                webPort: ports.web,
-                loopbackPort: ports.loopback,
-                status: 'running'
-            });
-
-            this.resumesInProgress.delete(updatedPier.slug);
-            return updatedPier;
-        } catch (err) {
-            console.error(err);
-            this.resumesInProgress.delete(pier.slug);
-            return null;
-        }
-    }
-
     async collectExistingPier(data: AddPier): Promise<Pier> {
-        const pier = await this.addPier(data);
+        const pier = await this.addPier({ ...data, startupPhase: 'complete' });
         await new Promise((resolve, reject) => {
             mv(data.directory, joinPath(this.pierDirectory, pier.slug), { mkdirp: true }, (error) => {
                 if (error) {
@@ -315,70 +345,103 @@ export class PierService {
             })
         })
 
-        return await this.updatePier(pier.slug, {
-            status: 'stopped',
-            directory: this.pierDirectory 
-        });
+        return await this.updatePier(pier.slug, { directory: this.pierDirectory });
+    }
+
+    async bootPier(pier: Pier): Promise<Pier | null> {
+        let booting = this.bootingPiers.get(pier.slug);
+        if (booting) {
+            return booting;
+        }
+
+        let checkedPier = await this.checkPier(pier);
+        if (checkedPier.status === 'running') {
+            return await this.updatePier(checkedPier.slug, { lastUsed: (new Date()).toISOString() });
+        }
+
+        booting = this.internalBootPier(pier);
+        this.bootingPiers.set(pier.slug, booting);
+        return booting;
+    }
+
+    private async internalBootPier(pier: Pier): Promise<Pier | null> {
+        try {
+            const updates: Partial<Pier> = {
+                status: 'booting',
+                bootProcessDisconnected: false,
+                lastUsed: (new Date()).toISOString()
+            }
+            pier.startupPhase !== 'complete'
+                ? await this.updatePier(pier.slug, { ...updates, startupPhase: 'initialized' })
+                : await this.updatePier(pier.slug, updates)
+
+            const urbit = await this.spawnUrbit(pier);
+            const ports = await this.handleUrbitProcess(urbit, pier, true)
+            const updatedPier: Pier = pier.startupPhase !== 'complete'
+                ? await this.handlePostInitialBoot(pier, ports)
+                : await this.handlePostBoot(pier, ports)
+
+            this.bootingPiers.delete(updatedPier.slug);
+            return updatedPier;
+            
+        } catch (err) {
+            console.error(err);
+            this.bootingPiers.delete(pier.slug);
+            return await this.updatePier(pier.slug, { status: 'errored', lastUsed: (new Date()).toISOString() });
+        }
+    }
+
+    private async handlePostBoot(pier: Pier, ports: PortSet) {
+        const pierUpdates = {
+            lastUsed: (new Date()).toISOString(),
+            webPort: ports.web,
+            loopbackPort: ports.loopback,
+            status: 'running' as BootStatus,
+        } as Partial<Pier>
+
+        return await this.updatePier(pier.slug, pierUpdates);
     }
 
     async checkBoot(slug: string): Promise<Pier> {
         const pier = await this.getPier(slug);
         const ports = await this.runningCheck(pier);
-        if (ports) {                
-            return await this.handlePostBoot(pier, ports);
+        if (ports) {    
+            return pier.startupPhase !== 'complete'            
+                ? await this.handlePostInitialBoot(pier, ports)
+                : await this.handlePostBoot(pier, ports);
         }
 
         return pier;
     }
 
-    async bootPier(pier: Pier): Promise<void> {
-        if (pier.status !== 'unbooted') {
-            return;
-        }
-        
-        const args = this.getSpawnArgs(pier);
-        const updatedPier = await this.updatePier(pier.slug, { status: 'booting' });
-        this.boot(updatedPier, args);
-    }
-
-    private async boot(pier: Pier, args: string[]) {
-        try {
-            const urbit = this.spawnUrbit(args);
-            const ports = await this.handleUrbitProcess(urbit, pier, true);
-            const updatedPier = await this.handlePostBoot(pier, ports);
-            await this.checkUrlAccessible(`http://localhost:${ports.web}`);
-            return updatedPier;
-        } catch (err) {
-            return await this.updatePier(pier.slug, { status: 'errored' })
-        }
-    }
-
-    private async handlePostBoot(pier: Pier, ports: PortSet): Promise<Pier> {
-        const shipUpdates = {
+    private async handlePostInitialBoot(pier: Pier, ports: PortSet): Promise<Pier> {
+        const pierUpdates = {
             webPort: ports.web,
             loopbackPort: ports.loopback,
-            status: 'running' as ShipStatus
-        };
+            status: 'running' as BootStatus,
+            startupPhase: 'complete',
+        } as Partial<Pier>;
 
         if (pier.type === 'comet') {
             this.startOTA(ports);
             const shipName = await this.dojo(`http://localhost:${ports.loopback}`, 'our');
             return await this.updatePier(pier.slug, {
-                ...shipUpdates,
+                ...pierUpdates,
                 shipName
             });
         }
         
         if (pier.keyFile) {
             try {
-                await asyncRm(pier.keyFile)
+                await asyncRm(pier.keyFile);
+                pierUpdates.keyFile = null;
             } catch (err) {
                 console.error(err);
-                console.log('Deleting keyfile failed')
+                console.log('Deleting keyfile failed');
             }
         }
 
-        return await this.updatePier(pier.slug, shipUpdates);
+        return await this.updatePier(pier.slug, pierUpdates);
     }
 
     private startOTA(ports: PortSet) {
@@ -400,14 +463,20 @@ export class PierService {
         }, 5000)
     }
 
-    async stopPier(pier: Pier): Promise<Pier> {
-        const updatedPier = await this.checkPier(pier);
+    async stopPier(pier: Pier, stopWithSignal: boolean = false): Promise<Pier> {
+        let updatedPier;
+        if (stopWithSignal && pier.status === 'running' && pier.pid && await processExists(pier.pid)) {
+            // if we're only stopping via signal, we can speed up by using a heuristic instead of full check
+            updatedPier = pier;
+        } else {
+            updatedPier = await this.checkPier(pier);
+        }
 
         if (updatedPier.status !== 'running' && updatedPier.status !== 'booting') {
             return updatedPier;
         }
 
-        await this.stopUrbit(updatedPier);
+        await this.stopUrbit(updatedPier, stopWithSignal);
 
         return await this.updatePier(updatedPier.slug, { status: 'stopped' });
     }
@@ -442,9 +511,16 @@ export class PierService {
         await this.db.piers.asyncRemove({ slug: pier.slug })  
     }
 
-    private async stopUrbit(ship: Pier): Promise<void> {
-        if (ship.status === 'booting' && typeof ship.bootProcessId !== 'undefined') {
-            process.kill(ship.bootProcessId, 'SIGTSTP');
+    private async stopUrbit(ship: Pier, stopWithSignal:boolean = false): Promise<void> {
+        if (stopWithSignal || (ship.status === 'booting' && typeof ship.pid !== 'undefined')) {
+            try {
+                process.kill(ship.pid);
+            } catch (err) {
+                // if process somehow doesn't exist (ESRCH), don't throw
+                if (!err.message.toUpperCase().includes('ESRCH')) {
+                    throw err;
+                }
+            }
             return;
         }
 
@@ -497,10 +573,26 @@ export class PierService {
         return joinPath(pier.directory, pier.slug);
     }
 
+    private async spawnUrbit(pier: Pier): Promise<ChildProcessWithoutNullStreams> {
+        const args = this.getSpawnArgs(pier);
+        const runDetached = await this.db.settings.asyncFindOne({ name: 'keep-ships-running' });
+
+        console.log('spawning urbit with ', ...args)
+        let urbit: ChildProcessWithoutNullStreams;
+        if (runDetached) {
+            urbit = spawn(this.urbitPath, args, { detached: true});
+            urbit.unref()
+        } else {
+            urbit = spawn(this.urbitPath, args);
+        }
+        
+        return urbit;
+    }
+
     private getSpawnArgs(pier: Pier, interactive = false): string[] {
         let args = []
         const pierPath = this.getPierPath(pier);
-        const unbooted = pier.status === 'unbooted';
+        const neverBooted = pier.startupPhase === 'never-booted';
 
         if (!interactive) {
             args.push('-t')
@@ -511,9 +603,9 @@ export class PierService {
             args.push(pier.amesPort)
         }
 
-        if (pier.type === 'comet' && unbooted) {
+        if (pier.type === 'comet' && neverBooted) {
             args.push('-c')
-        } else if (['star', 'planet', 'moon'].includes(pier.type) && unbooted) {
+        } else if (['star', 'planet', 'moon'].includes(pier.type) && neverBooted) {
             args = args.concat([
                 '-w',
                 pier.shipName,
@@ -527,17 +619,8 @@ export class PierService {
         return args;
     }
 
-    private spawnUrbit(args: string[], options?: any): ChildProcessWithoutNullStreams {
-        const urbit = spawn(this.urbitPath, args, options);
-        console.log('spawning urbit with ', ...args)
-        
-        return urbit;
-    }
-
-    private handleUrbitProcess(urbit: ChildProcessWithoutNullStreams, pier: Pier, persist = false): Promise<PortSet | null> {
-        if (pier.status === 'booting') {
-            this.updatePier(pier.slug, { bootProcessId: urbit.pid })
-        }
+    private async handleUrbitProcess(urbit: ChildProcessWithoutNullStreams, pier: Pier, persist = false): Promise<PortSet | null> {
+        await this.updatePier(pier.slug, { pid: urbit.pid })
 
         return new Promise((resolve, reject) => {
             const onClose = (code) => {
@@ -554,12 +637,13 @@ export class PierService {
             }
 
             const onErr = (err) => {
+                console.log(`<${pier.name}> failed to start.`)
                 console.error(err)
                 reject(err)
             }
 
             const onStdErr = (data) => {
-                console.error(data.toString())
+                console.error(`<${pier.name}> ${data.toString()}`)
 
                 if (persist) {
                     this.db.messageLog.asyncInsert({
@@ -572,8 +656,8 @@ export class PierService {
             }
 
             const onStdOut = async (data) => {
-                const line = data.toString() 
-                console.log(line)
+                const line = data.toString();
+                console.log(`<${pier.name}> ${line}`);
         
                 if (persist) {
                     await this.db.messageLog.asyncInsert({
@@ -604,32 +688,6 @@ export class PierService {
         })
     }
 
-    private portParser(): (line: string) => PortSet | null {
-        const webPattern = /http:\s+web interface live on http:\/\/localhost:(\d+)/
-        const loopbackPattern = /http:\s+loopback live on http:\/\/localhost:(\d+)/
-        let web, loopback;
-
-        return line => {
-            const webMatch = line.match(webPattern)
-            if (webMatch) {
-                web = webMatch[1]
-            }
-    
-            const loopbackMatch = line.match(loopbackPattern)
-            if (loopbackMatch) {
-                loopback = loopbackMatch[1]
-                console.log('matched', line, webMatch, web, loopbackMatch, loopback)
-    
-                return {
-                    web,
-                    loopback
-                };
-            }
-
-            return null;
-        }
-    }
-
     private getPierDirectory() {
         if (process.platform === 'linux' && process.env.SNAP) {
             return joinPath(process.env.SNAP_USER_COMMON, '.config', ipcRenderer.sendSync('app-name'));
@@ -638,20 +696,26 @@ export class PierService {
         return joinPath(userData, 'piers')
     }
 
-    private async recoverBootingShips() {
+    private async recoverShips() {
         const bootingShips = await this.db.piers.asyncFind({ 
-            $and: [{ status: 'booting' }, { bootProcessId: { $exists: true }}] 
+            $and: [ { status: 'booting' }, { pid: { $exists: true }}]
         });
 
         await each(bootingShips, async ship => {
-            this.checkBoot(ship.slug)
+            console.log(`trying to recover: ${ship.name}...`)
 
-            const processes = await find('pid', ship.bootProcessId);
-            this.updatePier(ship.slug, {
-                bootProcessDisconnected: !processes.map(proc => proc.ppid).includes(process.pid),
-            });
+            const pier = await this.checkBoot(ship.slug);
+            if (pier.status === 'running')
+                return;
+
+            if (pier.pid && await processExists(pier.pid)) {
+                return this.updatePier(ship.slug, { bootProcessDisconnected: true })
+            } else {
+                return pier.startupPhase !== 'complete'
+                    ? await this.updatePier(ship.slug, { status: 'stopped', startupPhase: 'recovery'})
+                    : await this.updatePier(ship.slug, { status: 'stopped'})
+            }
         })
-
     }
 }
 
@@ -663,7 +727,8 @@ export interface Pier {
     slug: string;
     type: PierType;
     directory: string;
-    status: ShipStatus;
+    status: BootStatus;
+    startupPhase: StartupPhase;
     lastUsed: string;
     shipName?: string;
     keyFile?: string;
@@ -671,12 +736,13 @@ export interface Pier {
     loopbackPort?: number;
     amesPort?: number;
     directoryAsPierPath?: boolean;
-    bootProcessId?: number;
+    pid?: number;
     bootProcessDisconnected?: boolean;
 }
 
 export type AddPier = Pick<Pier, 'name' | 'type' | 'shipName' | 'amesPort' | 'keyFile'> & {
-    status?: ShipStatus;
+    status?: BootStatus;
+    startupPhase?: StartupPhase;
     directory?: string;
     directoryAsPierPath?: boolean;
 }
@@ -698,7 +764,8 @@ export interface PierAuth {
     code: string;
 }
 
-export type ShipStatus = 'unbooted' | 'booting' | 'booted' | 'stopped' | 'running' | 'errored';
+export type BootStatus = 'stopped' | 'booting' | 'running' | 'errored'
+export type StartupPhase = 'never-booted' | 'initialized' | 'recovery' | 'complete'
 
 export interface BootMessage {
     type: 'out' | 'error';

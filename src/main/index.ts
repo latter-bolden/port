@@ -3,6 +3,8 @@ import findOpenSocket from '../renderer/client/find-open-socket'
 import isDev from 'electron-is-dev'
 import { isOSX } from './helpers';
 import { createMainWindow } from './main-window';
+import { Cleanup } from './cleanup';
+
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const BACKGROUND_WINDOW_WEBPACK_ENTRY: string;
 
@@ -12,6 +14,8 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 }
 
 let mainWindow: BrowserWindow;
+let bgWindow: BrowserWindow;
+let cleanup = new Cleanup();
 
 ipcMain.on('app-name', (event) => {
   event.returnValue = app.getName();
@@ -89,7 +93,6 @@ function createBackgroundWindow(socketName: string) {
 
 async function start(bootBg: boolean) {
   const serverSocket = await findOpenSocket()
-  let bgWindow;
 
   isDev && console.log('server socket', serverSocket)
   if (bootBg) {
@@ -97,7 +100,8 @@ async function start(bootBg: boolean) {
   }
 
   mainWindow = createMainWindow(MAIN_WINDOW_WEBPACK_ENTRY, serverSocket, app.quit.bind(this), bgWindow)
-
+  
+  cleanup.setWindows(mainWindow, bgWindow);
 
   if (!isDev) {
     autoUpdater.checkForUpdates()
@@ -122,14 +126,18 @@ app.on('window-all-closed', () => {
   }
 });
 
-function exitBeforeQuit() {
+function beforeQuit(e) {
+  const doneCleaning = cleanup.handleEvent(e);
+  if (!doneCleaning)
+    return;
+
   if (isOSX()) {
     app.exit(0);
   }
 }
 
-app.on('before-quit', exitBeforeQuit);
-autoUpdater.on('before-quit-for-update', exitBeforeQuit);
+app.on('before-quit', beforeQuit);
+autoUpdater.on('before-quit-for-update', beforeQuit);
 
 app.on('activate', (event, hasVisibleWindows) => {
   if (isOSX()) {

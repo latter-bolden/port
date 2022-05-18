@@ -10,7 +10,8 @@ export type Settings =
     | 'seen-grid-update-modal'
     | 'global-leap'
     | 'protocol-handling'
-    | 'ship-name-in-title';
+    | 'ship-name-in-title'
+    | 'keep-ships-running';
 
 export interface SettingsDocument {
     name: Settings;
