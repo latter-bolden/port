@@ -3,8 +3,12 @@ import * as Tooltip from '@radix-ui/react-tooltip'
 import { Caution } from '../icons/Caution'
 import { Warning } from '../icons/Warning'
 
-export const FirstBootTooltip: React.FC = () => (
-    <div className="ml-2">
+interface TooltipInterface {
+    className: string
+}
+
+export const FirstBootTooltip: React.FC<TooltipInterface> = ({ className }) => (
+    <div className={className}>
         <Tooltip.Root>
             <Tooltip.Trigger className="default-ring cursor-default">
                 <Warning className="text-gray-400 dark:text-gray-500 h-5 w-5"></Warning>
@@ -17,8 +21,8 @@ export const FirstBootTooltip: React.FC = () => (
     </div>
 )
 
-export const RecoveryTooltip: React.FC = () => (
-    <div className="ml-2">
+export const RecoveryTooltip: React.FC<TooltipInterface> = ({ className }) => (
+    <div className={className}>
         <Tooltip.Root>
             <Tooltip.Trigger className="default-ring cursor-default">
                 <Caution className="text-yellow-500 dark:text-yellow-700 h-5 w-5"></Caution>

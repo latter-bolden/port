@@ -21,8 +21,8 @@ export const ShipList = ({ piers }: { piers: Pier[]}) => {
                     <div>
                         <div className="leading-tight flex flex-row">
                             { pier.name }
-                            { pier.status === 'booting' && pier.startupPhase === 'initialized' && <FirstBootTooltip /> }
-                            { pier.startupPhase === 'recovery' && <RecoveryTooltip />}
+                            { pier.status === 'booting' && pier.startupPhase === 'initialized' && <FirstBootTooltip className="ml-2" /> }
+                            { pier.startupPhase === 'recovery' && <RecoveryTooltip className="ml-2" />}
                         </div>
                         <div className="mt-1 text-sm">
                             <ShipStatus ship={pier} />

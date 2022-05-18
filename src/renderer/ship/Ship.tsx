@@ -94,6 +94,8 @@ export const Ship: React.FC = () => {
                                 <EditableShipName ship={ship} />
                             </h1>
                                 <div className="mb-4 mt-2 whitespace-nowrap flex flex-row">
+                                    { ship.status === 'booting' && ship.startupPhase === 'initialized' && <FirstBootTooltip className="mr-2" />}
+                                    { ship.startupPhase === 'recovery' && <RecoveryTooltip className="mr-2" />}
                                     { ship.type !== 'remote'
                                     ? (
                                         <>
@@ -103,8 +105,6 @@ export const Ship: React.FC = () => {
                                     ): (
                                         <div className="font-normal text-gray-600 dark:text-gray-400">Remote ship</div>
                                     )}
-                                    { ship.status === 'booting' && ship.startupPhase === 'initialized' && <FirstBootTooltip />}
-                                    { ship.startupPhase === 'recovery' && <RecoveryTooltip />}
                                 </div>
                             <div className="flex items-center">
                                 <ShipStatus ship={ship} />
