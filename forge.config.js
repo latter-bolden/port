@@ -49,6 +49,24 @@ module.exports = {
         filter: (src) => !src.includes('.gitignore')
       })
       console.log({ platform, os })
+    },
+    postMake: (forgeConfig, makeResults) => {
+      if (process.env.GITHUB_WORKFLOW === 'Publish MacOS — arm64') {
+          let updatedResults = []
+          for (let makeResult of makeResults) {
+            let artifacts = makeResult.artifacts
+            let oldPath = artifacts.find(path => path.includes('.dmg'))
+            if (oldPath) {
+              let newPath = path.join(path.dirname(oldPath), 'Port-arm64.dmg')
+              fse.renameSync(oldPath, newPath)
+              makeResult.artifacts = artifacts.filter(path => !path.includes('.dmg')).push(newPath)
+            }
+
+            updatedResults.push(makeResult)
+          }
+
+          return updatedResults
+      }
     }
   },
   makers: [
