@@ -59,7 +59,8 @@ module.exports = {
             if (oldPath) {
               let newPath = path.join(path.dirname(oldPath), 'Port-arm64.dmg')
               fse.renameSync(oldPath, newPath)
-              makeResult.artifacts = artifacts.filter(path => !path.includes('.dmg')).push(newPath)
+              makeResult.artifacts = artifacts.filter(path => !path.includes('.dmg'))
+              makeResult.artifacts.push(newPath)
             }
 
             updatedResults.push(makeResult)
