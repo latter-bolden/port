@@ -99,8 +99,7 @@ async function start(bootBg: boolean) {
     bgWindow = createBackgroundWindow(serverSocket)
   }
 
-  mainWindow = createMainWindow(MAIN_WINDOW_WEBPACK_ENTRY, serverSocket, app.quit.bind(this), bgWindow)
-  
+  mainWindow = createMainWindow(MAIN_WINDOW_WEBPACK_ENTRY, serverSocket, app.quit.bind(this), cleanup, bgWindow)
   cleanup.setWindows(mainWindow, bgWindow);
 
   if (!isDev) {

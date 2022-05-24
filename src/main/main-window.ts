@@ -16,6 +16,7 @@ import { start as terminalServiceStart } from './terminal-service';
 import { Settings } from '../background/db';
 import { Pier } from '../background/services/pier-service';
 import { getPlatform } from '../get-platform';
+import { Cleanup } from './cleanup';
 
 declare const LANDSCAPE_PRELOAD_WEBPACK_ENTRY: string;
 const ZOOM_INTERVAL = 0.1;
@@ -62,6 +63,7 @@ export function createMainWindow(
   mainUrl: string,
   socketName: string,
   onAppQuit: () => void,
+  cleanup: Cleanup,
   bgWindow?: BrowserWindow,
 ): BrowserWindow {
   const mainWindowState = windowStateKeeper({
@@ -329,10 +331,10 @@ export function createMainWindow(
       mainWindow.setFullScreen(false);
       mainWindow.once(
         'leave-full-screen',
-        hideOrCloseWindow.bind(this, mainWindow, bgWindow, event),
+        hideOrCloseWindow.bind(this, mainWindow, cleanup, event),
       );
     }
-    hideOrCloseWindow(mainWindow, bgWindow, event);
+    hideOrCloseWindow(mainWindow, cleanup, event);
   });
   
   // Force single application instance
@@ -367,16 +369,16 @@ export function createMainWindow(
 
 function hideOrCloseWindow(
   window: BrowserWindow,
-  bgWindow: BrowserWindow,
+  cleanup: Cleanup,
   event: Event
 ): void {
   if (isOSX()) {
     // this is called when exiting from clicking the cross button on the window
     event.preventDefault();
     window.hide();
-  } else {
-    bgWindow.destroy();
-    isDev && console.log('closing bg and main, and everything else')
+  } else if (!cleanup.finished) {
+    event.preventDefault();
+    app.quit();
   }
 }
 

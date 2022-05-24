@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 
 export class Cleanup {
-    private finished: boolean; 
+    finished: boolean;
     private started: boolean;
     private mainWindow: BrowserWindow;
     private bgWindow: BrowserWindow;
@@ -28,17 +28,18 @@ export class Cleanup {
         try {
             // acknowledge cleanup in UI
             this.mainWindow.webContents.send('cleanup');
-            // const allWindows = BrowserWindow.getAllWindows();
-            // allWindows.forEach(window => {
-            //     if (window !== this.mainWindow && window !== this.bgWindow) {
-            //         window.hide();
-            //     }
-            // })
+            const allWindows = BrowserWindow.getAllWindows();
+            allWindows.forEach(window => {
+                if (window !== this.mainWindow && window !== this.bgWindow) {
+                    window.destroy();
+                }
+            })
             this.mainWindow.focus();
             
             // clean up background
             this.bgWindow.webContents.send('cleanup')
             ipcMain.on('cleanup-done', (e) => {
+                this.bgWindow.destroy();
                 this.finished = true;
                 app.quit();
             })
