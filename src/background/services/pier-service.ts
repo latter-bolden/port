@@ -514,7 +514,7 @@ export class PierService {
     private async stopUrbit(ship: Pier, stopWithSignal:boolean = false): Promise<void> {
         if (stopWithSignal || (ship.status === 'booting' && typeof ship.pid !== 'undefined')) {
             try {
-                process.kill(ship.pid);
+                process.kill(ship.pid, platform === 'win' ? 'SIGINT' : 'SIGTERM');
             } catch (err) {
                 // if process somehow doesn't exist (ESRCH), don't throw
                 if (!err.message.toUpperCase().includes('ESRCH')) {
