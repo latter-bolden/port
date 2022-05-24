@@ -1,7 +1,7 @@
 {
   "name": "port",
   "productName": "Port",
-  "version": "1.9.3",
+  "version": "1.9.4",
   "description": "A ship runner and manager for Urbit OS",
   "repository": {
     "type": "git",
