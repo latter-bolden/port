@@ -1,6 +1,5 @@
 import { join as joinPath } from 'path';
 import process from 'process';
-import { processExists } from 'process-exists';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { shell, ipcRenderer } from 'electron';
 import axios from 'axios'
@@ -465,7 +464,7 @@ export class PierService {
 
     async stopPier(pier: Pier, stopWithSignal: boolean = false): Promise<Pier> {
         let updatedPier;
-        if (stopWithSignal && pier.status === 'running' && pier.pid && await processExists(pier.pid)) {
+        if (stopWithSignal && pier.status === 'running' && pier.pid && await this.processExists(pier.pid)) {
             // if we're only stopping via signal, we can speed up by using a heuristic instead of full check
             updatedPier = pier;
         } else {
@@ -688,6 +687,15 @@ export class PierService {
         })
     }
 
+    private processExists (pid:number) {
+        try {
+            process.kill(pid, 0)
+            return true
+        } catch (_) {
+            return false
+        }
+    }
+
     private getPierDirectory() {
         if (process.platform === 'linux' && process.env.SNAP) {
             return joinPath(process.env.SNAP_USER_COMMON, '.config', ipcRenderer.sendSync('app-name'));
@@ -708,7 +716,7 @@ export class PierService {
             if (pier.status === 'running')
                 return;
 
-            if (pier.pid && await processExists(pier.pid)) {
+            if (pier.pid && await this.processExists(pier.pid)) {
                 return this.updatePier(ship.slug, { bootProcessDisconnected: true })
             } else {
                 return pier.startupPhase !== 'complete'
