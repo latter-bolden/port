@@ -40,7 +40,9 @@ export class Cleanup {
             this.bgWindow.webContents.send('cleanup')
             ipcMain.on('cleanup-done', (e) => {
                 this.bgWindow.destroy();
+                this.mainWindow.destroy();
                 this.finished = true;
+                console.log('Cleanup complete.');
                 app.quit();
             })
         } catch (err) {
