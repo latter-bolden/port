@@ -13,7 +13,6 @@ jobs:
           node-version: 16
       - name: Install flatpak deps
         run: |
-          sudo chown -R $USER:$USER /home/runner
           sudo apt-get install flatpak -y
           sudo apt-get install flatpak-builder -y
           sudo apt-get install elfutils -y
@@ -21,6 +20,7 @@ jobs:
           sudo flatpak install flathub org.freedesktop.Platform/x86_64/19.08 org.freedesktop.Sdk/x86_64/19.08 org.electronjs.Electron2.BaseApp/x86_64/stable -y
       - name: Setup Snapcraft
         run: |
+          sudo chown -R $USER:$USER /home/runner
           sudo snap install snapcraft --classic
           echo "$SNAP_TOKEN" | snapcraft login --with -     
         env:
