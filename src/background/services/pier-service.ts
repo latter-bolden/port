@@ -333,7 +333,7 @@ export class PierService {
     }
 
     async collectExistingPier(data: AddPier): Promise<Pier> {
-        const pier = await this.addPier({ ...data, startupPhase: 'complete' });
+        const pier = await this.addPier({ ...data, startupPhase: 'initialized' });
         await new Promise((resolve, reject) => {
             mv(data.directory, joinPath(this.pierDirectory, pier.slug), { mkdirp: true }, (error) => {
                 if (error) {
@@ -423,11 +423,10 @@ export class PierService {
 
         if (pier.type === 'comet') {
             this.startOTA(ports);
-            const shipName = await this.dojo(`http://localhost:${ports.loopback}`, 'our');
-            return await this.updatePier(pier.slug, {
-                ...pierUpdates,
-                shipName
-            });
+        }
+
+        if (!pier.shipName) {
+            pierUpdates.shipName = await this.dojo(`http://localhost:${ports.loopback}`, 'our');
         }
         
         if (pier.keyFile) {
