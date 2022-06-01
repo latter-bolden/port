@@ -1,4 +1,4 @@
-# Port (beta)
+# Port
 
 [![awesome urbit badge](https://img.shields.io/badge/~-awesome%20urbit-lightgrey)](https://github.com/urbit/awesome-urbit)
 
