@@ -99,6 +99,7 @@ export class PierService {
     async start(): Promise<void> {
         await this.setPierDirectory();
         await this.migrate();
+        await this.checkRunningShips();
         await this.recoverShips();
         await this.getPiers().then(piers => {
             ipcRenderer.invoke('piers', piers);
@@ -133,6 +134,14 @@ export class PierService {
 
             console.log('pier service migrated successfully');
         }
+    }
+
+    async checkRunningShips(): Promise<void> {
+        let piers = await this.getPiers();
+        let runningPiers = piers.filter(pier => pier.status === 'running');
+        await each(runningPiers, async (pier) => {
+            await this.checkPier(pier);
+        });
     }
     
     async setPierDirectory(): Promise<void> {
