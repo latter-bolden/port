@@ -601,6 +601,16 @@ export class PierService {
             args.push(pier.amesPort)
         }
 
+        if (pier.httpPort) {
+            args.push('--http-port')
+            args.push(pier.httpPort)
+        }
+
+        if (pier.httpsPort) {
+            args.push('--https-port')
+            args.push(pier.httpsPort)
+        }
+
         if (pier.type === 'comet' && neverBooted) {
             args.push('-c')
         } else if (['star', 'planet', 'moon'].includes(pier.type) && neverBooted) {
@@ -742,12 +752,14 @@ export interface Pier {
     webPort?: number;
     loopbackPort?: number;
     amesPort?: number;
+    httpPort?: number;
+    httpsPort?: number;
     directoryAsPierPath?: boolean;
     pid?: number;
     bootProcessDisconnected?: boolean;
 }
 
-export type AddPier = Pick<Pier, 'name' | 'type' | 'shipName' | 'amesPort' | 'keyFile'> & {
+export type AddPier = Pick<Pier, 'name' | 'type' | 'shipName' | 'amesPort' | 'httpPort' | 'httpsPort' | 'keyFile'> & {
     status?: BootStatus;
     startupPhase?: StartupPhase;
     directory?: string;

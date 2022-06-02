@@ -20,9 +20,13 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({ form }) => {
         <Collapsible.Trigger className="button border-none focus:outline-none cursor-pointer text-gray-400 dark:text-gray-500">
           Advanced Options <ChevronDown className="ml-1 w-5 h-5" primary="fill-current" />
         </Collapsible.Trigger>
-        <Collapsible.Content className="pt-5">
+        <Collapsible.Content className="flex flex-col justify-start pt-5 pr-3 h-40 overflow-scroll">
           <label htmlFor="port">Ames Port</label>
-          <PortField form={form} />
+          <PortField type="ames" form={form} placeholder="random (default)" />
+          <label className="pt-2" htmlFor="port">HTTP Port</label>
+          <PortField type="http" form={form} placeholder="80"/>
+          <label className="pt-2" htmlFor="port">HTTPS Port</label>
+          <PortField type="https" form={form} placeholder="443"/>
         </Collapsible.Content>
       </Collapsible.Root>
     </div>
