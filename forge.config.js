@@ -93,7 +93,7 @@ module.exports = {
       ]
     },
     {
-      name: '@electron-forge/maker-flatpak',
+      name: 'maker-flatpak',
       config: {
         options: {
           id: 'org.urbit.port',
