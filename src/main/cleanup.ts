@@ -39,8 +39,10 @@ export class Cleanup {
             // clean up background
             this.bgWindow.webContents.send('cleanup')
             ipcMain.on('cleanup-done', (e) => {
-                this.bgWindow.destroy();
-                this.mainWindow.destroy();
+                if (!this.bgWindow.isDestroyed())
+                    this.bgWindow.destroy();
+                if (!this.mainWindow.isDestroyed())
+                    this.mainWindow.destroy();
                 this.finished = true;
                 console.log('Cleanup complete.');
                 app.quit();
