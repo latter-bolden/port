@@ -1,7 +1,7 @@
 name: Publish MacOS — x64
 on:
   push:
-    branches: [ main ]
+    branches: [ main, "1.9-fixes" ]
 jobs:
   publish:
     runs-on: macos-10.15
