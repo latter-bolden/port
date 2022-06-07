@@ -85,7 +85,8 @@ function createBackgroundWindow(socketName: string) {
 
   win.on('close', (event) => {
     event.preventDefault();
-    win.hide();
+    if (!win.isDestroyed())
+      win.hide();
   });
 
   return win;
