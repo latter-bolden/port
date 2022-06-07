@@ -83,11 +83,11 @@ function createBackgroundWindow(socketName: string) {
   })
   win.loadURL(BACKGROUND_WINDOW_WEBPACK_ENTRY)
 
-  // win.on('close', (event) => {
-  //   event.preventDefault();
-  //   if (!win.isDestroyed())
-  //     win.hide();
-  // });
+  win.on('close', (event) => {
+    event.preventDefault();
+    if (!win.isDestroyed())
+      win.hide();
+  });
 
   return win;
 }

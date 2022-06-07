@@ -319,22 +319,19 @@ export function createMainWindow(
   mainWindow.loadURL(mainUrl);
 
   mainWindow.on('close', (event) => {
-    if (cleanup.started) {
-      event.preventDefault();
+    event.preventDefault();
+
+    if (cleanup.started)
       return;
-    }
 
     if (mainWindow.isFullScreen()) {
       if (nativeTabsSupported()) {
         mainWindow.moveTabToNewWindow();
       }
       mainWindow.setFullScreen(false);
-      mainWindow.once(
-        'leave-full-screen',
-        hideOrCloseWindow.bind(this, mainWindow, cleanup, event),
-      );
     }
-    hideOrCloseWindow(mainWindow, cleanup, event);
+
+    isOSX() ? mainWindow.hide() : app.quit();
   });
   
   // Force single application instance
@@ -365,21 +362,6 @@ export function createMainWindow(
   })
 
   return mainWindow;
-}
-
-function hideOrCloseWindow(
-  window: BrowserWindow,
-  cleanup: Cleanup,
-  event: Event
-): void {
-  if (isOSX()) {
-    // this is called when exiting from clicking the cross button on the window
-    event.preventDefault();
-    window.hide();
-  } else if (!cleanup.finished) {
-    event.preventDefault();
-    app.quit();
-  }
 }
 
 async function clearCache(browserWindow: BrowserWindow): Promise<void> {
