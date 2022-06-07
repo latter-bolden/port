@@ -18,8 +18,6 @@ jobs:
           sudo apt-get install elfutils -y
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
           sudo flatpak install flathub org.freedesktop.Platform/x86_64/21.08 org.freedesktop.Sdk/x86_64/21.08 org.electronjs.Electron2.BaseApp/x86_64/21.08 -y
-        env:
-          DEBUG: electron-forge:*,electron-installer-flatpak,flatpak-bundler electron-forge make
       - name: Setup Snapcraft
         run: |
           sudo chown -R $USER:$USER /home/runner

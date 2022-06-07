@@ -116,15 +116,6 @@ async function start(bootBg: boolean) {
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => start(true));
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
-// app.on('window-all-closed', () => {
-//   if (!isOSX()) {
-//     app.quit();
-//   }
-// });
-
 function beforeQuit(e) {
   const doneCleaning = cleanup.handleEvent(e);
   if (!doneCleaning)
