@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain } from "electron";
 
 export class Cleanup {
     finished: boolean;
-    private started: boolean;
+    started: boolean;
     private mainWindow: BrowserWindow;
     private bgWindow: BrowserWindow;
 

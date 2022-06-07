@@ -312,18 +312,18 @@ export function createMainWindow(
     });
   })
 
-  // mainWindow.webContents.session.clearStorageData({
-  //   storages: ['appcache', 'filesystem', 'indexdb', 'localstorage', 'cachestorage']
-  // });
-  // mainWindow.webContents.session.clearCache();
   osHelperStart(mainWindow, createNewWindow, onNewWindow, bgWindow)
   settingsHelperStart({ mainWindow, menuOptions });
   terminalServiceStart();
   isDev && mainWindow.webContents.openDevTools();
   mainWindow.loadURL(mainUrl);
-  //mainWindow.on('new-tab' as any, () => createNewTab(mainUrl, true));
 
   mainWindow.on('close', (event) => {
+    if (cleanup.started) {
+      event.preventDefault();
+      return;
+    }
+
     if (mainWindow.isFullScreen()) {
       if (nativeTabsSupported()) {
         mainWindow.moveTabToNewWindow();
