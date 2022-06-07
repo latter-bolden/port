@@ -93,14 +93,26 @@ module.exports = {
       ]
     },
     {
-      name: 'maker-flatpak',
+      name: '@electron-forge/maker-flatpak',
       config: {
         options: {
           id: 'org.urbit.port',
           productName: 'Port',
           description: 'Host an Urbit from your computer in just a few clicks. Use your own planet, moon, or comet to join the network, no technical knowhow required.',
           cagegories: ['Network']
-        }
+        },
+        modules: [
+          {
+            "name": "zypak",
+            "sources": [
+              {
+                "type": "git",
+                "url": "https://github.com/refi64/zypak",
+                "tag": "v2022.04"
+              }
+            ]
+          }
+        ]
       }
     },
     {

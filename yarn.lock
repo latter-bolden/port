@@ -237,6 +237,17 @@
   optionalDependencies:
     electron-installer-dmg "^3.0.0"
 
+"@electron-forge/maker-flatpak@^6.0.0-beta.63":
+  version "6.0.0-beta.63"
+  resolved "https://registry.yarnpkg.com/@electron-forge/maker-flatpak/-/maker-flatpak-6.0.0-beta.63.tgz#766e2fc5ad50e81b449b94d68b870158fb2a0a05"
+  integrity sha512-dhM53D+LYcMEz1UkF4TVIojyEhKZOXIYZbTPmo07Fpb9FHmPk5itlUnTpj6ffDL/V7Vzdn1KAvJp9Yk3fh9Mcw==
+  dependencies:
+    "@electron-forge/maker-base" "6.0.0-beta.63"
+    "@electron-forge/shared-types" "6.0.0-beta.63"
+    fs-extra "^10.0.0"
+  optionalDependencies:
+    "@malept/electron-installer-flatpak" "^0.11.2"
+
 "@electron-forge/maker-rpm@^6.0.0-beta.54":
   version "6.0.0-beta.57"
   resolved "https://registry.yarnpkg.com/@electron-forge/maker-rpm/-/maker-rpm-6.0.0-beta.57.tgz#3fcdb39a9b4f96c347d2255c4e1a81c70a6118b8"
@@ -5967,7 +5978,7 @@ make-fetch-happen@^9.1.0:
     socks-proxy-agent "^6.0.0"
     ssri "^8.0.0"
 
-maker-flatpak@latterbolden/maker-flatpak#a67cb37e055875a8068a71f44cac9837c86479fb:
+maker-flatpak@latterbolden/maker-flatpak#a67cb37e:
   version "1.0.0"
   resolved "https://codeload.github.com/latterbolden/maker-flatpak/tar.gz/a67cb37e055875a8068a71f44cac9837c86479fb"
   dependencies:
