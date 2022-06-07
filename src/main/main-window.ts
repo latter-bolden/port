@@ -329,9 +329,10 @@ export function createMainWindow(
         mainWindow.moveTabToNewWindow();
       }
       mainWindow.setFullScreen(false);
+      mainWindow.once('leave-full-screen', () => isOSX() ? mainWindow.hide() : app.quit());
+    } else {
+      isOSX() ? mainWindow.hide() : app.quit();
     }
-
-    isOSX() ? mainWindow.hide() : app.quit();
   });
   
   // Force single application instance
