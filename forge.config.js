@@ -99,7 +99,13 @@ module.exports = {
           id: 'org.urbit.port',
           productName: 'Port',
           description: 'Host an Urbit from your computer in just a few clicks. Use your own planet, moon, or comet to join the network, no technical knowhow required.',
-          cagegories: ['Network']
+          cagegories: ['Network'],
+          icon: {
+            "256x256": "icons/urbit-logo-256.png"
+          },
+          base: 'org.electronjs.Electron2.BaseApp',
+          baseVersion: '21.08',
+          runtimeVersion: '21.08'
         },
         modules: [
           {
