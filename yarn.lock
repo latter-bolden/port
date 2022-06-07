@@ -5692,17 +5692,6 @@ klona@^2.0.4:
   resolved "https://registry.yarnpkg.com/klona/-/klona-2.0.4.tgz#7bb1e3affb0cb8624547ef7e8f6708ea2e39dfc0"
   integrity sha512-ZRbnvdg/NxqzC7L9Uyqzf4psi1OM4Cuc+sJAkQPjO6XkQIJTNbfK2Rsmbw8fx1p2mkZdp2FZYo2+LwXYY/uwIA==
 
-latterbolden/electron-installer-flatpak@latterbolden/electron-installer-flatpak:
-  version "0.11.4"
-  resolved "https://codeload.github.com/latterbolden/electron-installer-flatpak/tar.gz/c0b977834f66ffc88d4165d973f60a3197277bda"
-  dependencies:
-    "@malept/flatpak-bundler" "^0.4.0"
-    debug "^4.1.1"
-    electron-installer-common "^0.10.0"
-    lodash "^4.17.15"
-    semver "^7.1.1"
-    yargs "^16.0.0"
-
 levn@^0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/levn/-/levn-0.4.1.tgz#ae4562c007473b932a6200d403268dd2fffc6ade"
@@ -5977,17 +5966,6 @@ make-fetch-happen@^9.1.0:
     promise-retry "^2.0.1"
     socks-proxy-agent "^6.0.0"
     ssri "^8.0.0"
-
-maker-flatpak@latterbolden/maker-flatpak#a67cb37e:
-  version "1.0.0"
-  resolved "https://codeload.github.com/latterbolden/maker-flatpak/tar.gz/a67cb37e055875a8068a71f44cac9837c86479fb"
-  dependencies:
-    "@electron-forge/maker-base" "6.0.0-beta.63"
-    "@electron-forge/shared-types" "6.0.0-beta.63"
-    fs-extra "^10.0.0"
-    latterbolden/electron-installer-flatpak latterbolden/electron-installer-flatpak
-  optionalDependencies:
-    "@malept/electron-installer-flatpak" "^0.11.2"
 
 map-age-cleaner@^0.1.1, map-age-cleaner@^0.1.3:
   version "0.1.3"
