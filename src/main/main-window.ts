@@ -312,29 +312,27 @@ export function createMainWindow(
     });
   })
 
-  // mainWindow.webContents.session.clearStorageData({
-  //   storages: ['appcache', 'filesystem', 'indexdb', 'localstorage', 'cachestorage']
-  // });
-  // mainWindow.webContents.session.clearCache();
   osHelperStart(mainWindow, createNewWindow, onNewWindow, bgWindow)
   settingsHelperStart({ mainWindow, menuOptions });
   terminalServiceStart();
   isDev && mainWindow.webContents.openDevTools();
   mainWindow.loadURL(mainUrl);
-  //mainWindow.on('new-tab' as any, () => createNewTab(mainUrl, true));
 
   mainWindow.on('close', (event) => {
+    event.preventDefault();
+
+    if (cleanup.started)
+      return;
+
     if (mainWindow.isFullScreen()) {
       if (nativeTabsSupported()) {
         mainWindow.moveTabToNewWindow();
       }
       mainWindow.setFullScreen(false);
-      mainWindow.once(
-        'leave-full-screen',
-        hideOrCloseWindow.bind(this, mainWindow, cleanup, event),
-      );
+      mainWindow.once('leave-full-screen', () => isOSX() ? mainWindow.hide() : app.quit());
+    } else {
+      isOSX() ? mainWindow.hide() : app.quit();
     }
-    hideOrCloseWindow(mainWindow, cleanup, event);
   });
   
   // Force single application instance
@@ -365,21 +363,6 @@ export function createMainWindow(
   })
 
   return mainWindow;
-}
-
-function hideOrCloseWindow(
-  window: BrowserWindow,
-  cleanup: Cleanup,
-  event: Event
-): void {
-  if (isOSX()) {
-    // this is called when exiting from clicking the cross button on the window
-    event.preventDefault();
-    window.hide();
-  } else if (!cleanup.finished) {
-    event.preventDefault();
-    app.quit();
-  }
 }
 
 async function clearCache(browserWindow: BrowserWindow): Promise<void> {

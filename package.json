@@ -1,7 +1,7 @@
 {
   "name": "port",
   "productName": "Port",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "A ship runner and manager for Urbit OS",
   "repository": {
     "type": "git",
@@ -38,6 +38,7 @@
     "@electron-forge/cli": "^6.0.0-beta.63",
     "@electron-forge/maker-deb": "^6.0.0-beta.54",
     "@electron-forge/maker-dmg": "^6.0.0-beta.54",
+    "@electron-forge/maker-flatpak": "^6.0.0-beta.63",
     "@electron-forge/maker-rpm": "^6.0.0-beta.54",
     "@electron-forge/maker-snap": "^6.0.0-beta.54",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.54",
@@ -76,7 +77,6 @@
     "typescript": "^4.0.2"
   },
   "dependencies": {
-    "@electron-forge/maker-flatpak": "^6.0.0-beta.63",
     "@radix-ui/react-collapsible": "^0.1.6",
     "@radix-ui/react-dialog": "^0.0.16",
     "@radix-ui/react-dropdown-menu": "^0.0.18",

@@ -11,13 +11,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-      - name: Install flatpak deps
+      - name: Setup Flatpak
         run: |
           sudo apt-get install flatpak -y
           sudo apt-get install flatpak-builder -y
           sudo apt-get install elfutils -y
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install flathub org.freedesktop.Platform/x86_64/19.08 org.freedesktop.Sdk/x86_64/19.08 org.electronjs.Electron2.BaseApp/x86_64/stable -y
+          sudo flatpak install flathub org.freedesktop.Platform/x86_64/21.08 org.freedesktop.Sdk/x86_64/21.08 org.electronjs.Electron2.BaseApp/x86_64/21.08 -y
       - name: Setup Snapcraft
         run: |
           sudo chown -R $USER:$USER /home/runner
