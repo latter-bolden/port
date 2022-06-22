@@ -18,7 +18,7 @@
     "forge": "./forge.config.js"
   },
   "scripts": {
-    "start": "electron-forge start",
+    "start": "electron-forge start -- --no-sandbox",
     "dev:reset": "rm -rf .webpack && rm -rf node_modules && yarn",
     "package": "electron-forge package",
     "make": "electron-forge make",
