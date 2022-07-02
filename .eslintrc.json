@@ -1,6 +1,7 @@
 {
   "rules": {
-    "import/extensions": "off"
+    "import/extensions": "off",
+    "prefer-const": "off"
   },
   "env": {
     "browser": true,

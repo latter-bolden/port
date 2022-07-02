@@ -470,7 +470,7 @@ export class PierService {
         }, 5000)
     }
 
-    async stopPier(pier: Pier, stopWithSignal: boolean = false): Promise<Pier> {
+    async stopPier(pier: Pier, stopWithSignal = false): Promise<Pier> {
         let updatedPier;
         if (stopWithSignal && pier.status === 'running' && pier.pid && await this.processExists(pier.pid)) {
             // if we're only stopping via signal, we can speed up by using a heuristic instead of full check
@@ -518,7 +518,7 @@ export class PierService {
         await this.db.piers.asyncRemove({ slug: pier.slug })  
     }
 
-    private async stopUrbit(ship: Pier, stopWithSignal:boolean = false): Promise<void> {
+    private async stopUrbit(ship: Pier, stopWithSignal = false): Promise<void> {
         if (stopWithSignal || (ship.status === 'booting' && typeof ship.pid !== 'undefined')) {
             try {
                 process.kill(ship.pid, platform === 'win' ? 'SIGINT' : 'SIGTERM');
