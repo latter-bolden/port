@@ -264,20 +264,16 @@ export class PierService {
     }
 
     async checkPier(pier: Pier): Promise<Pier> {
-        if (pier.type === 'remote' || pier.startupPhase !== 'complete' || pier.status !== 'stopped')
+        if (pier.type === 'remote' || pier.startupPhase !== 'complete')
             return pier
 
         const ports = await this.runningCheck(pier);
 
-        if (ports) {
-            return await this.updatePier(pier.slug, {
-                webPort: ports.web,
-                loopbackPort: ports.loopback,
-                status: 'running'
-            });
-        }
-
-        return pier;
+        return await this.updatePier(pier.slug, {
+            webPort: ports?.web,
+            loopbackPort: ports?.loopback,
+            status: ports ? 'running' : 'stopped'
+        });
     }
 
     private async runningCheck(pier: Pier): Promise<PortSet | null> {
@@ -367,8 +363,8 @@ export class PierService {
             return await this.updatePier(checkedPier.slug, { lastUsed: (new Date()).toISOString() });
         }
 
-        booting = this.internalBootPier(pier);
-        this.bootingPiers.set(pier.slug, booting);
+        booting = this.internalBootPier(checkedPier);
+        this.bootingPiers.set(checkedPier.slug, booting);
         return booting;
     }
 
@@ -470,7 +466,7 @@ export class PierService {
         }, 5000)
     }
 
-    async stopPier(pier: Pier, stopWithSignal: boolean = false): Promise<Pier> {
+    async stopPier(pier: Pier, stopWithSignal = false): Promise<Pier> {
         let updatedPier;
         if (stopWithSignal && pier.status === 'running' && pier.pid && await this.processExists(pier.pid)) {
             // if we're only stopping via signal, we can speed up by using a heuristic instead of full check
@@ -518,7 +514,7 @@ export class PierService {
         await this.db.piers.asyncRemove({ slug: pier.slug })  
     }
 
-    private async stopUrbit(ship: Pier, stopWithSignal:boolean = false): Promise<void> {
+    private async stopUrbit(ship: Pier, stopWithSignal = false): Promise<void> {
         if (stopWithSignal || (ship.status === 'booting' && typeof ship.pid !== 'undefined')) {
             try {
                 process.kill(ship.pid, platform === 'win' ? 'SIGINT' : 'SIGTERM');
