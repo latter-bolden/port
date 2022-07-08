@@ -264,20 +264,16 @@ export class PierService {
     }
 
     async checkPier(pier: Pier): Promise<Pier> {
-        if (pier.type === 'remote' || pier.startupPhase !== 'complete' || pier.status !== 'stopped')
+        if (pier.type === 'remote' || pier.startupPhase !== 'complete')
             return pier
 
         const ports = await this.runningCheck(pier);
 
-        if (ports) {
-            return await this.updatePier(pier.slug, {
-                webPort: ports.web,
-                loopbackPort: ports.loopback,
-                status: 'running'
-            });
-        }
-
-        return pier;
+        return await this.updatePier(pier.slug, {
+            webPort: ports?.web,
+            loopbackPort: ports?.loopback,
+            status: ports ? 'running' : 'stopped'
+        });
     }
 
     private async runningCheck(pier: Pier): Promise<PortSet | null> {
@@ -367,8 +363,8 @@ export class PierService {
             return await this.updatePier(checkedPier.slug, { lastUsed: (new Date()).toISOString() });
         }
 
-        booting = this.internalBootPier(pier);
-        this.bootingPiers.set(pier.slug, booting);
+        booting = this.internalBootPier(checkedPier);
+        this.bootingPiers.set(checkedPier.slug, booting);
         return booting;
     }
 
