@@ -1,6 +1,6 @@
 import { join as joinPath } from 'path';
 import process from 'process';
-import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
+import { exec, spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { shell, ipcRenderer } from 'electron';
 import axios from 'axios'
 import { DB } from '../db'
@@ -24,6 +24,7 @@ const asyncRmdir = promisify(rmdir);
 const asyncAccess = promisify(access);
 const asyncRead = promisify(readFile);
 const asyncMkdir = promisify(mkdir);
+const asyncExec = promisify(exec);
 
 const binariesPath =
   IS_PROD // the path to a bundled electron app.
@@ -53,10 +54,12 @@ export interface PierHandlers {
     'validate-key-file': PierService["validateKeyfile"]
 }
 
+type BootingPier = Promise<Pier | null> & { recoveryAttempted?: boolean }
+
 export class PierService {
     private readonly db: DB;
     private readonly urbitPath: string;
-    private readonly bootingPiers: Map<string, Promise<Pier | null>>;
+    private readonly bootingPiers: Map<string, BootingPier>;
     private pierDirectory: string;
 
     constructor(db: DB) {
@@ -163,7 +166,7 @@ export class PierService {
         }
     }
 
-    async cleanup() {
+    async cleanup(): Promise<void> {
         const keepShipsRunning = await this.db.settings.asyncFindOne({ name: 'keep-ships-running' })
         if (keepShipsRunning?.value === 'true') {
             return;
@@ -178,7 +181,7 @@ export class PierService {
                 stops.push(this.stopPier(ship, killWithSignal))
         }
 
-        return Promise.all(stops)
+        await Promise.all(stops)
     }
 
     async addPier(pierData: AddPier): Promise<Pier | null> {
@@ -363,8 +366,9 @@ export class PierService {
             return await this.updatePier(checkedPier.slug, { lastUsed: (new Date()).toISOString() });
         }
 
-        booting = this.internalBootPier(checkedPier);
-        this.bootingPiers.set(checkedPier.slug, booting);
+        booting = this.internalBootPier(pier);
+        booting.recoveryAttempted = false;
+        this.bootingPiers.set(pier.slug, booting);
         return booting;
     }
 
@@ -390,9 +394,56 @@ export class PierService {
             
         } catch (err) {
             console.error(err);
+
+            if (!this.bootingPiers.get(pier.slug).recoveryAttempted)
+                return this.tryAutomatedErrorRecovery(pier);
+
             this.bootingPiers.delete(pier.slug);
             return await this.updatePier(pier.slug, { status: 'errored', lastUsed: (new Date()).toISOString() });
         }
+    }
+
+    private async tryAutomatedErrorRecovery(pier: Pier): Promise<Pier | null> {
+        this.bootingPiers.get(pier.slug).recoveryAttempted = true;
+
+        this.db.messageLog.asyncInsert({
+            type: 'out',
+            slug: pier.slug,
+            text: 'Port: attempting automated error recovery.',
+            time: (new Date()).toISOString()
+        });
+
+        let pierPath = this.getSafePath(pier);
+
+        try {
+            let packResult = await asyncExec(`${this.urbitPath} pack ${pierPath}`);
+            console.log('auto error recovery — pack success');
+            this.db.messageLog.asyncInsert({
+                type: 'out',
+                slug: pier.slug,
+                text: packResult.stdout,
+                time: (new Date()).toISOString()
+            });
+        } catch (e) {
+            console.error('auto error recovery — pack fail:');
+            console.error(e);
+        }
+
+        try {
+            let meldResult = await asyncExec(`${this.urbitPath} meld ${pierPath}`);
+            console.log('auto error recovery — meld success');
+            this.db.messageLog.asyncInsert({
+                type: 'out',
+                slug: pier.slug,
+                text: meldResult.stdout,
+                time: (new Date()).toISOString()
+            });
+        } catch(e) {
+            console.error('auto error recovery — meld fail:');
+            console.error(e);
+        }
+
+        return this.internalBootPier(pier);
     }
 
     private async handlePostBoot(pier: Pier, ports: PortSet) {
@@ -567,6 +618,18 @@ export class PierService {
             }, 1500);
         });
     }
+
+    private getSafePath(pier: Pier) {
+        // urbit binary can't handle paths with spaces so we escape them
+        let pierPath = pier.directoryAsPierPath
+            ? pier.directory
+            : joinPath(pier.directory, pier.slug);
+
+        if (['linux', 'mac'].includes(platform))
+            return pierPath.split(' ').join('\\ ');
+
+        return pierPath;
+     }
 
     private getPierPath(pier: Pier) {
         if (pier.directoryAsPierPath) {
