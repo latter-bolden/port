@@ -97,6 +97,8 @@ export class PierService {
     }
 
     async start(): Promise<void> {
+        this.pruneOldLogs();
+
         await this.setPierDirectory();
         await this.migrate();
         await this.checkRunningShips();
@@ -133,6 +135,28 @@ export class PierService {
             });
 
             console.log('pier service migrated successfully');
+        }
+    }
+
+    async pruneOldLogs(): Promise<void> {
+        const THIRTY_DAYS_AGO = Date.now() - (1000 * 60 * 60 * 24 * 30);
+
+        let query = {
+            $where: function () {
+                // current log is passed via "this"
+                let stamp = (new Date(this.time)).getTime();
+                return THIRTY_DAYS_AGO > stamp;
+            }
+        };
+
+        try {
+            let numRemoved = await this.db.messageLog.asyncRemove(query, { multi: true });
+
+            Number(numRemoved) > 0
+                ? console.log(`Pruned ${numRemoved} old logs.`)
+                : console.log(`No old logs to prune.`);
+        } catch (err) {
+            console.error('Failed to prune old logs: ', err);
         }
     }
 
