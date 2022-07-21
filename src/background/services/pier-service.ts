@@ -416,20 +416,6 @@ export class PierService {
         let pierPath = this.getSafePath(pier);
 
         try {
-            let packResult = await asyncExec(`${this.urbitPath} pack ${pierPath}`);
-            console.log('auto error recovery — pack success');
-            this.db.messageLog.asyncInsert({
-                type: 'out',
-                slug: pier.slug,
-                text: packResult.stdout,
-                time: (new Date()).toISOString()
-            });
-        } catch (e) {
-            console.error('auto error recovery — pack fail:');
-            console.error(e);
-        }
-
-        try {
             let meldResult = await asyncExec(`${this.urbitPath} meld ${pierPath}`);
             console.log('auto error recovery — meld success');
             this.db.messageLog.asyncInsert({
@@ -438,9 +424,8 @@ export class PierService {
                 text: meldResult.stdout,
                 time: (new Date()).toISOString()
             });
-        } catch(e) {
-            console.error('auto error recovery — meld fail:');
-            console.error(e);
+        } catch(err) {
+            console.error('auto error recovery — meld fail:', err);
         }
 
         return this.internalBootPier(pier);
