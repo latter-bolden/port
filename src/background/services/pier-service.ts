@@ -149,16 +149,15 @@ export class PierService {
             }
         };
 
-        let callback = (err: Error, removedLogCount: number) => {
-            if (err)
-                return console.error('Failed to prune old logs: ', err);
+        try {
+            let numRemoved = await this.db.messageLog.asyncRemove(query, { multi: true });
 
-            Number(removedLogCount) > 0
-            ? console.log(`Pruned ${removedLogCount} old logs.`)
-            : console.log(`No old logs to prune.`);
-        };
-
-        await this.db.messageLog.asyncRemove(query, callback);
+            Number(numRemoved) > 0
+                ? console.log(`Pruned ${numRemoved} old logs.`)
+                : console.log(`No old logs to prune.`);
+        } catch (err) {
+            console.error('Failed to prune old logs: ', err);
+        }
     }
 
     async checkRunningShips(): Promise<void> {
