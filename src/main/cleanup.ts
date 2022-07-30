@@ -30,7 +30,7 @@ export class Cleanup {
             this.mainWindow.webContents.send('cleanup');
             const allWindows = BrowserWindow.getAllWindows();
             allWindows.forEach(window => {
-                if (window !== this.mainWindow && window !== this.bgWindow) {
+                if (window !== this.mainWindow && window !== this.bgWindow && !window.isDestroyed()) {
                     window.destroy();
                 }
             })
