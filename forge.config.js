@@ -134,21 +134,13 @@ module.exports = {
       }
     },
     {
-      name: "@electron-forge/maker-snap",
+      name: "@davidwinter/electron-forge-maker-snap",
       config: {
         grade: process.env.DEV ? 'devel' : 'stable',
-        mimeType: ['x-scheme-handler/web+urbitgraph'],
-        parts: {
-          electronApp: { 
-            "stage-packages": [
-              'libnspr4',
-              'libnss3',
-              'libx11-xcb1', 
-              'fonts-noto', 
-              'fonts-noto-color-emoji'], 
-            }
-        },
-        categories: ['Utility'],
+        execFlags: '%u',
+        mimeTypes: 'x-scheme-handler/web+urbitgraph',
+        stagePackages: ['default', 'libx11-xcb1', 'fonts-noto', 'fonts-noto-color-emoji'],
+        categories: 'Utility',
         description: "This app allows you to spin up, access, and manage your Urbit ships whether they are comets, planets or potentially stars. It gives people the ability to immediately download and run Urbit without any knowledge of the command line.",
       }
     }

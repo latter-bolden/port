@@ -26,7 +26,6 @@ jobs:
         run: |
           sudo chown -R $USER:$USER /home/runner
           sudo snap install snapcraft --classic
-          sudo snap install multipass
           echo "$SNAP_TOKEN" | snapcraft login --with -   
         env:
           SNAP_TOKEN: ${{secrets.SNAP_TOKEN}}
@@ -39,7 +38,7 @@ jobs:
       - name: Build & Publish
         run: |
           yarn run publish
-          snapcraft upload --release=stable out/make/x64/port_1.10.0_amd64.snap
+          snapcraft upload --release=stable out/make/*.snap
         env:
           SNAPCRAFT_BUILD_ENVIRONMENT: host
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
