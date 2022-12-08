@@ -1,0 +1,16 @@
+diff --git a/node_modules/electron-installer-snap/src/desktop.js b/node_modules/electron-installer-snap/src/desktop.js
+index 3e5a440..6ccf10c 100644
+--- a/node_modules/electron-installer-snap/src/desktop.js
++++ b/node_modules/electron-installer-snap/src/desktop.js
+@@ -37,7 +37,10 @@ function templateScope (userSupplied) {
+     categories: null,
+     mimeType: null
+   }
+-  return Object.assign(defaults, userSupplied)
++  const scope = Object.assign(defaults, userSupplied);
++  delete userSupplied.mimeType;
++  delete userSupplied.categories;
++  return scope;
+ }
+ 
+ module.exports = async function (snapGuiDir, userSupplied) {
