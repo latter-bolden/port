@@ -39,7 +39,7 @@ jobs:
       - name: Build & Publish
         run: |
           yarn run publish
-          snapcraft upload --release=stable out/make/*.snap
+          snapcraft upload --release=stable out/make/x64/*.snap
         env:
           SNAPCRAFT_BUILD_ENVIRONMENT: host
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
