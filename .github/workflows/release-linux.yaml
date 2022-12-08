@@ -26,6 +26,7 @@ jobs:
         run: |
           sudo chown -R $USER:$USER /home/runner
           sudo snap install snapcraft --classic
+          sudo snap install multipass
           echo "$SNAP_TOKEN" | snapcraft login --with -   
         env:
           SNAP_TOKEN: ${{secrets.SNAP_TOKEN}}
