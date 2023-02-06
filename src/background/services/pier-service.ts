@@ -4,11 +4,11 @@ import { exec, spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { shell, ipcRenderer } from 'electron';
 import axios from 'axios'
 import { DB } from '../db'
-import { HandlerEntry } from '../server/ipc'; 
-import { getPlatform, getPlatformPathSegments} from '../../get-platform';
+import { HandlerEntry } from '../server/ipc';
+import { getPlatform, getPlatformPathSegments } from '../../get-platform';
 import { rootPath as root } from 'electron-root-path';
 import appRootDir from 'app-root-dir'
-import { unlink, mkdir, rmdir, access, readFile } from 'fs'
+import { unlink, mkdir, rmdir, access, readFile, readdirSync } from 'fs'
 import { promisify } from 'util'
 import ADMZip from 'adm-zip'
 import mv from 'mv'
@@ -26,14 +26,7 @@ const asyncRead = promisify(readFile);
 const asyncMkdir = promisify(mkdir);
 const asyncExec = promisify(exec);
 
-const binariesPath =
-  IS_PROD // the path to a bundled electron app.
-    ? joinPath(root, ...getPlatformPathSegments(platform), 'resources', platform)
-    : joinPath(appRootDir.get(), 'resources', platform);
-
 const userData = ipcRenderer.sendSync('user-data-path');
-
-console.log({ root, IS_PROD, binariesPath })
 
 export interface PierHandlers {
     'add-pier': PierService["addPier"]
@@ -58,13 +51,12 @@ type BootingPier = Promise<Pier | null> & { recoveryAttempted?: boolean }
 
 export class PierService {
     private readonly db: DB;
-    private readonly urbitPath: string;
+    private urbitPath: string;
     private readonly bootingPiers: Map<string, BootingPier>;
     private pierDirectory: string;
 
     constructor(db: DB) {
         this.db = db;
-        this.urbitPath = joinPath(binariesPath, 'urbit');
         this.bootingPiers = new Map();
 
         ipcRenderer.on('cleanup', async () => {
@@ -103,6 +95,7 @@ export class PierService {
         this.pruneOldLogs();
 
         await this.setPierDirectory();
+        await this.setUrbitPath();
         await this.migrate();
         await this.checkRunningShips();
         await this.recoverShips();
@@ -170,7 +163,7 @@ export class PierService {
             await this.checkPier(pier);
         });
     }
-    
+
     async setPierDirectory(): Promise<void> {
         const pierDirectory = await this.db.settings.asyncFindOne({ name: 'pier-directory' })
         this.pierDirectory = pierDirectory?.value || this.getPierDirectory();
@@ -214,13 +207,13 @@ export class PierService {
             slug: pierSlugify(pierData.name),
             lastUsed: (new Date()).toISOString(),
             status: 'stopped',
-            startupPhase: typeof pierData.startupPhase !== 'undefined' 
+            startupPhase: typeof pierData.startupPhase !== 'undefined'
                 ? pierData.startupPhase
                 : 'never-booted',
             directoryAsPierPath: false,
             ...pierData,
         })
-        
+
         ipcRenderer.invoke('piers', await this.getPiers());
         return pier;
     }
@@ -228,7 +221,7 @@ export class PierService {
     async getPier(slug: string): Promise<Pier | null> {
         return await this.db.piers.asyncFindOne({ slug })
     }
-    
+
     async getPiers(query?: Partial<Pier>): Promise<Pier[] | null> {
         return await this.db.piers.asyncFind(query || {})
     }
@@ -261,7 +254,7 @@ export class PierService {
             code
         }
     }
-    
+
     async validateKeyfile(path: string): Promise<boolean> {
         const keyFile = (await asyncRead(path)).toString()
         const keyPattern = /^\s*0w[1-9A-Za-z~-][\dA-Za-z~-]{0,4}(\.[\dA-Za-z~-]{5})*\s*$/m
@@ -360,7 +353,7 @@ export class PierService {
         } catch (err) {
             console.log(err);
         }
-    
+
         return false;
     }
 
@@ -415,7 +408,7 @@ export class PierService {
 
             this.bootingPiers.delete(updatedPier.slug);
             return updatedPier;
-            
+
         } catch (err) {
             console.error(err);
 
@@ -448,7 +441,7 @@ export class PierService {
                 text: meldResult.stdout,
                 time: (new Date()).toISOString()
             });
-        } catch(err) {
+        } catch (err) {
             console.error('auto error recovery — meld fail:', err);
         }
 
@@ -469,8 +462,8 @@ export class PierService {
     async checkBoot(slug: string): Promise<Pier> {
         const pier = await this.getPier(slug);
         const ports = await this.runningCheck(pier);
-        if (ports) {    
-            return pier.startupPhase !== 'complete'            
+        if (ports) {
+            return pier.startupPhase !== 'complete'
                 ? await this.handlePostInitialBoot(pier, ports)
                 : await this.handlePostBoot(pier, ports);
         }
@@ -493,7 +486,7 @@ export class PierService {
         if (!pier.shipName) {
             pierUpdates.shipName = await this.dojo(`http://localhost:${ports.loopback}`, 'our');
         }
-        
+
         if (pier.keyFile) {
             try {
                 await asyncRm(pier.keyFile);
@@ -571,7 +564,7 @@ export class PierService {
             asyncRmdir(pierPath, { recursive: true })
         }
 
-        await this.db.piers.asyncRemove({ slug: pier.slug })  
+        await this.db.piers.asyncRemove({ slug: pier.slug })
     }
 
     private async stopUrbit(ship: Pier, stopWithSignal = false): Promise<void> {
@@ -608,7 +601,7 @@ export class PierService {
         if (pier.type === 'remote') {
             return;
         }
-        
+
         const stringifiedArgs = this.getSpawnArgs(pier, true).map(arg => arg.replace(/ /g, '\\ ')).join(' ');
         const spawnCommand = `${this.urbitPath} ${stringifiedArgs}`;
 
@@ -638,7 +631,7 @@ export class PierService {
             return pierPath.split(' ').join('\\ ');
 
         return pierPath;
-     }
+    }
 
     private getPierPath(pier: Pier) {
         if (pier.directoryAsPierPath) {
@@ -655,13 +648,23 @@ export class PierService {
         console.log('spawning urbit with ', ...args)
         let urbit: ChildProcessWithoutNullStreams;
         if (runDetached) {
-            urbit = spawn(this.urbitPath, args, { detached: true});
+            urbit = spawn(this.urbitPath, args, { detached: true });
             urbit.unref()
         } else {
             urbit = spawn(this.urbitPath, args);
         }
-        
+
         return urbit;
+    }
+
+    private async setUrbitPath() {
+        const arch = process.arch === 'x64' ? 'x86_64' : 'aarch64';
+        const platformFolder = IS_PROD
+            ? joinPath(root, ...getPlatformPathSegments(platform), 'resources', platform)
+            : joinPath(appRootDir.get(), 'resources', platform);
+
+        const binaryName = readdirSync(platformFolder).find(file => file.includes(arch));
+        this.urbitPath = joinPath(platformFolder, binaryName);
     }
 
     private getSpawnArgs(pier: Pier, interactive = false): string[] {
@@ -743,7 +746,7 @@ export class PierService {
             const onStdOut = async (data) => {
                 const line = data.toString();
                 console.log(`<${pier.name}> ${line}`);
-        
+
                 if (persist) {
                     await this.db.messageLog.asyncInsert({
                         type: 'out',
@@ -752,7 +755,7 @@ export class PierService {
                         time: (new Date()).toISOString()
                     })
                 }
-        
+
                 const ports = await this.runningCheck(pier);
                 if (ports) {
                     urbit.off('close', onClose);
@@ -761,7 +764,7 @@ export class PierService {
                     urbit.stdout.pause();
                     urbit.stderr.off('data', onStdErr);
                     urbit.stdout.off('data', onStdOut);
-                    
+
                     resolve(ports);
                 }
             }
@@ -773,7 +776,7 @@ export class PierService {
         })
     }
 
-    private processExists (pid:number) {
+    private processExists(pid: number) {
         try {
             process.kill(pid, 0)
             return true
@@ -791,8 +794,8 @@ export class PierService {
     }
 
     private async recoverShips() {
-        const bootingShips = await this.db.piers.asyncFind({ 
-            $and: [ { status: 'booting' }, { pid: { $exists: true }}]
+        const bootingShips = await this.db.piers.asyncFind({
+            $and: [{ status: 'booting' }, { pid: { $exists: true } }]
         });
 
         await each(bootingShips, async ship => {
@@ -806,14 +809,14 @@ export class PierService {
                 return this.updatePier(ship.slug, { bootProcessDisconnected: true })
             } else {
                 return pier.startupPhase !== 'complete'
-                    ? await this.updatePier(ship.slug, { status: 'stopped', startupPhase: 'recovery'})
-                    : await this.updatePier(ship.slug, { status: 'stopped'})
+                    ? await this.updatePier(ship.slug, { status: 'stopped', startupPhase: 'recovery' })
+                    : await this.updatePier(ship.slug, { status: 'stopped' })
             }
         })
     }
 }
 
-type PierType = 'comet' | 'moon' | 'planet' | 'star' |  'remote';
+type PierType = 'comet' | 'moon' | 'planet' | 'star' | 'remote';
 
 export interface Pier {
     _id?: string;
@@ -843,7 +846,7 @@ export type AddPier = Pick<Pier, 'name' | 'type' | 'shipName' | 'amesPort' | 'ht
     directoryAsPierPath?: boolean;
 }
 
-export type UpdatePier = Pick<Pier, 'name' | 'type'> 
+export type UpdatePier = Pick<Pier, 'name' | 'type'>
 
 export interface NewMoon {
     name: string;
@@ -871,7 +874,7 @@ export interface BootMessage {
 }
 
 interface PortSet {
-    loopback: number; 
+    loopback: number;
     web: number;
 }
 
