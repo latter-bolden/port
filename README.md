@@ -1,5 +1,20 @@
 # Port
 
+## PORT HAS BEEN DEPRECATED
+Port has been officially deprecated and there will be no additional feature development or bug fixes. [One-click cloud hosting
+solutions are now available](https://urbit.org/getting-started/hosted). We recommend using one of them for getting onto the Urbit network easily and affordably.
+
+For information on migrating a ship from Port to another hosting solution, see [here](https://github.com/latter-bolden/port/wiki/Migrating-from-Port).
+
+Thanks to everyone who used Port over the years! A spiritual successor may be in the cards, stay tuned :)
+
+Much love,
+
+~nocsyx-lassul & ~latter-bolden
+
+<br/><br/>
+
+
 [![awesome urbit badge](https://img.shields.io/badge/~-awesome%20urbit-lightgrey)](https://github.com/urbit/awesome-urbit)
 
 Formerly called Taisho, Port allows you to spin up, access, and manage your ships whether they are comets, planets or potentially stars. It gives people the ability to immediately download and run Urbit without any knowledge of the command line.
